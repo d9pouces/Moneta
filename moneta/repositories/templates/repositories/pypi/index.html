@@ -1,0 +1,28 @@
+{% extends "core/base_package.html" %}{% load staticfiles i18n moneta %}
+
+{% block extrahead %}
+
+{% endblock %}
+
+{% block repo_content %}
+        <h2>{% trans 'Available pip indexes' %}</h2>
+        {% trans 'Add one of these lines to your $HOME/.pip/pip.conf file:' %}
+        {% with view=repo|moneta_url:'simple' %}<ul class='list-unstyled'>
+            <li>
+                <pre>[global]
+extra-index-url = {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug %}{% if use_https %}
+cert = {% trans '/Path/to/your/ROOT/CA.pem' %}{% endif %}</pre>
+            </li>
+            {% for state in states %}
+            <li>
+                <pre>[global]
+extra-index-url = {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug state_slug=state.slug %}{% if use_https %}
+cert = {% trans '/Path/to/your/ROOT/CA.pem' %}{% endif %}</pre>
+            </li>
+            {% endfor %}
+        </ul>{% endwith %}
+        {% if admin %}{% trans 'In order to add a new package, please run the following command:' %}
+        <pre>FILENAME=filename-version(.tar.gz|.tar.bz2|.tar.xz|.whl|.zip|.egg)
+curl --data-binary @$FILENAME -u : --anyauth {{ absolute_url }}{% url 'moneta.core.views.add_element_post' rid=repo.id %}?filename=$FILENAME{% for state in states %}&amp;states={{ state }}{% endfor %}</pre>{% endif %}
+{% include 'core/add_signature.html' %}
+{% endblock %}

@@ -1,0 +1,5 @@
+Archive: {{ repository.slug }}
+Component: {{ state.slug }}
+Origin: {{ repository.name }}
+Label: {{ repository.name }}
+Architecture: {{ architecture }}

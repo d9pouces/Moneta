@@ -1,0 +1,46 @@
+{% extends "core/base_package.html" %}{% load bootstrap3 i18n moneta %}
+{% block bootstrap3_title %}{% trans 'Package' %}{% endblock %}
+
+{% block repo_content %}
+<h2>{% trans 'Package: ' %}{{ element }}</h2>
+<ul class="list-unstyled">
+    <li>{% trans 'Upload date: ' %}<strong>{{ element.modification }}</strong></li>
+    <li>{% trans 'Filesize: ' %}<strong>{{ element.filesize|filesizeformat }}</strong></li>
+{% if element.author %}<li>{% trans 'Author: ' %}<strong>{{ element.author }}</strong></li>
+{% endif %}
+    <li>{% trans 'MD5 sum: ' %} <strong>{{ element.md5 }}</strong></li>
+    <li>{% trans 'SHA1 sum: ' %} <strong>{{ element.sha1 }}</strong></li>
+    <li>{% trans 'SHA256 sum: ' %} <strong>{{ element.sha256 }}</strong></li>
+<li>{% trans 'States: ' %}{% for state in element.states.all %}<strong>{{ state.name }}</strong> {% empty %}{% trans 'No state' %}{% endfor %}</li>
+    <li>
+
+    <p>{% trans 'You can download this file and check if it is not corrupted: ' %}</p>
+    <pre>{{ repo|curl }} -O {{ absolute_url }}{{ element|direct_link }}
+{{ repo|curl }} -o {{ element.filename }}.sha256 {{ absolute_url }}{{ element|checksum:'sha256' }}
+{% if is_os_x %}shasum -a 256 -c {{ element.filename }}.sha256
+{% else %}sha256sum -c {{ element.filename }}{% endif %}</pre>
+    </li>
+    {% for signature in element.elementsignature_set.all %}
+        <li>
+        {% if signature.method == signature.GPG %}
+        <p>{% with author=element.author %}{% blocktrans %}This element has a GPG signature from {{ author }} that you can check: {% endblocktrans %}{% endwith %}</p>
+        <pre>{{ repo|curl }} -o {{ element.filename }}.sig {{ absolute_url }}{{ signature|signature:element }}
+gpg -verify {{ element.filename }}.sig</pre>
+            {% elif signature.method == signature.OPENSSL %}<p>{% trans 'This element has a OpenSSL/x509 signature that you should check:' %}</p>
+            <pre>{{ repo|curl }} -o {{ element.filename }}.ssl {{ absolute_url }}{{ signature|signature:element }}
+openssl x509 -in {% trans 'certificate.pem' %} -pubkey -noout > {{ element.filename }}.pub
+openssl dgst -sha256  -verify  {{ element.filename }}.pub -signature {{ element.filename }}.ssl {{ element.filename }}
+{% endif %}</pre>
+        </li>
+{% endfor %}
+</ul>
+        <div class="btn-group">
+            <a href="{{ element|direct_link }}" class="btn btn-success">
+                {% with filename=element.filename %}{% blocktrans %}Download {{ filename }}
+                {% endblocktrans %}{% endwith %}</a>
+            <a href="{% url 'moneta.core.views.delete_element' rid=repo.id eid=element.id %}" class="btn btn-danger">
+                {% with filename=element.filename %}{% blocktrans %}Delete {{ filename }}
+                {% endblocktrans %}{% endwith %}</a>
+        </div>
+{% endblock %}
+

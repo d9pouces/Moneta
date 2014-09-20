@@ -1,0 +1,12 @@
+{% extends "core/base_package.html" %}{% load bootstrap3 i18n %}
+{% block bootstrap3_title %}{% trans 'Modify repository' %}{% endblock %}
+
+{% block repo_content %}
+    <h2>{% trans 'Modify repository' %}</h2>
+    <form method="post" action="?">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <input class="btn btn-primary" type="submit" value="{% trans 'Modify the repository' %}"/>
+    </form>
+{% endblock %}
+

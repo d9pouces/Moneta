@@ -1,0 +1,29 @@
+{% extends "core/base_package.html" %}{% load staticfiles i18n moneta %}
+
+{% block repo_content %}
+        <h2>{% trans 'Available APT sources' %}</h2>
+        {% with slug=repo.slug %}{% blocktrans %}Add one of these lines to your /etc/apt/sources.list.d/{{ slug }}.list file: {% endblocktrans %}{% endwith %}
+        <ul class='list-unstyled'>
+            {% for state in states %}
+            <li>
+                {% with view=repo|moneta_url:"index" %}<pre>deb {{ absolute_url }}{% url view rid=repo.id %} {{ repo.slug }} {{ state }}</pre>{% endwith %}
+            </li>
+            {% empty %}
+            <li>{% trans 'No package found' %}</li>
+            {% endfor %}
+        </ul>
+        {% if use_https %}
+            {% trans 'Do not forget to install apt-transport-https first.' %}
+            <pre>sudo apt-get install apt-transport-https</pre>
+        {% endif %}
+        {% trans 'Please run the following command to register the GPG key of this repository:' %}
+        {% with view=repo|moneta_url:"gpg_key" %}<pre>curl {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug slug2=repo.slug %} | sudo apt-key add -</pre>{% endwith %}
+        {% if admin %}{% trans 'In order to add a new package, please run the following command:' %}
+        <pre>FILENAME=filename-version.deb
+curl --data-binary @$FILENAME -u : --anyauth {{ absolute_url }}{% url 'moneta.core.views.add_element_post' rid=repo.id %}?filename=$FILENAME{% for state in states %}&amp;states={{ state }}{% endfor %}</pre>
+        {% trans 'Run the following command to re-index packages after an upload:' %}
+        {% with view=repo|auth_moneta_url:"force_index" %}<pre>curl -u : --anyauth {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug %}</pre>{% endwith %}
+        {% endif %}
+    {% include 'core/add_signature.html' %}
+{% endblock %}
+

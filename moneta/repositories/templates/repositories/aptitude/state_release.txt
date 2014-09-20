@@ -1,0 +1,9 @@
+Origin: {{ repository.name }}
+Label: {{ repository.slug }}
+Suite: {{ repository.slug }}
+Codename: {{ repository.slug }}
+Date: {{ date }}
+Valid-Until: {{ until }}
+Architectures:{% for arch in architectures %} {{ arch }}{% endfor %}
+Components:{% for state in states %} {{ state }}{% endfor %}
+Description:

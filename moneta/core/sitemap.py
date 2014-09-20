@@ -1,0 +1,41 @@
+#coding=utf-8
+
+from django.utils.six import u
+
+__author__ = u('flanker')
+
+
+import datetime
+from django.contrib.sitemaps import Sitemap
+from django.core.urlresolvers import reverse
+
+class CoreSiteMap(Sitemap):
+    priority = 0.8
+
+    def items(self):
+        return [
+            (reverse('moneta.core.views.index'), 'daily'),
+        ]
+
+    # noinspection PyMethodMayBeStatic
+    def changefreq(self, obj):
+        return obj[1]
+
+    # noinspection PyMethodMayBeStatic
+    def lastmod(self, obj):
+        today = datetime.date.today()
+        if obj[1] == 'monthly':
+            return datetime.datetime(today.year, today.month, 1)
+        elif obj[1] == 'daily':
+            return datetime.datetime(today.year, today.month, today.day)
+        return datetime.datetime(today.year, today.month, today.day - (today.day % 7) + 1)
+
+    def location(self, obj):
+        return obj[0]
+
+
+if __name__ == '__main__':
+    import doctest
+
+    doctest.testmod()
+

@@ -1,0 +1,88 @@
+{% extends "base.html" %}{% load bootstrap3 i18n %}
+{% block bootstrap3_title %}{% trans 'Configuration help' %}{% endblock %}
+
+{% block bootstrap3_content %}
+    <div class="container">
+        <!-- Example row of columns -->
+        <div class="row">
+            <div class="col-md-12">
+                <h1>{% trans 'Configuration help' %}</h1>
+
+                <h2>{% trans 'Proxy configuration' %}</h2>
+
+                <p>{% blocktrans %}Map <a href="{{ static_url }}">{{ static_url }}</a> to <code>{{ static_root }}</code>
+                    , and <a href="{{ media_url }}">{{ media_url }}</a> to <code>{{ media_root }}</code>
+                    .{% endblocktrans %}</p>
+                {% if debug %}
+                    <div class="alert alert-warning">{% trans 'You should deactivate debug mode.' %}</div>
+                {% endif %}
+                {% if has_secure_proxy_ssl_header %}
+                    <div class="alert alert-success">{% trans 'Secure proxy SSL header is correctly set.' %}</div>
+                {% else %}
+                    <div class="alert alert-warning">{% blocktrans %}Configure your proxy to set the
+                        <code>{{ secure_proxy_ssl_header_name }}</code> header to
+                        <code>{{ secure_proxy_ssl_header_value }}</code>.{% endblocktrans %}</div>
+                {% endif %}
+                {% if has_authentication_header %}
+                    <div class="alert alert-success">{% trans 'Authentication SSL header is correctly set.' %}</div>
+                {% else %}
+                    <div class="alert alert-warning">{% blocktrans %}Configure your proxy to set the username in the
+                        <code>{{ authentication_header }}</code> header.{% endblocktrans %}</div>
+                {% endif %}
+
+                <h2>{% trans 'Moneta configuration' %}</h2>
+            {% if conf_is_set %}
+                    <div class="alert alert-success">{% blocktrans %}Configuration file is <code>{{ conf_path }}</code>.{% endblocktrans %}</div>
+                {% else %}
+                    <div class="alert alert-warning">{% blocktrans %}Configuration file is <code>{{ conf_path }}</code>.
+                    Default values are defined in <code>{{ default_conf_path }}</code>.{% endblocktrans %}
+                    You can specify another file with the <code>{{ settings }}</code> environment variable.
+                    </div>
+
+            {% endif %}
+                {% if has_allowed_host %}
+                    <div class="alert alert-success">{% trans 'HTTP host is correctly allowed in <code>ALLOWED_HOSTS</code>.' %}</div>
+                {% else %}
+                    <div class="alert alert-warning">{% blocktrans %}Add <code>{{ host }}</code> to your
+                        <code>ALLOWED_HOSTS</code>.{% endblocktrans %}</div>
+                {% endif %}
+                {% if gpg_valid %}
+                    <div class="alert alert-success">{% trans '<code>GNUPG_KEYID</code> is valid.' %}</div>
+            {% else %}
+                    <div class="alert alert-warning">{% trans '<code>GNUPG_KEYID</code> is not valid. Available values are:' %}
+                    <ul>
+                        {% for gpg in gpg_available %}
+                    <li>{{ gpg.keyid }} ({% trans 'size: ' %}{{ gpg.length }}{% trans ', fingerprint: ' %}{{ gpg.fingerprint }})</li>
+                            {% empty %}
+                            <li>No available key. Use <code>moneta-admin gpg_gen generate</code> to generate a new GPG key.</li>
+                        {% endfor %}
+                    </ul>
+                    </div>
+            {% endif %}
+
+
+                <h2>{% trans 'Authentication' %}</h2>
+
+                <p>{% trans 'Configure your proxy to ensure authentication for the following roots:' %}</p>
+                <ul>
+                    <li>
+                        <a href="{% url 'moneta.core.views.private_check' %}">{% url 'moneta.core.views.private_check' %}*</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'moneta.repository.views.private_check' %}">{% url 'moneta.repository.views.private_check' %}*</a>
+                    </li>
+                </ul>
+                <p>{% trans 'The following roots should not be authenticated:' %}</p>
+                <ul>
+                    <li>
+                        <a href="{% url 'moneta.core.views.public_check' %}">{% url 'moneta.core.views.public_check' %}*</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'moneta.repository.views.public_check' %}">{% url 'moneta.repository.views.public_check' %}*</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
