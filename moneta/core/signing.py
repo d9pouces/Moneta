@@ -36,7 +36,7 @@ class DSASigner(RSASigner):
         return force_str(signature)
 
 try:
-    GPG = gnupg.GPG(homedir=settings.GNUPG_HOME, binary=settings.GNUPG_PATH)
+    GPG = gnupg.GPG(gnupghome=settings.GNUPG_HOME, gpgbinary=settings.GNUPG_PATH)
 
     class GPGSigner(Signer):
 
@@ -45,11 +45,11 @@ try:
             self.key = str(key or settings.GNUPG_KEYID)
 
         def signature(self, value):
-            return force_str(GPG.sign(value, default_key=self.key, detach=True))
+            return force_str(GPG.sign(value, keyid=self.key, detach=True))
 
         def sign_file(self, fd):
             # noinspection PyProtectedMember
-            return force_str(GPG._sign_file(fd, default_key=self.key, detach=True))
+            return force_str(GPG.sign_file(fd, keyid=self.key, detach=True))
 
         def export_key(self):
             return GPG.export_keys(self.key)
@@ -77,4 +77,5 @@ try:
 
 except ImportError:
     gnupg = None
+    GPG = None
     logging.warning(_('unable to import gnugpg module.'))

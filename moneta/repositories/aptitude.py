@@ -10,7 +10,7 @@ import datetime
 from django.conf import settings
 from django.conf.urls import url
 from django.core.urlresolvers import reverse
-from django.http.response import Http404, StreamingHttpResponse, HttpResponse
+from django.http.response import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.template.loader import render_to_string
@@ -20,7 +20,8 @@ from django.utils.translation import ugettext as _
 from moneta.core.archives import ArFile
 from moneta.core.exceptions import InvalidRepositoryException
 from moneta.core.signing import GPGSigner
-from moneta.core.utils import read_file_in_chunks, parse_control_data
+from moneta.core.utils import parse_control_data
+from moneta.core.views import get_file, sendpath
 from moneta.repositories.base import RepositoryModel
 from moneta.repository.models import storage, Repository, Element, ArchiveState
 
@@ -153,7 +154,8 @@ class Aptitude(RepositoryModel):
             url(r"^(?P<rid>\d+)/dists/(?P<repo_slug>[\w\-\._]+)/(?P<state_slug>[\w\-\._]+)/binary-(?P<arch>[\w\-\.]+)/"
                 r"(?P<filename>Packages|Release)(?P<compression>|.bz2|.gz|.xz)$",
                 self.wrap_view('state_files'), name="state_files"),
-            url(r"^(?P<rid>\d+)/(?P<slug2>[\w\-\._]+)/(?P<repo_slug>[\w\-\._]+).asc$", self.wrap_view('gpg_key'), name="gpg_key"),
+            url(r"^(?P<rid>\d+)/(?P<slug2>[\w\-\._]+)/(?P<repo_slug>[\w\-\._]+).asc$", self.wrap_view('gpg_key'),
+                name="gpg_key"),
             url(r"^(?P<rid>\d+)/$", self.wrap_view('index'), name="index"),
         ]
         return pattern_list
@@ -195,11 +197,7 @@ class Aptitude(RepositoryModel):
         repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
         uid = self.storage_uid % repo.id
         key = storage(settings.STORAGE_CACHE).uid_to_key(uid)
-        fileobj = storage(settings.STORAGE_CACHE).get_file(key, filename)
-        if fileobj is None:
-            raise Http404
-        response = StreamingHttpResponse(read_file_in_chunks(fileobj), content_type=mimetype)
-        return response
+        return sendpath(settings.STORAGE_CACHE, key, filename, mimetype, settings.X_ACCEL_REDIRECT_CACHE)
 
     # noinspection PyUnusedLocal
     def folder_index(self, request, rid, repo_slug, state_slug, folder):
@@ -232,11 +230,7 @@ class Aptitude(RepositoryModel):
         if len(q) == 0:
             raise Http404
         element = q[0]
-        mimetype = element.mimetype
-        fileobj = storage(settings.STORAGE_ARCHIVE).get_file(element.archive_key)
-        response = StreamingHttpResponse(read_file_in_chunks(fileobj), content_type=mimetype)
-        response['Content-Disposition'] = u'attachment; filename={0}'.format(filename)
-        return response
+        return get_file(request, element.id, compression=None, path='', element=element, name=None)
 
     def index(self, request, rid):
         repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)

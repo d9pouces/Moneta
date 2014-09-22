@@ -10,7 +10,7 @@ CONF_IS_SET = False
 # define a root path for misc. Django data (SQLite database, static files, ...)
 LOCAL_PATH = abspath(join(dirname(dirname(dirname(__file__))), 'django_data'))
 
-
+# TO BE CONFIGURED
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
@@ -153,28 +153,40 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.RemoteUserBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+# TO BE CONFIGURED
 PIPELINE_ENABLED = False
+# TO BE CONFIGURED
 PIPELINE_CSS_COMPRESSOR = None
+# TO BE CONFIGURED
 PIPELINE_JS_COMPRESSOR = None
+
 PIPELINE_DISABLE_WRAPPER = True
 STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
+# TO BE CONFIGURED
 CACHES = {'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache', }, }
 
+# TO BE CONFIGURED
 DEBUG = True
+# TO BE CONFIGURED
 TEMPLATE_DEBUG = DEBUG
 
+# TO BE CONFIGURED
 ADMINS = (("flanker", "flanker@19pouces.net"), )
+# TO BE CONFIGURED
 MANAGERS = ADMINS
 
+# TO BE CONFIGURED
 MEDIA_ROOT = join(LOCAL_PATH, 'media')
-UPLOAD_ROOT = 'uploads'
+# TO BE CONFIGURED
 STATIC_ROOT = join(LOCAL_PATH, 'static')
+UPLOAD_ROOT = 'uploads'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
+# TO BE CONFIGURED
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -210,6 +222,7 @@ LOGGING = {
     }
 }
 
+# TO BE CONFIGURED
 STORAGES = {
     'archive': {
         'ENGINE': 'moneta.core.storages.FlatStorage',
@@ -232,23 +245,57 @@ STORAGE_ARCHIVE = 'archive'
 STORAGE_UNCOMPRESSED = 'uncompressed'
 STORAGE_CACHE = 'cache'
 
+# TO BE CONFIGURED
 GNUPG_HOME = os.path.join(LOCAL_PATH, 'gpg')
+# TO BE CONFIGURED
 TEMP_ROOT = os.path.join(LOCAL_PATH, 'tmp')
+# TO BE CONFIGURED
 GNUPG_KEYID = '64BCA36C3C47B697'
+# TO BE CONFIGURED
 GNUPG_PATH = '/usr/local/Cellar/gnupg/1.4.16/bin/gpg'
 
+# TO BE CONFIGURED
 ALLOWED_HOSTS = []
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
+# TO BE CONFIGURED
 TIME_ZONE = 'Europe/Paris'
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
+# TO BE CONFIGURED
 LANGUAGE_CODE = 'fr-fr'
-# FILE_UPLOAD_TEMP_DIR = '/tmp
+# TO BE CONFIGURED
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# TO BE CONFIGURED
 USE_X_FORWARDED_HOST = True
+# TO BE CONFIGURED
 AUTHENTICATION_HEADER = 'REMOTE_USER'
+# TO BE CONFIGURED
 FAKE_AUTHENTICATION_USERNAME = None
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+# TO BE CONFIGURED  => use X-Sendfile header, header['X-Sendfile'] = the absolute_path of the file to send
+USE_X_SEND_FILE = False
+# TO BE CONFIGURED  => use X-Accel-Redirect header, = X_ACCEL_REDIRECT_ARCHIVE + relative path to send
+X_ACCEL_REDIRECT_ARCHIVE = None
+# TO BE CONFIGURED  => use X-Accel-Redirect header, = X_ACCEL_REDIRECT_UNCOMPRESSED + relative path to send
+X_ACCEL_REDIRECT_UNCOMPRESSED = None
+# TO BE CONFIGURED  => use X-Accel-Redirect header, = X_ACCEL_REDIRECT_CACHE + relative path to send
+X_ACCEL_REDIRECT_CACHE = None
+# TO BE CONFIGURED
+EMAIL_HOST = 'localhost'
+# TO BE CONFIGURED
+EMAIL_HOST_PASSWORD = ''
+# TO BE CONFIGURED
+EMAIL_HOST_USER = ''
+# TO BE CONFIGURED
+EMAIL_PORT = 25
+# TO BE CONFIGURED
+EMAIL_SUBJECT_PREFIX = '[Moneta]'
+# TO BE CONFIGURED
+EMAIL_USE_TLS = False
+# TO BE CONFIGURED
+EMAIL_USE_SSL = False
+# TO BE CONFIGURED
+SERVER_EMAIL = 'root@localhost'

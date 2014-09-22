@@ -38,7 +38,7 @@ setup(
     test_suite='moneta.tests',
     install_requires=['six', 'setuptools>=1.0', 'django>=1.7', 'gunicorn', 'django-bootstrap3',
                       'django-pipeline', 'django-grappelli', 'django-debug-toolbar', 'django-smart-selects',
-                      'python-gnupg', 'gnupg'],
+                      'python-gnupg', ],
     setup_requires=['six', 'setuptools>=1.0', 'django>=1.7', 'gunicorn', 'django-bootstrap3',
                     'django-pipeline', 'django-grappelli', 'django-debug-toolbar', 'django-smart-selects',
                     'python-gnupg'],

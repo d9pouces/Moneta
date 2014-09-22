@@ -7,6 +7,7 @@ import os
 import tarfile
 import tempfile
 import zipfile
+import time
 
 from django import forms
 from django.conf import settings
@@ -23,9 +24,7 @@ from django.http import HttpResponseRedirect, Http404, StreamingHttpResponse, Ht
 from django.utils.six import u
 from django.utils.text import slugify
 from django.views.decorators.csrf import csrf_exempt
-import gnupg
-import time
-
+from moneta.core.signing import GPG
 from moneta.core.exceptions import InvalidRepositoryException
 from moneta.core.utils import read_file_in_chunks
 from moneta.repository.forms import RepositoryForm, DeleteRepositoryForm, SignatureForm
@@ -69,9 +68,8 @@ def check(request):
     s_h = settings.SECURE_PROXY_SSL_HEADER
     a_h = settings.AUTHENTICATION_HEADER
     # noinspection PyArgumentList
-    gpg = gnupg.GPG(homedir=settings.GNUPG_HOME, binary=settings.GNUPG_PATH)
     gpg_valid = False
-    for key in gpg.list_keys(False):
+    for key in GPG.list_keys(False):
         if key['keyid'] == settings.GNUPG_KEYID:
             gpg_valid = True
     import moneta.core.defaults
@@ -91,7 +89,7 @@ def check(request):
         'has_secure_proxy_ssl_header': request.META.get(s_h[0], '') == s_h[1],
         'host': request.get_host().rpartition(':')[0],
         'has_allowed_host': request.get_host() in settings.ALLOWED_HOSTS,
-        'gpg_valid': gpg_valid, 'gpg_available': gpg.list_keys(False),
+        'gpg_valid': gpg_valid, 'gpg_available': GPG.list_keys(False),
         'conf_path': getattr(settings, 'CONF_PATH', None), 'conf_is_set': settings.CONF_IS_SET,
         'default_conf_path': default_conf_path, 'settings': real_settings.SETTINGS_VARIABLE
     }
@@ -424,22 +422,15 @@ def get_file(request, eid, compression=None, path='', element=None, name=None):
     # noinspection PyUnusedLocal
     name = name
     if element is None:
-        q = Element.reader_queryset(request).filter(id=eid).select_related()[0:1]
-        elements = list(q)
-        if len(elements) == 0:
-            raise Http404
-        element = elements[0]
+        element = get_object_or_404(Element.reader_queryset(request).select_related(), id=eid)
     arc_storage, arc_key, arc_path = None, None, None
-    filename = element.filename
     mimetype = 'application/octet-stream'
     if element.uncompressed_key and path:
         path = os.path.normpath(path)
         if path.startswith('../'):
             raise Http404
-        filename = os.path.basename(path)
     elif element.uncompressed_key and compression is not None:
         arc_storage, arc_key, arc_path = storage(settings.STORAGE_UNCOMPRESSED), element.uncompressed_key, path
-        filename = os.path.splitext(element.filename)[0]
     elif element.archive_key:
         if compression is not None:
             arc_storage, arc_key, arc_path = storage(settings.STORAGE_ARCHIVE), element.archive_key, ''
@@ -479,17 +470,47 @@ def get_file(request, eid, compression=None, path='', element=None, name=None):
         fileobj = temp_file
         filename = os.path.basename(element.filename) + ext
     elif path:
-        fileobj = storage(settings.STORAGE_UNCOMPRESSED).get_file(element.uncompressed_key, path)
         mimetype = mimetypes.guess_type(path)[0]
         if mimetype is None:
             mimetype = 'application/octet-stream'
+        return sendpath(settings.STORAGE_UNCOMPRESSED, element.uncompressed_key, path, mimetype,
+                        settings.X_ACCEL_REDIRECT_UNCOMPRESSED)
     else:
-        mimetype = element.mimetype
-        fileobj = storage(settings.STORAGE_ARCHIVE).get_file(element.archive_key)
-
+        return sendpath(settings.STORAGE_ARCHIVE, element.archive_key, '', element.mimetype,
+                        settings.X_ACCEL_REDIRECT_ARCHIVE)
     response = StreamingHttpResponse(read_file_in_chunks(fileobj), content_type=mimetype)
     if mimetype[0:4] != 'text' and mimetype[0:5] != 'image':
-        response['Content-Disposition'] = u'attachment; filename={0}'.format(filename)
+        response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
+    return response
+
+
+def sendpath(storage_type, key, path, mimetype, accel_redirect=None):
+    storage_obj = storage(storage_type)
+    filesize = storage_obj.get_size(key, path)
+
+    if settings.USE_X_SEND_FILE:
+        xsend_path = storage_obj.get_path(key, path)
+        if xsend_path is not None:
+            response = HttpResponse(content_type=mimetype)
+            response['Content-Disposition'] = 'attachment; filename={0}'.format(os.path.basename(xsend_path))
+            response['Content-Length'] = filesize
+            response['X-SENDFILE'] = xsend_path
+            return response
+    elif accel_redirect is not None:
+        xsend_path = storage_obj.get_relative_path(key, path)
+        if xsend_path is not None:
+            response = HttpResponse(content_type=mimetype)
+            response['Content-Disposition'] = 'attachment; filename={0}'.format(os.path.basename(xsend_path))
+            response['Content-Length'] = filesize
+            response['X-Accel-Redirect'] = accel_redirect + xsend_path
+            return response
+    fileobj = storage_obj.get_file(key, path)
+    if fileobj is None:
+        raise Http404
+    response = StreamingHttpResponse(read_file_in_chunks(fileobj), content_type=mimetype)
+    if mimetype[0:4] != 'text' and mimetype[0:5] != 'image':
+        response['Content-Disposition'] = 'attachment; filename={0}'.format(os.path.basename(path))
+    response['Content-Length'] = filesize
     return response
 
 

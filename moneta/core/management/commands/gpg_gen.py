@@ -5,7 +5,7 @@ __author__ = 'flanker'
 import optparse
 
 from django.core.management.base import BaseCommand, CommandError
-import gnupg
+from moneta.core.signing import GPG
 
 
 if settings.ADMINS and len(settings.ADMINS[0]) == 2:
@@ -33,17 +33,17 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if len(args) == 0 or args[0] not in ('generate', 'show', 'export'):
             raise CommandError('Usage: gpg_gen <command>')
-        gpg = gnupg.GPG(homedir=settings.GNUPG_HOME, binary=settings.GNUPG_PATH)
+        GPG(gnupghome=settings.GNUPG_HOME, gpgbinary=settings.GNUPG_PATH)
         command = args[0]
         if command == 'generate':
-            input_data = gpg.gen_key_input(key_type=options['type'], key_length=int(options['length']),
+            input_data = GPG.gen_key_input(key_type=options['type'], key_length=int(options['length']),
                                            name_real=options['name'], name_comment=options['comment'],
                                            name_email=options['email'])
-            key = gpg.gen_key(input_data)
+            key = GPG.gen_key(input_data)
             print("Fingerprint", key)
         elif command == 'show':
             print("Available keys:")
-            for key in gpg.list_keys(False):
+            for key in GPG.list_keys(False):
                 print("id (GNUPG_KEYID) : {keyid}, longueur : {length}, empreinte : {fingerprint}".format(**key))
         elif command == 'export':
-            print(gpg.export_keys(settings.GNUPG_KEYID))
+            print(GPG.export_keys(settings.GNUPG_KEYID))

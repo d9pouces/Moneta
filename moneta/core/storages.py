@@ -1,9 +1,12 @@
 # coding=utf-8
+import mimetypes
 import os
 import shutil
 from moneta.core.utils import makedir, remove
 
 __author__ = 'flanker'
+
+mimetypes.init()
 
 
 class BaseStorage(object):
@@ -66,6 +69,26 @@ class BaseStorage(object):
         """
         raise NotImplementedError
 
+    def get_path(self, key, sub_path):
+        """ return an absolute path of the file, or None if does not exist (e.g., database storage).
+
+        :param key: UUID of the Element
+        :param sub_path: relative path to read
+        :return: `str`
+        :raise:
+        """
+        raise NotImplementedError
+
+    def get_relative_path(self, key, sub_path):
+        """ return an relative path of the file to the root, or None if does not exist (e.g., database storage).
+
+        :param key: UUID of the Element
+        :param sub_path: relative path to read
+        :return: `str`
+        :raise:
+        """
+        raise NotImplementedError
+
     def delete(self, key):
         """
         Delete the element from its internal storage
@@ -83,6 +106,9 @@ class BaseStorage(object):
         raise NotImplementedError
 
     def uid_to_key(self, uid):
+        raise NotImplementedError
+
+    def mimetype(self, key, sub_path):
         raise NotImplementedError
 
 
@@ -165,6 +191,29 @@ class FlatStorage(BaseStorage):
             fd = None
         return fd
 
+    def get_path(self, key, sub_path):
+        """ return an absolute path of the file, or None if does not exist (e.g., database storage).
+
+        :param key: UUID of the Element
+        :param sub_path: relative path to read
+        :return: `str`
+        :raise:
+        """
+        components = [self.root, key]
+        if sub_path:
+            components.append(sub_path)
+        return os.path.join(*components)
+
+    def get_relative_path(self, key, sub_path):
+        """ return an relative path of the file to the root, or None if does not exist (e.g., database storage).
+
+        :param key: UUID of the Element
+        :param sub_path: relative path to read
+        :return: `str`
+        :raise:
+        """
+        return os.path.relpath(self.get_path(key, sub_path), self.root)
+
     def get_size(self, key, sub_path):
         components = [self.root, key]
         if sub_path:
@@ -216,6 +265,11 @@ class FlatStorage(BaseStorage):
 
     def split_uid(self, uid):
         return [x for x in uid[0:self.path_len]]
+
+    def mimetype(self, key, sub_path):
+        path = self.get_path(key, sub_path)
+        return mimetypes.guess_type(path)[0] or 'application/octet-stream'
+
 
 if __name__ == '__main__':
     import doctest
