@@ -487,7 +487,7 @@ def get_file(request, eid, compression=None, path='', element=None, name=None):
         mimetype = element.mimetype
         fileobj = storage(settings.STORAGE_ARCHIVE).get_file(element.archive_key)
 
-    response = StreamingHttpResponse(read_file_in_chunks(fileobj), mimetype=mimetype)
+    response = StreamingHttpResponse(read_file_in_chunks(fileobj), content_type=mimetype)
     if mimetype[0:4] != 'text' and mimetype[0:5] != 'image':
         response['Content-Disposition'] = u'attachment; filename={0}'.format(filename)
     return response
