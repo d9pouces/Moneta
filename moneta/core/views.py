@@ -24,10 +24,10 @@ from django.http import HttpResponseRedirect, Http404, StreamingHttpResponse, Ht
 from django.utils.six import u
 from django.utils.text import slugify
 from django.views.decorators.csrf import csrf_exempt
+
 from moneta.core.signing import GPG
 from moneta.core.exceptions import InvalidRepositoryException
 from moneta.core.utils import read_file_in_chunks
-from moneta.repository.forms import RepositoryForm, DeleteRepositoryForm, SignatureForm
 from moneta.repository.models import Repository, ArchiveState, Element, storage, ElementSignature
 
 
@@ -98,6 +98,7 @@ def check(request):
 
 
 def index(request):
+    from moneta.repository.forms import RepositoryForm
     repositories = Repository.index_queryset(request).annotate(package_count=Count('element'))
     if request.method == 'POST':
         form = RepositoryForm(request.POST)
@@ -218,6 +219,7 @@ def search_package(request, rid):
 
 
 def delete_repository(request, rid):
+    from moneta.repository.forms import DeleteRepositoryForm
     repo = get_object_or_404(Repository.admin_queryset(request), id=rid)
     if request.method == 'POST':
         form = DeleteRepositoryForm(request.POST)
@@ -234,6 +236,8 @@ def delete_repository(request, rid):
 
 
 def delete_element(request, rid, eid):
+    from moneta.repository.forms import DeleteRepositoryForm
+
     repo = get_object_or_404(Repository.admin_queryset(request), id=rid)
     element = get_object_or_404(Element.objects.filter(repository=repo, id=eid))
     if request.method == 'POST':
@@ -325,6 +329,7 @@ def add_element(request, rid):
 
 @csrf_exempt
 def add_element_signature(request, rid):
+    from moneta.repository.forms import SignatureForm
     if request.method != 'POST':
         return render_to_response('core/not_allowed.html', status=405)
     form = SignatureForm(request.GET)
@@ -367,7 +372,7 @@ def add_element_post(request, rid):
     tmp_file.flush()
     tmp_file.seek(0)
     if not c:
-        return HttpResponse(_('Empty file. You must POST a valid file.'), status=400)
+        return HttpResponse(_('Empty file. You must POST a valid file.\n'), status=400)
     uploaded_file = UploadedFile(name=form.cleaned_data['filename'], file=tmp_file)
     try:
         element = generic_add_element(request, repo, uploaded_file, form.cleaned_data['states'],
@@ -378,7 +383,7 @@ def add_element_post(request, rid):
     finally:
         tmp_file.close()
     template_values = {'repo': repo, 'element': element}
-    return HttpResponse(_('Package %(element)s successfully added to repository %(repo)s.') % template_values)
+    return HttpResponse(_('Package %(element)s successfully added to repository %(repo)s.\n') % template_values)
 
 
 def show_file(request, eid):
@@ -395,7 +400,7 @@ def show_file(request, eid):
 def get_checksum(request, eid, value):
     element = get_object_or_404(Element.reader_queryset(request), id=eid)
     value = getattr(element, value)
-    return HttpResponse('%s ?%s\n' % (value, element.filename), content_type='text/plain')
+    return HttpResponse('%s %s\n' % (value, element.filename), content_type='text/plain')
 
 
 def get_signature(request, eid, sid):

@@ -3,11 +3,11 @@
 
 {% block repo_content %}
     <h1><a href="{{ repo.get_absolute_url }}">{% blocktrans %}Repository {{ repo }}/{{ state }}{% endblocktrans %}</a></h1>
-    <p>{% blocktrans %}Available packages in <strong>{{ repo }}/{{ state }}/{{ folder }}</strong> {% endblocktrans %}
+    <p>{% blocktrans %}Available packages in <strong>{{ repo }}/{{ request_path }}</strong> {% endblocktrans %}
         <span class="badge">{{ element_count }}</span></p>
-    <ul class="nav nav-pills">
-        {% for element in elements %}
-            <li>{% include 'core/element.html' %}</li>
+    <ul class="list-unstyled">
+        {% for path in paths %}
+            <li><a href="{% url 'maven3:browse' rid=repo.id repo_slug=repo.slug value=path.0 %}">{{ path.1 }}</a></li>
         {% endfor %}
     </ul>
 {% endblock %}

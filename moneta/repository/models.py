@@ -16,7 +16,6 @@ from django.utils.translation import ugettext as _, ugettext
 from moneta.core.exceptions import InvalidRepositoryException
 from moneta.core.utils import normalize_str, remove, import_path
 
-
 __author__ = 'flanker'
 
 
@@ -242,8 +241,8 @@ class Element(BaseModel):
                 raise InvalidRepositoryException(
                     _('Repositories %(repo)s are unable to handle this file.') % {'repo': _(', ').join(exceptions), })
             self.archive_file = None
-        self.full_name = _('%(archive)s-%(version)s %(file)s') % {'archive': self.archive,
-                                                                  'version': self.version, 'file': self.name}
+        self.full_name = _('%(name)s-%(version)s %(filename)s') % {'name': self.name, 'version': self.version,
+                                                                   'filename': self.filename}
         self.full_name_normalized = normalize_str(self.full_name)
         super().save(*args, **kwargs)
 

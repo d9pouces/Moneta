@@ -1,4 +1,4 @@
-#coding=utf-8
+# coding=utf-8
 """ Django settings for Moneta project. """
 from django.utils.six import u
 
@@ -40,7 +40,6 @@ __settings = globals()
 for option_name, option_value in defaults.__dict__.items():
     if option_name == option_name.upper():
         __settings[option_name] = option(option_name, option_value)
-
 
 CONF_IS_SET = __conf_is_set
 

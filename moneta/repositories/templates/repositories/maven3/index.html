@@ -2,24 +2,28 @@
 
 {% block repo_content %}
                 <h2>{% trans 'Maven settings' %}</h2>
-
-                <p>{% trans 'Add one of the following repositories to your $HOME/.m2/settings.xml in the repository section:' %}</p>
-                <ul class="list-unstyled">
-                    {% for setting in maven_settings_xml %}
-                        <li>
-                            <pre>{{ setting }}</pre>
-                        </li>
-                    {% empty %}
-                        <li>{% trans 'No state found' %}</li>
-                    {% endfor %}</ul>
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#all-packages" data-toggle="tab">{% trans 'All packages' %}</a></li>
+            {% for state in states %}
+                <li><a href="#{{ state.slug }}" data-toggle="tab">{{ state.name }}</a></li>
+            {% endfor %}
+        </ul>
+        <div class="tab-content">
+            {% for setting in maven_settings_xml %}
+                <div class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ setting.0 }}">
+                <p>{% trans 'Add the following repositories to your $HOME/.m2/settings.xml in the repository section:' %}</p>
+                    <pre>{{ setting.1 }}</pre>
+                </div>
+            {% endfor %}
+        </div>
                 {% if admin %}<p>{% trans 'In order to add a new Java archive, please run the following command:' %}</p>
                 <pre>FILENAME=filename-version.jar
-curl --data-binary @$FILENAME -u : --anyauth {{ absolute_url }}{% url 'moneta.core.views.add_element_post' rid=repo.id %}?filename=$FILENAME{% for state in states %}&amp;states={{ state }}{% endfor %}</pre>
+curl --data-binary @$FILENAME -u : --anyauth {{ absolute_url }}{% url 'moneta.core.views.add_element_post' rid=repo.id %}\?filename=$FILENAME{% for state in states %}\&amp;states={{ state }}{% endfor %}</pre>
             <p>{% trans 'You can also add generic packages by specifying archive (groupId), name (artifactId, name of the package) and version:' %}</p>
                 <pre>FILENAME=filename-version.XXX
 ARCHIVE=groupId
 NAME=artifactId
 VERSION=version
-curl --data-binary @$FILENAME -u : --anyauth {{ absolute_url }}{% url 'moneta.core.views.add_element_post' rid=repo.id %}?filename=$FILENAME&name=$NAME&archive=$ARCHIVE&version=$VERSION{% for state in states %}&amp;states={{ state }}{% endfor %}</pre>{% endif %}
+curl --data-binary @$FILENAME -u : --anyauth {{ absolute_url }}{% url 'moneta.core.views.add_element_post' rid=repo.id %}\?filename=$FILENAME\&name=$NAME\&archive=$ARCHIVE\&version=$VERSION{% for state in states %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
     {% include 'core/add_signature.html' %}
 {% endblock %}

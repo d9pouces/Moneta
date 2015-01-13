@@ -2,16 +2,35 @@
 
 {% block repo_content %}
         <h2>{% trans 'Available APT sources' %}</h2>
-        {% with slug=repo.slug %}{% blocktrans %}Add one of these lines to your /etc/apt/sources.list.d/{{ slug }}.list file: {% endblocktrans %}{% endwith %}
-        <ul class='list-unstyled'>
+
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#all-packages" data-toggle="tab">{% trans 'All packages' %}</a></li>
             {% for state in states %}
-            <li>
-                {% with view=repo|moneta_url:"index" %}<pre>deb {{ absolute_url }}{% url view rid=repo.id %} {{ repo.slug }} {{ state }}</pre>{% endwith %}
-            </li>
-            {% empty %}
-            <li>{% trans 'No package found' %}</li>
+                <li><a href="#{{ state.slug }}" data-toggle="tab">{{ state.name }}</a></li>
             {% endfor %}
         </ul>
+{% with slug=repo.slug %}
+        <div class="tab-content">
+            <div class="tab-pane active" id="all-packages">
+            {% trans 'Modify your APT sources:' %}
+<pre>cat &lt;&lt; EOF | sudo tee /etc/apt/sources.list.d/{{ slug }}.list{% for state in states %}
+{% with view=repo|moneta_url:"index" %}deb {{ absolute_url }}{% url view rid=repo.id %} {{ repo.slug }} {{ state }}{% endwith %}{% endfor %}
+EOF</pre>
+            </div>
+            {% for state in states %}
+                <div class="tab-pane" id="{{ state.slug }}">
+            {% trans 'Modify your APT sources:' %}
+<pre>cat &lt;&lt; EOF | sudo tee /etc/apt/sources.list.d/{{ slug }}.list
+{% with view=repo|moneta_url:"index" %}deb {{ absolute_url }}{% url view rid=repo.id %} {{ repo.slug }} {{ state }}{% endwith %}
+EOF</pre>
+
+                </div>
+            {% endfor %}
+        </div>
+
+
+{% endwith %}
+
         {% if use_https %}
             {% trans 'Do not forget to install apt-transport-https first.' %}
             <pre>sudo apt-get install apt-transport-https</pre>
@@ -20,7 +39,7 @@
         {% with view=repo|moneta_url:"gpg_key" %}<pre>curl {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug slug2=repo.slug %} | sudo apt-key add -</pre>{% endwith %}
         {% if admin %}{% trans 'In order to add a new package, please run the following command:' %}
         <pre>FILENAME=filename-version.deb
-curl --data-binary @$FILENAME -u : --anyauth {{ absolute_url }}{% url 'moneta.core.views.add_element_post' rid=repo.id %}?filename=$FILENAME{% for state in states %}&amp;states={{ state }}{% endfor %}</pre>
+curl --data-binary @$FILENAME -u : --anyauth {{ absolute_url }}{% url 'moneta.core.views.add_element_post' rid=repo.id %}\?filename=$FILENAME{% for state in states %}\&amp;states={{ state }}{% endfor %}</pre>
         {% trans 'Run the following command to re-index packages after an upload:' %}
         {% with view=repo|auth_moneta_url:"force_index" %}<pre>curl -u : --anyauth {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug %}</pre>{% endwith %}
         {% endif %}

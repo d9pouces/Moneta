@@ -146,7 +146,7 @@ class Pypi(Aptitude):
             url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/rpc/?$",
                 self.wrap_view('xmlrpc', csrf_exempt=True), name="xmlrpc"),
             url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/simple/?$", self.wrap_view('simple'), name="simple"),
-            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/simple/(?P<search_pattern>[a-z\d_\-]*)/?$",
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/simple/(?P<search_pattern>[a-zA-Z\d_\-]*)/?$",
                 self.wrap_view('simple'), name="simple"),
             url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/rpc/?$",
                 self.wrap_view('xmlrpc', csrf_exempt=True), name="xmlrpc"),
@@ -170,17 +170,15 @@ class Pypi(Aptitude):
     def simple(self, request, rid, repo_slug, state_slug=None, search_pattern=''):
         search_pattern = search_pattern.replace('-', '').replace('_', '')
         repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
+        base_query = Element.objects.filter(repository=repo)
         if state_slug:
             state = get_object_or_404(ArchiveState, repository=repo, name=state_slug)
-            elements_list = list(Element.objects.filter(repository=repo, archive=search_pattern, states=state)[0:1])
-        else:
-            elements_list = list(Element.objects.filter(repository=repo, archive=search_pattern)[0:1])
-        if not elements_list:
-            raise Http404  # rid, repo_slug, state_slug, folder, filename
+            base_query = base_query.filter(states=state)
+        if search_pattern:
+            base_query = base_query.filter(archive__iexact=search_pattern)
         view_name = moneta_url(repo, 'get_file')
-        elements = [(x.filename, x.md5, os.path.relpath(reverse(view_name, kwargs={'eid': x.id, }), request.path))
-                    for x in elements_list]
-        template_values = {'elements': elements, 'rid': rid, 'base': request.build_absolute_uri('')}
+        elements = [(x.filename, x.md5, reverse(view_name, kwargs={'eid': x.id, })) for x in base_query[0:1000]]
+        template_values = {'elements': elements, 'rid': rid, 'base': request.build_absolute_uri(''), }
         return render_to_response('repositories/pypi/simple.html', template_values, RequestContext(request))
 
     def xmlrpc(self, request, rid, repo_slug, state_slug):

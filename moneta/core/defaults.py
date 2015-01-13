@@ -74,13 +74,12 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'django.contrib.sites',
     'django.contrib.sitemaps',
-    'grappelli',
     'django.contrib.admin',
-    'pipeline',
     'bootstrap3',
     'moneta.core',
     'moneta.repository',
     'moneta.repositories',
+    'grappelli',
 ]
 
 BOOTSTRAP3 = {
@@ -92,24 +91,6 @@ BOOTSTRAP3 = {
     'horizontal_label_class': 'col-md-2',
     'horizontal_field_class': 'col-md-4',
 }
-
-
-# Pipeline configuration
-
-PIPELINE_JS = {
-    'base': {'source_filenames': ['js/jquery.min.js', 'bootstrap3/js/bootstrap.min.js', ],
-             'output_filename': 'js/base.js', },
-}
-PIPELINE_CSS = {
-    'base': {'source_filenames': ['bootstrap3/css/bootstrap.min.css', ],
-             'output_filename': 'css/base.css', 'extra_context': {'media': 'all'}, }, }
-PIPELINE_MIMETYPES = (
-    ('text/coffeescript', '.coffee'),
-    ('text/less', '.less'),
-    ('text/javascript', '.js'),  # required for IE8
-    ('text/x-sass', '.sass'),
-    ('text/x-scss', '.scss')
-)
 
 
 ARCHIVE_FILTERS = [
@@ -135,7 +116,6 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'moneta.core.middleware.IEMiddleware',
-    'pipeline.middleware.MinifyHTMLMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -153,15 +133,6 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.RemoteUserBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
-# TO BE CONFIGURED
-PIPELINE_ENABLED = False
-# TO BE CONFIGURED
-PIPELINE_CSS_COMPRESSOR = None
-# TO BE CONFIGURED
-PIPELINE_JS_COMPRESSOR = None
-
-PIPELINE_DISABLE_WRAPPER = True
-STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
 # TO BE CONFIGURED
 CACHES = {'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache', }, }
 
@@ -252,7 +223,7 @@ TEMP_ROOT = os.path.join(LOCAL_PATH, 'tmp')
 # TO BE CONFIGURED
 GNUPG_KEYID = '64BCA36C3C47B697'
 # TO BE CONFIGURED
-GNUPG_PATH = '/usr/local/Cellar/gnupg/1.4.16/bin/gpg'
+GNUPG_PATH = '/usr/local/Cellar/gnupg/1.4.18/bin/gpg'
 
 # TO BE CONFIGURED
 ALLOWED_HOSTS = []
@@ -273,7 +244,7 @@ USE_X_FORWARDED_HOST = True
 # TO BE CONFIGURED
 AUTHENTICATION_HEADER = 'REMOTE_USER'
 # TO BE CONFIGURED
-FAKE_AUTHENTICATION_USERNAME = None
+FAKE_AUTHENTICATION_USERNAME = 'flanker'
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 # TO BE CONFIGURED  => use X-Sendfile header, header['X-Sendfile'] = the absolute_path of the file to send
 USE_X_SEND_FILE = False

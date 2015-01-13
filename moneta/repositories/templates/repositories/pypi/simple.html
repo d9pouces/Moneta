@@ -2,5 +2,5 @@
 <head><title>Links for {{ element.archive }}</title><meta name="api-version" value="2" /></head>
 <body>
 <h1>Links for {{ element.archive }}</h1>
-{% for element in elements %}<a href="{{ element.2 }}/{{ element.0 }}#{{ element.1 }}" rel="internal">{{ element.0 }}</a><br/>
+{% for element in elements %}<a href="{{ absolute_url }}{{ element.2 }}{{ element.0 }}#md5={{ element.1 }}" rel="internal">{{ element.0 }}</a><br/>
 {% endfor %}</body></html>

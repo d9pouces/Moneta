@@ -17,7 +17,7 @@ def set_env():
     """Set the path of the configuration file.
     This configuration file must be a valid Python file, which can be put anywhere.
     """
-    conf_path = os.path.abspath(os.path.join('.', 'moneta_configuration.py'))
+    conf_path = os.path.abspath('moneta_configuration.py')
     if not os.path.isfile(conf_path):
         splitted_path = __file__.split(os.path.sep)
         if 'lib' in splitted_path:
@@ -30,7 +30,7 @@ def set_env():
     parser = LaxOptionParser(usage="%prog subcommand [options] [args]", version=get_version(), option_list=[])
     parser.add_option('--conf_file', action='store', default=conf_path, help=u('configuration file'))
     options, args = parser.parse_args(sys.argv)
-    # os.environ.setdefault("MONETA_SETTINGS", options.conf_file)
+    os.environ.setdefault("MONETA_SETTINGS", options.conf_file)
     sys.argv = args
     return args
 

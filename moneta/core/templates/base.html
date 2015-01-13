@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% load bootstrap3 staticfiles compressed %}
+{% load bootstrap3 staticfiles %}
 <html lang="en-US">
 <head>
     <title>Moneta — {% block bootstrap3_title %}{% endblock %}</title>
@@ -8,8 +8,11 @@
     <meta name="robots" content="index, follow"/>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <meta name="keywords" content="moneta"/>
-    
-    {% block pipelineheaders %}{% compressed_css 'base' %}{% compressed_js 'base' %}{% endblock %}
+    <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'bootstrap3/js/bootstrap.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'bootstrap3/css/bootstrap.min.css' %}">
+
+    {% block pipelineheaders %}{% endblock %}
     {% block extraheaders %}{% endblock %}
     <link rel="shortcut icon" href="{% static 'images/favicon.png' %}">
 <!--[if lt IE 9 ]>
@@ -34,7 +37,7 @@
       {% block bootstrap3_footer %}<hr><footer>
       <p>&copy; 2014 Matthieu Gallet</p>
       </footer>{% endblock %}
-    </div> <!-- /container -->
+{#    </div> <!-- /container -->#}
 
 </body>
 </html>

@@ -1,13 +1,7 @@
-#coding=utf-8
+# coding=utf-8
 
-from django.utils.six import u
 
 from moneta.repository.models import Element, Repository
-
-
-__author__ = u('flanker')
-
-
 from django.contrib import admin
 
 

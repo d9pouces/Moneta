@@ -19,7 +19,6 @@ from django.core import exceptions
 from django.http import QueryDict
 from django.utils.importlib import import_module
 from django.utils.translation import ugettext_lazy as _
-import time
 
 
 class ColorizedHandler(logging.StreamHandler):
