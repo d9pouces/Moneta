@@ -39,17 +39,17 @@ TEMPLATE_CONTEXT_PROCESSORS = [
 
 STORAGES = {
     'archive': {
-        'ENGINE': 'moneta.core.storages.FlatStorage',
+        'ENGINE': 'moneta.repository.storages.FlatStorage',
         'ROOT': DirectoryPath('{LOCAL_PATH}/storage/archives'),
         'PATH_LEN': 1,
     },
     'default': {
-        'ENGINE': 'moneta.core.storages.FlatStorage',
+        'ENGINE': 'moneta.repository.storages.FlatStorage',
         'ROOT': DirectoryPath('{LOCAL_PATH}/storage/uncompressed'),
         'PATH_LEN': 1,
     },
     'cache': {
-        'ENGINE': 'moneta.core.storages.FlatStorage',
+        'ENGINE': 'moneta.repository.storages.FlatStorage',
         'ROOT': DirectoryPath('{LOCAL_PATH}/storage/cache'),
         'PATH_LEN': 1,
     }

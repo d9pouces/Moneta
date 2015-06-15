@@ -25,7 +25,7 @@ from django.utils.translation import ugettext as _
 
 from moneta.archives import ArFile
 from moneta.exceptions import InvalidRepositoryException
-from moneta.core.signing import GPGSigner
+from moneta.repository.signing import GPGSigner
 from moneta.utils import parse_control_data
 from moneta.views import get_file, sendpath
 from moneta.repositories.base import RepositoryModel

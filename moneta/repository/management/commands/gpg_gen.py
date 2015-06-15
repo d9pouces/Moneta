@@ -5,7 +5,7 @@ __author__ = 'flanker'
 import optparse
 
 from django.core.management.base import BaseCommand, CommandError
-from moneta.core.signing import GPG
+from moneta.repository.signing import GPG
 
 
 if settings.ADMINS and len(settings.ADMINS[0]) == 2:

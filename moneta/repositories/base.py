@@ -105,11 +105,3 @@ class RepositoryModel(object):
         pattern_list = self.public_url_list()
         urlpatterns = patterns('', *pattern_list)
         return urlpatterns
-
-    def index_base(self, request, name, rid):
-        """
-        Return a HttpResponse
-        :param request: HttpRequest
-        :raise:
-        """
-        raise NotImplementedError

@@ -23,7 +23,7 @@ from django.http import HttpResponseRedirect, Http404, StreamingHttpResponse, Ht
 from django.views.decorators.csrf import csrf_exempt
 from djangofloor.views import send_file
 
-from moneta.core.signing import GPG
+from moneta.repository.signing import GPG
 from moneta.exceptions import InvalidRepositoryException
 from moneta.repository.forms import get_repository_form, RepositoryUpdateForm
 from moneta.utils import read_file_in_chunks
