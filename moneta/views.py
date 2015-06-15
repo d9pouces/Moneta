@@ -18,9 +18,10 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db.models import Count
-from django.http import HttpResponseRedirect, Http404, StreamingHttpResponse, HttpResponse
+from django.http import HttpResponseRedirect, Http404, StreamingHttpResponse, HttpResponse, HttpRequest
 
 from django.views.decorators.csrf import csrf_exempt
+from djangofloor.views import send_file
 
 from moneta.core.signing import GPG
 from moneta.exceptions import InvalidRepositoryException
@@ -35,7 +36,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext_lazy as _
 
 
-def index(request):
+def index(request: HttpRequest):
     repositories = Repository.index_queryset(request).annotate(package_count=Count('element'))
     if not request.user.has_perm('repository.add_repository'):
         form = None
@@ -62,8 +63,9 @@ def index(request):
     return render_to_response('moneta/index.html', template_values, RequestContext(request))
 
 
-def delete_repository(request, rid):
+def delete_repository(request: HttpRequest, rid):
     from moneta.repository.forms import DeleteRepositoryForm
+
     repo = get_object_or_404(Repository.admin_queryset(request), id=rid)
     if request.method == 'POST':
         form = DeleteRepositoryForm(request.POST)
@@ -79,12 +81,12 @@ def delete_repository(request, rid):
     return render_to_response('moneta/delete_repo.html', template_values, RequestContext(request))
 
 
-def public_check(request):
+def public_check(request: HttpRequest):
     messages.success(request, _('You can access to this page.'))
     return render_to_response('moneta/empty.html', RequestContext(request))
 
 
-def private_check(request):
+def private_check(request: HttpRequest):
     if request.user.is_anonymous():
         messages.error(request, _('You are not authenticated.'))
     else:
@@ -92,7 +94,7 @@ def private_check(request):
     return render_to_response('moneta/empty.html', RequestContext(request))
 
 
-def check(request):
+def check(request: HttpRequest):
     s_h = settings.SECURE_PROXY_SSL_HEADER
     a_h = settings.AUTHENTICATION_HEADER
     # noinspection PyArgumentList
@@ -102,6 +104,7 @@ def check(request):
             gpg_valid = True
     import moneta.core.defaults
     import moneta.core.settings as real_settings
+
     default_conf_path = moneta.core.defaults.__file__
     if default_conf_path.endswith('.pyc'):
         default_conf_path = default_conf_path[:-1]
@@ -125,7 +128,7 @@ def check(request):
     return render_to_response('moneta/help.html', template_values, RequestContext(request))
 
 
-def modify_repository(request, rid):
+def modify_repository(request: HttpRequest, rid):
     repo = get_object_or_404(Repository.admin_queryset(request), id=rid)
     author = None if request.user.is_anonymous() else request.user
 
@@ -160,7 +163,7 @@ def modify_repository(request, rid):
     return render_to_response('moneta/modify_repo.html', template_values, RequestContext(request))
 
 
-def search_package(request, rid):
+def search_package(request: HttpRequest, rid):
     repo = get_object_or_404(Repository.reader_queryset(request), id=rid)
 
     class ElementSearchForm(forms.Form):
@@ -198,7 +201,7 @@ def search_package(request, rid):
     return render_to_response('moneta/search_repo.html', template_values, RequestContext(request))
 
 
-def delete_element(request, rid, eid):
+def delete_element(request: HttpRequest, rid, eid):
     from moneta.repository.forms import DeleteRepositoryForm
 
     repo = get_object_or_404(Repository.admin_queryset(request), id=rid)
@@ -215,7 +218,7 @@ def delete_element(request, rid, eid):
     return render_to_response('moneta/delete_element.html', template_values, RequestContext(request))
 
 
-def generic_add_element(request, repo, uploaded_file, state_names, archive=None, name=None, version=None):
+def generic_add_element(request: HttpRequest, repo, uploaded_file, state_names, archive=None, name=None, version=None):
     """ Generic upload (both form-based and raw POST-based methods)
     :param repo: Repository
     :param uploaded_file: UploadedFile
@@ -253,14 +256,14 @@ def generic_add_element(request, repo, uploaded_file, state_names, archive=None,
     element.save()
     states = ArchiveState.objects.filter(repository=repo, slug__in=state_names)
     # remove previous versions
-    Element.states.through.objects.exclude(element__version=element.version)\
+    Element.states.through.objects.exclude(element__version=element.version) \
         .filter(archivestate__in=states, element__archive=element.archive).delete()
     for state in states:
         element.states.add(state)
     return element
 
 
-def add_element(request, rid):
+def add_element(request: HttpRequest, rid):
     repo = get_object_or_404(Repository.admin_queryset(request), id=rid)
 
     class ElementForm(forms.Form):
@@ -291,8 +294,9 @@ def add_element(request, rid):
 
 
 @csrf_exempt
-def add_element_signature(request, rid):
+def add_element_signature(request: HttpRequest, rid):
     from moneta.repository.forms import SignatureForm
+
     if request.method != 'POST':
         return render_to_response('moneta/not_allowed.html', status=405)
     form = SignatureForm(request.GET)
@@ -308,7 +312,7 @@ def add_element_signature(request, rid):
 
 
 @csrf_exempt
-def add_element_post(request, rid):
+def add_element_post(request: HttpRequest, rid):
     repo = get_object_or_404(Repository.admin_queryset(request), id=rid)
     if request.method != 'POST':
         return render_to_response('moneta/not_allowed.html', status=405)
@@ -349,7 +353,7 @@ def add_element_post(request, rid):
     return HttpResponse(_('Package %(element)s successfully added to repository %(repo)s.\n') % template_values)
 
 
-def show_file(request, eid):
+def show_file(request: HttpRequest, eid):
     q = Element.reader_queryset(request).filter(id=eid).select_related()[0:1]
     elements = list(q)
     if len(elements) == 0:
@@ -360,13 +364,13 @@ def show_file(request, eid):
     return render_to_response('moneta/show_package.html', template_values, RequestContext(request))
 
 
-def get_checksum(request, eid, value):
+def get_checksum(request: HttpRequest, eid, value):
     element = get_object_or_404(Element.reader_queryset(request), id=eid)
     value = getattr(element, value)
-    return HttpResponse('%s %s\n' % (value, element.filename), content_type='text/plain')
+    return HttpResponse('%s  %s\n' % (value, element.filename), content_type='text/plain')
 
 
-def get_signature(request, eid, sid):
+def get_signature(request: HttpRequest, eid, sid):
     element = get_object_or_404(Element.reader_queryset(request), id=eid)
     signature = get_object_or_404(ElementSignature, element=element, id=sid)
     value = base64.b64decode(signature.signature)
@@ -374,33 +378,48 @@ def get_signature(request, eid, sid):
     return HttpResponse(value, content_type=mimetype)
 
 
-def get_checksum_p(request, eid, value):
+def get_checksum_p(request: HttpRequest, eid, value):
     return get_checksum(request, eid, value)
 
 
-def get_file_p(request, eid, compression=None, path='', element=None, name=None):
+def get_file_p(request: HttpRequest, eid, compression=None, path='', element=None, name=None):
     return get_file(request, eid, compression=compression, path=path, element=element, name=name)
 
 
-def get_signature_p(request, eid, sid):
+def get_signature_p(request: HttpRequest, eid, sid):
     return get_signature(request, eid, sid)
 
 
-def get_file(request, eid, compression=None, path='', element=None, name=None):
+def get_file(request: HttpRequest, eid: int, compression: str=None, path: str='', element: Element=None, name: str=None):
+    """
+    Send file to the client as a HttpResponse
+    Multiple combinations:
+        * case 1) if path != '' => send a file inside a compressed archive
+        * case 2) elif compression is not None => required uncompressed archive to compress it to the new format
+        * case 3) else => require original file
+
+    :param request:
+    :param eid:
+    :param compression:
+    :param path:
+    :param element: avoid an extra DB query to fetch 
+    :param name:
+    :return:
+    """
     # noinspection PyUnusedLocal
     name = name
     if element is None:
         element = get_object_or_404(Element.reader_queryset(request).select_related(), id=eid)
     arc_storage, arc_key, arc_path = None, None, None
     mimetype = 'application/octet-stream'
-    if element.uncompressed_key and path:
+    if element.uncompressed_key and path:  # case 1
         path = os.path.normpath(path)
         if path.startswith('../'):
             raise Http404
-    elif element.uncompressed_key and compression is not None:
+    elif element.uncompressed_key and compression is not None:  # case 2
         arc_storage, arc_key, arc_path = storage(settings.STORAGE_UNCOMPRESSED), element.uncompressed_key, path
-    elif element.archive_key:
-        if compression is not None:
+    elif element.archive_key:  # case 2 or 3
+        if compression is not None:  # case 2
             arc_storage, arc_key, arc_path = storage(settings.STORAGE_ARCHIVE), element.archive_key, ''
     else:
         raise Http404
@@ -441,37 +460,21 @@ def get_file(request, eid, compression=None, path='', element=None, name=None):
         mimetype = mimetypes.guess_type(path)[0]
         if mimetype is None:
             mimetype = 'application/octet-stream'
-        return sendpath(settings.STORAGE_UNCOMPRESSED, element.uncompressed_key, path, mimetype,
-                        settings.X_ACCEL_REDIRECT_UNCOMPRESSED)
+        return sendpath(settings.STORAGE_UNCOMPRESSED, element.uncompressed_key, path, mimetype)
     else:
-        return sendpath(settings.STORAGE_ARCHIVE, element.archive_key, '', element.mimetype,
-                        settings.X_ACCEL_REDIRECT_ARCHIVE)
+        return sendpath(settings.STORAGE_ARCHIVE, element.archive_key, '', element.mimetype)
     response = StreamingHttpResponse(read_file_in_chunks(fileobj), content_type=mimetype)
     if mimetype[0:4] != 'text' and mimetype[0:5] != 'image':
         response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
     return response
 
 
-def sendpath(storage_type, key, path, mimetype, accel_redirect=None):
+def sendpath(storage_type, key, path, mimetype):
     storage_obj = storage(storage_type)
     filesize = storage_obj.get_size(key, path)
-
-    if settings.USE_X_SEND_FILE:
-        xsend_path = storage_obj.get_path(key, path)
-        if xsend_path is not None:
-            response = HttpResponse(content_type=mimetype)
-            response['Content-Disposition'] = 'attachment; filename={0}'.format(os.path.basename(xsend_path))
-            response['Content-Length'] = filesize
-            response['X-SENDFILE'] = xsend_path
-            return response
-    elif accel_redirect is not None:
-        xsend_path = storage_obj.get_relative_path(key, path)
-        if xsend_path is not None:
-            response = HttpResponse(content_type=mimetype)
-            response['Content-Disposition'] = 'attachment; filename={0}'.format(os.path.basename(xsend_path))
-            response['Content-Length'] = filesize
-            response['X-Accel-Redirect'] = accel_redirect + xsend_path
-            return response
+    full_path = storage_obj.get_path(key, path)
+    if full_path:
+        return send_file(full_path)
     fileobj = storage_obj.get_file(key, path)
     if fileobj is None:
         raise Http404
@@ -482,7 +485,7 @@ def sendpath(storage_type, key, path, mimetype, accel_redirect=None):
     return response
 
 
-def compare_states(request, rid):
+def compare_states(request: HttpRequest, rid):
     repo = get_object_or_404(Repository.reader_queryset(request), id=rid)
     states = ArchiveState.objects.filter(repository=repo)
     operators = {'<': lambda x, y: x < y, '≤': lambda x, y: x <= y, '=': lambda x, y: x == y,
@@ -529,7 +532,7 @@ def compare_states(request, rid):
 
 
 @csrf_exempt
-def test_upload(request):
+def test_upload(request: HttpRequest):
     start = time.time()
     size = 0.
     chunk = request.read(32768)

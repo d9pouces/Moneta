@@ -197,7 +197,7 @@ class Aptitude(RepositoryModel):
         repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
         uid = self.storage_uid % repo.id
         key = storage(settings.STORAGE_CACHE).uid_to_key(uid)
-        return sendpath(settings.STORAGE_CACHE, key, filename, mimetype, settings.X_ACCEL_REDIRECT_CACHE)
+        return sendpath(settings.STORAGE_CACHE, key, filename, mimetype)
 
     # noinspection PyUnusedLocal
     def folder_index(self, request, rid, repo_slug, state_slug, folder):
