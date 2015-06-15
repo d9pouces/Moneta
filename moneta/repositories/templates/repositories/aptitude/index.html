@@ -1,48 +1,41 @@
-{% extends "core/base_package.html" %}{% load staticfiles i18n moneta %}
+{% extends "moneta/base_package.html" %}{% load staticfiles i18n moneta %}
 
 {% block repo_content %}
         <h2>{% trans 'Available APT sources' %}</h2>
 
         <ul class="nav nav-tabs">
-            <li class="active"><a href="#all-packages" data-toggle="tab">{% trans 'All packages' %}</a></li>
-            {% for state in states %}
-                <li><a href="#{{ state.slug }}" data-toggle="tab">{{ state.name }}</a></li>
-            {% endfor %}
+        {% for tab_info in tab_infos %}
+                <li {% if forloop.first %}class="active"{% endif %}><a href="#{{ tab_info.1.slug }}" data-toggle="tab">{{ tab_info.1.name }}</a></li>
+        {% endfor %}
         </ul>
-{% with slug=repo.slug %}
         <div class="tab-content">
-            <div class="tab-pane active" id="all-packages">
+            {% for tab_info in tab_infos %}
+                <div class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ tab_info.1.slug }}">
             {% trans 'Modify your APT sources:' %}
-<pre>cat &lt;&lt; EOF | sudo tee /etc/apt/sources.list.d/{{ slug }}.list{% for state in states %}
-{% with view=repo|moneta_url:"index" %}deb {{ absolute_url }}{% url view rid=repo.id %} {{ repo.slug }} {{ state }}{% endwith %}{% endfor %}
-EOF</pre>
-            </div>
-            {% for state in states %}
-                <div class="tab-pane" id="{{ state.slug }}">
-            {% trans 'Modify your APT sources:' %}
-<pre>cat &lt;&lt; EOF | sudo tee /etc/apt/sources.list.d/{{ slug }}.list
-{% with view=repo|moneta_url:"index" %}deb {{ absolute_url }}{% url view rid=repo.id %} {{ repo.slug }} {{ state }}{% endwith %}
-EOF</pre>
-
-                </div>
-            {% endfor %}
-        </div>
-
-
-{% endwith %}
+<pre>cat &lt;&lt; EOF | sudo tee /etc/apt/sources.list.d/{{ repo.slug }}.list
+{% for state in tab_info.0 %}deb {{ absolute_url }}{{ index_url }} {{ repo.slug }} {{ state }}
+{% endfor %}EOF</pre>
 
         {% if use_https %}
             {% trans 'Do not forget to install apt-transport-https first.' %}
             <pre>sudo apt-get install apt-transport-https</pre>
         {% endif %}
         {% trans 'Please run the following command to register the GPG key of this repository:' %}
-        {% with view=repo|moneta_url:"gpg_key" %}<pre>curl {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug slug2=repo.slug %} | sudo apt-key add -</pre>{% endwith %}
-        {% if admin %}{% trans 'In order to add a new package, please run the following command:' %}
+        {% with view=repo|moneta_url:"gpg_key" %}<pre>{% curl repo %} {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug slug2=repo.slug %} | sudo apt-key add -</pre>{% endwith %}
+        {% trans 'The Release file can be downloaded using cURL:' %}
+        {% with view=repo|moneta_url:"repo_release" %}<pre>{% curl repo %} {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug filename='Release' %}</pre>{% endwith %}
+        {% if admin %}<h3>{% trans 'Add a package' %}</h3>
+            {% trans 'In order to add a new package, please run the following command:' %}
         <pre>FILENAME=filename-version.deb
-curl --data-binary @$FILENAME -u : --anyauth {{ absolute_url }}{% url 'moneta.core.views.add_element_post' rid=repo.id %}\?filename=$FILENAME{% for state in states %}\&amp;states={{ state }}{% endfor %}</pre>
+{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta.views.add_element_post' rid=repo.id %}\?filename=$FILENAME{% for state in tab_info.0 %}\&amp;states={{ state.slug }}{% endfor %}</pre>
         {% trans 'Run the following command to re-index packages after an upload:' %}
-        {% with view=repo|auth_moneta_url:"force_index" %}<pre>curl -u : --anyauth {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug %}</pre>{% endwith %}
+        {% with view=repo|auth_moneta_url:"force_index" %}<pre>{% curl %} {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug %}</pre>{% endwith %}
         {% endif %}
-    {% include 'core/add_signature.html' %}
+                </div>
+            {% endfor %}
+
+        </div>
+
+    {% include 'moneta/add_signature.html' %}
 {% endblock %}
 

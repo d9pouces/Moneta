@@ -7,6 +7,7 @@ import gnupg
 import logging
 
 __author__ = 'flanker'
+logger = logging.getLogger('django.requests')
 
 
 class RSASigner(Signer):
@@ -78,4 +79,4 @@ try:
 except ImportError:
     gnupg = None
     GPG = None
-    logging.warning(_('unable to import gnugpg module.'))
+    logger.error(_('unable to import gnugpg module.'))

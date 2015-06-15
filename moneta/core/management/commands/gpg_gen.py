@@ -1,4 +1,4 @@
-#coding=utf-8
+# -*- coding=utf-8 -*-
 from django.conf import settings
 
 __author__ = 'flanker'
@@ -33,7 +33,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if len(args) == 0 or args[0] not in ('generate', 'show', 'export'):
             raise CommandError('Usage: gpg_gen <command>')
-        GPG(gnupghome=settings.GNUPG_HOME, gpgbinary=settings.GNUPG_PATH)
         command = args[0]
         if command == 'generate':
             input_data = GPG.gen_key_input(key_type=options['type'], key_length=int(options['length']),

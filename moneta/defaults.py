@@ -5,7 +5,8 @@ __author__ = 'flanker'
 from django.utils.translation import ugettext_lazy as _
 
 FLOOR_URL_CONF = 'moneta.root_urls.urls'
-FLOOR_INSTALLED_APPS = ['moneta', 'moneta.repositories', 'moneta.repository', ]
+EXTRA_INSTALLED_APP = 'bootstrap3'
+FLOOR_INSTALLED_APPS = ['moneta', 'moneta.repositories', 'moneta.core', 'moneta.repository', '{EXTRA_INSTALLED_APP}']
 FLOOR_INDEX = 'moneta.views.index'
 FLOOR_PROJECT_NAME = _('Moneta')
 
@@ -66,6 +67,6 @@ GNUPG_HOME = DirectoryPath('{LOCAL_PATH}/gpg')
 # TO BE CONFIGURED
 TEMP_ROOT = DirectoryPath('{LOCAL_PATH}/tmp')
 # TO BE CONFIGURED
-GNUPG_KEYID = '64BCA36C3C47B697'
+GNUPG_KEYID = '1DA759EA7F5EF06F'
 # TO BE CONFIGURED
 GNUPG_PATH = '/usr/local/Cellar/gnupg/1.4.18/bin/gpg'

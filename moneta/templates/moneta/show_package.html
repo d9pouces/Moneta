@@ -15,8 +15,8 @@
     <li>
 
     <p>{% trans 'You can download this file and check if it is not corrupted: ' %}</p>
-    <pre>{{ repo|curl }} -O {{ absolute_url }}{{ element|direct_link }}
-{{ repo|curl }} -o {{ element.filename }}.sha256 {{ absolute_url }}{{ element|checksum:'sha256' }}
+    <pre>{% curl repo %} -O {{ absolute_url }}{{ element|direct_link }}
+{% curl repo %} -o {{ element.filename }}.sha256 {{ absolute_url }}{{ element|checksum:'sha256' }}
 {% if is_os_x %}shasum -a 256 -c {{ element.filename }}.sha256
 {% else %}sha256sum -c {{ element.filename }}.sha256{% endif %}</pre>
     </li>
@@ -24,10 +24,10 @@
         <li>
         {% if signature.method == signature.GPG %}
         <p>{% with author=element.author %}{% blocktrans %}This element has a GPG signature from {{ author }} that you can check: {% endblocktrans %}{% endwith %}</p>
-        <pre>{{ repo|curl }} -o {{ element.filename }}.sig {{ absolute_url }}{{ signature|signature:element }}
+        <pre>{% curl repo %} -o {{ element.filename }}.sig {{ absolute_url }}{{ signature|signature:element }}
 gpg -verify {{ element.filename }}.sig</pre>
             {% elif signature.method == signature.OPENSSL %}<p>{% trans 'This element has a OpenSSL/x509 signature that you should check:' %}</p>
-            <pre>{{ repo|curl }} -o {{ element.filename }}.ssl {{ absolute_url }}{{ signature|signature:element }}
+            <pre>{% curl repo %} -o {{ element.filename }}.ssl {{ absolute_url }}{{ signature|signature:element }}
 openssl x509 -in {% trans 'certificate.pem' %} -pubkey -noout > {{ element.filename }}.pub
 openssl dgst -sha256  -verify  {{ element.filename }}.pub -signature {{ element.filename }}.ssl {{ element.filename }}
 {% endif %}</pre>

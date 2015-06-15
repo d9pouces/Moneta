@@ -2,8 +2,7 @@
 from bootstrap3.templatetags.bootstrap3 import get_pagination_context
 from django import template
 from django.core.urlresolvers import reverse
-from django.http import HttpRequest
-from moneta.repository.models import Element, Repository
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -44,12 +43,6 @@ def signature(signature_, element=None):
 
 
 @register.filter
-def curl(repo):
-    if repo.is_private:
-        return 'curl -u : --anyauth'
-    return 'curl'
-
-@register.filter
 def auth_moneta_url(repo, view_name='index'):
     return 'auth-%s:%s' % (repo.archive_type, view_name)
 
@@ -79,3 +72,26 @@ def bootstrap_pagination_extra(page, search=None):
 
     pagination_kwargs = {'extra': 'search=%s' % search, 'page': page}
     return get_pagination_context(**pagination_kwargs)
+
+
+class CurlNode(template.Node):
+
+    def __init__(self, repo=None):
+        super().__init__()
+        self.repo_token = repo
+
+    def render(self, context):
+        if self.repo_token and not context[self.repo_token].is_private:
+            return mark_safe('curl')
+        if context['df_remote_authenticated']:
+            return mark_safe('curl --anyauth -u :')
+        return mark_safe('curl --basic -u $USERNAME:$PASSWORD')
+
+
+# noinspection PyUnusedLocal
+@register.tag('curl')
+def do_curl(parser, token):
+    bits = list(token.split_contents())
+    tagname = bits[0]
+    repo = bits[1] if len(bits) > 1 else None
+    return CurlNode(repo)

@@ -1,10 +1,16 @@
 import gzip
 import hashlib
-import lzma
 import os.path
 import tarfile
 import tempfile
+# noinspection PyCompatibility
 import bz2
+from moneta.templatetags.moneta import moneta_url
+
+try:
+    import lzma
+except ImportError:
+    lzma = None
 import datetime
 
 from django.conf import settings
@@ -17,7 +23,7 @@ from django.template.loader import render_to_string
 from django.utils.timezone import get_current_timezone
 from django.utils.translation import ugettext as _
 
-from moneta.core.archives import ArFile
+from moneta.archives import ArFile
 from moneta.exceptions import InvalidRepositoryException
 from moneta.core.signing import GPGSigner
 from moneta.utils import parse_control_data
@@ -87,7 +93,7 @@ class Aptitude(RepositoryModel):
             tar_file = tarfile.open(name='data', mode='r:*', fileobj=data_file)
             members = tar_file.getmembers()
             members = filter(lambda x: x.isfile(), members)
-            names = [x.path[2:] for x in members]
+            names = [x.path[2:].decode() for x in members]
             tar_file.close()
             ar_file.close()
             archive_file.close()
@@ -98,7 +104,7 @@ class Aptitude(RepositoryModel):
             storage(settings.STORAGE_CACHE).store_descriptor(uid, cache_filename, tmpfile)
             tmpfile.close()
         else:
-            names = [line.strip() for line in fileobj]
+            names = [line.strip().decode() for line in fileobj]
             fileobj.close()
         return names
 
@@ -138,6 +144,9 @@ class Aptitude(RepositoryModel):
         :return: a patterns as expected by django
 
         """
+        compression = '(?P<compression>|.bz2|.gz|.xz)'
+        if lzma is None:
+            compression = '(?P<compression>|.bz2|.gz)'
         pattern_list = [
             url(r"^(?P<rid>\d+)/pool/(?P<repo_slug>[\w\-\._]+)/(?P<state_slug>[\w\-\._]+)/(?P<folder>[\w\-\.]+)/$",
                 self.wrap_view('folder_index'), name="folder_index"),
@@ -147,12 +156,12 @@ class Aptitude(RepositoryModel):
             url(r"^(?P<rid>\d+)/dists/(?P<repo_slug>[\w\-\._]+)/(?P<filename>Release|Release.gpg)$",
                 self.wrap_view('repo_release'), name="repo_release"),
             url(r"^(?P<rid>\d+)/dists/(?P<repo_slug>[\w\-\._]+)/Contents-(?P<arch>[\w]+)"
-                r"(?P<compression>|.gz|.bz2|.xz)$", self.wrap_view('arch_contents'), name="arch_contents"),
+                r"%s$" % compression, self.wrap_view('arch_contents'), name="arch_contents"),
             url(r"^(?P<rid>\d+)/dists/(?P<repo_slug>[\w\-\._]+)/(?P<state_slug>[\w\-\._]+)/"
-                r"Contents-(?P<arch>[\w\-\.]+)(?P<compression>|.gz|.bz2|.xz)$",
+                r"Contents-(?P<arch>[\w\-\.]+)%s$" % compression,
                 self.wrap_view('state_contents'), name="state_contents"),
             url(r"^(?P<rid>\d+)/dists/(?P<repo_slug>[\w\-\._]+)/(?P<state_slug>[\w\-\._]+)/binary-(?P<arch>[\w\-\.]+)/"
-                r"(?P<filename>Packages|Release)(?P<compression>|.bz2|.gz|.xz)$",
+                r"(?P<filename>Packages|Release)%s$" % compression,
                 self.wrap_view('state_files'), name="state_files"),
             url(r"^(?P<rid>\d+)/(?P<slug2>[\w\-\._]+)/(?P<repo_slug>[\w\-\._]+).asc$", self.wrap_view('gpg_key'),
                 name="gpg_key"),
@@ -235,7 +244,12 @@ class Aptitude(RepositoryModel):
     def index(self, request, rid):
         repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
         states = [state for state in ArchiveState.objects.filter(repository=repo).order_by('name')]
-        template_values = {'repo': repo, 'states': states, 'admin': True, 'admin_allowed': repo.admin_allowed(request)}
+        tab_infos = [(states, ArchiveState(name=_('All states'), slug='all-states')), ]
+        tab_infos += [([state], state) for state in states]
+
+        template_values = {'repo': repo, 'states': states, 'admin': True, 'admin_allowed': repo.admin_allowed(request),
+                           'index_url': reverse(moneta_url(repo, 'index'), kwargs={'rid': repo.id, }),
+                           'tab_infos': tab_infos, }
         return render_to_response('repositories/aptitude/index.html', template_values, RequestContext(request))
 
     # noinspection PyUnusedLocal
@@ -243,23 +257,6 @@ class Aptitude(RepositoryModel):
         repo = get_object_or_404(Repository.admin_queryset(request), id=rid, archive_type=self.archive_type)
         self.generate_indexes(repo)
         return HttpResponse(_('Indexes have been successfully rebuilt.'))
-
-    # def index_status(self, repository):
-    #     uid = self.storage_uid % repository.id
-    #     groups = list(Group.objects.all()) + [None]
-    #     result = {}
-    #         filename = 'dists/%(group)s/Release' % {'group': group_name, }
-    #         fd = storage(settings.STORAGE_CACHE).get_file(uid, filename)
-    #         result[group_name] = [], [], None, None
-    #         if fd is None:
-    #             continue
-    #         data = parse_control_data(fd.read())
-    #         fd.close()
-    #         if 'SHA1' not in data:
-    #             continue
-    #         result[group_name] = (data['Architectures'], data['Components'], data['Valid-Until'], data['Date'])
-    #     return result
-    #
 
     @staticmethod
     def compress_files(open_files, root, uid):
@@ -273,7 +270,10 @@ class Aptitude(RepositoryModel):
             bz2_file = tempfile.TemporaryFile(mode='w+b')
             xz_file = tempfile.TemporaryFile(mode='w+b')
             bz2_compressor = bz2.BZ2Compressor(9)
-            xz_compressor = lzma.LZMACompressor()
+            if lzma is not None:
+                xz_compressor = lzma.LZMACompressor()
+            else:
+                xz_compressor = bz2_compressor
             with gzip.GzipFile(gz_filename, mode='wb', compresslevel=9, fileobj=gz_file) as fd_gz:
                 data = package_file.read(10240)
                 while data:
@@ -283,8 +283,10 @@ class Aptitude(RepositoryModel):
                     data = package_file.read(10240)
             bz2_file.write(bz2_compressor.flush())
             xz_file.write(xz_compressor.flush())
-            for obj, name in ((package_file, filename), (gz_file, gz_filename), (bz2_file, bz2_filename),
-                              (xz_file, xz_filename)):
+            all_files = [(package_file, filename), (gz_file, gz_filename), (bz2_file, bz2_filename), ]
+            if lzma is not None:
+                all_files.append((xz_file, xz_filename))
+            for obj, name in all_files:
                 obj.flush()
                 obj.seek(0)
                 data = obj.read(10240)
@@ -304,15 +306,18 @@ class Aptitude(RepositoryModel):
         return hash_controls
 
     def generate_indexes(self, repository, states=None, validity=365):
+        default_architectures = {'amd64', }
         uid = self.storage_uid % repository.id
         repo_slug = repository.slug
         root_url = reverse('%s:index' % self.archive_type, kwargs={'rid': repository.id, })
+        if repository.is_private:
+            root_url = 'authb-%s' % root_url
         if states is None:
             states = list(ArchiveState.objects.filter(repository=repository).order_by('name'))
         states = [state for state in states if
                   Element.objects.filter(repository=repository, states=state).count() > 0]
 
-        all_architectures = set()
+        all_states_architectures = set()
         all_states = set()
         open_files = {}
         complete_file_list = {}
@@ -321,29 +326,27 @@ class Aptitude(RepositoryModel):
         for element in Element.objects.filter(repository=repository):
             control_data = parse_control_data(element.extra_data)
             architecture = control_data.get('Architecture', 'all')
-            if architecture != 'all':
-                all_architectures.add(architecture)
+            all_states_architectures.add(architecture)
             # build the following files:
         #   * dists/(group)/(state)/binary-(architecture)/Packages
         #   * dists/(group)/(state)/binary-(architecture)/Release
         # prepare data for:
         #   * dists/(group)/Contents-(architecture)
+        if not all_states_architectures or all_states_architectures == {'all'}:
+            all_states_architectures = default_architectures
         for state in states:
-            architectures = set()
+            state_architectures = set()
             all_states.add(state.name)
-            if len(architectures) == 0:
-                architectures = {'all'}
-                # we process elements
             for element in Element.objects.filter(repository=repository, states=state).order_by('filename'):
                 control_data = parse_control_data(element.extra_data)
                 architecture = control_data.get('Architecture', 'all')
                 section = control_data.get('Section', 'contrib')
                 package_file_list = ["%- 100s%s\n" % (x, section) for x in self.file_list(element, uid)]
-                elt_architectures = (architecture, )
                 if architecture == 'all':
-                    elt_architectures = all_architectures
+                    elt_architectures = default_architectures
                 else:
-                    architectures.add(architecture)
+                    elt_architectures = (architecture, )
+                state_architectures |= elt_architectures
                 for architecture in elt_architectures:
                     complete_file_list.setdefault(architecture, [])
                     complete_file_list[architecture] += package_file_list
@@ -365,7 +368,10 @@ class Aptitude(RepositoryModel):
                     package_url = os.path.relpath(package_url, root_url)
                     package_file.write("Filename: {0}\n".format(package_url).encode('utf-8'))
                     package_file.write("\n".encode('utf-8'))
-            for architecture in architectures:
+            if len(state_architectures) == 0:
+                state_architectures = default_architectures
+                # we process elements
+            for architecture in state_architectures:
                 filename = 'dists/%(repo)s/%(state)s/binary-%(architecture)s/Release' % {
                     'repo': repo_slug, 'state': state.slug, 'architecture': architecture,
                 }
@@ -396,7 +402,7 @@ class Aptitude(RepositoryModel):
         now_str = now.strftime('%a, %d %b %Y %H:%M:%S %z')  # 'Mon, 29 Nov 2010 08:12:51 UTC'
         until = (now + datetime.timedelta(validity)).strftime('%a, %d %b %Y %H:%M:%S %z')
         content = render_to_string('repositories/aptitude/state_release.txt',
-                                   {'architectures': all_architectures, 'until': until,
+                                   {'architectures': all_states_architectures, 'until': until,
                                     'states': all_states, 'repository': repository, 'date': now_str})
         release_file.write(content.encode('utf-8'))
         for hash_value, index in (('MD5Sum', 1), ('SHA1', 2), ('SHA256', 3)):

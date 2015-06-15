@@ -1,4 +1,5 @@
 # coding=utf-8
+# noinspection PyCompatibility
 import bz2
 import gzip
 import hashlib
@@ -7,7 +8,7 @@ import os
 import tarfile
 import zipfile
 
-from moneta.core.archives import ArFile
+from moneta.archives import ArFile
 from moneta.utils import mkdtemp
 
 
@@ -51,7 +52,7 @@ def compressions(element, open_file, filename, temp_files, uncompressed_path=Non
         temp_files.add(result_file)  # ensure that all extracted files are eventually deleted
         obj = zipfile.ZipFile(open_file, 'r')
         members = filter(lambda x: os.path.abspath(os.path.join(result_file, x)).find(result_file) == 0, obj.namelist())
-        #^ filter members that should be created outside temp_dir (e.g. names begin with /)
+        # filter members that should be created outside temp_dir (e.g. names begin with /)
         obj.extractall(result_file, members)
         obj.close()
     elif extension == '.gz':
@@ -90,7 +91,7 @@ def compressions(element, open_file, filename, temp_files, uncompressed_path=Non
         members = filter(lambda x: x.type in (tarfile.REGTYPE, tarfile.DIRTYPE) and
                          os.path.abspath(os.path.join(result_file, x.name)).find(result_file) == 0,
                          obj.getmembers())
-        #^ filter members that should be created outside temp_dir (e.g. names begin with /)
+        # filter members that should be created outside temp_dir (e.g. names begin with /)
         obj.extractall(result_file, members)
         obj.close()
     if result_file and os.path.isdir(result_file):
@@ -133,12 +134,12 @@ def deb_archive(element, open_file, filename, temp_files, uncompressed_path=None
     result_file = mkdtemp()  # create a new temp directory
     temp_files.add(result_file)  # ensure that all extracted files are eventually deleted
     tar_file_obj = tarfile.open(name='data.tar.gz', fileobj=data_file_obj, mode='r:gz')
-        # allow to extract files from the data.tar.gz from the .deb file
-        # all these operations use the same original file descriptor (no need to really extract the data.tar.gz file)
+    # allow to extract files from the data.tar.gz from the .deb file
+    # all these operations use the same original file descriptor (no need to really extract the data.tar.gz file)
     members = filter(lambda x: x.type in (tarfile.REGTYPE, tarfile.DIRTYPE) and
                      os.path.abspath(os.path.join(result_file, x.name)).find(result_file) == 0,
                      tar_file_obj.getmembers())
-    #filter members that should be created outside temp_dir (e.g. names begin with /)
+    # filter members that should be created outside temp_dir (e.g. names begin with /)
     tar_file_obj.extractall(result_file, members)
     tar_file_obj.close()
     data_file_obj.close()

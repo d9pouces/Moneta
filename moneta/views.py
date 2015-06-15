@@ -165,10 +165,12 @@ def modify_repository(request: HttpRequest, rid):
 
 def search_package(request: HttpRequest, rid):
     repo = get_object_or_404(Repository.reader_queryset(request), id=rid)
+    repo_states = list(ArchiveState.objects.filter(repository=repo))
 
     class ElementSearchForm(forms.Form):
         search = forms.CharField(label=_('Search'), help_text=_('Type your search'), max_length=200, required=False)
         states = forms.ModelMultipleChoiceField(label=_('Selected states'), required=False,
+                                                initial=repo_states,
                                                 queryset=ArchiveState.objects.filter(repository=repo), )
         states.help_text = ''
 
@@ -184,6 +186,8 @@ def search_package(request: HttpRequest, rid):
             query = query.filter(full_name__icontains=search_pattern)
         if form.cleaned_data['states']:
             query = query.filter(states__in=form.cleaned_data['states']).distinct()
+    else:
+        query = query.filter(states__in=repo_states).distinct()
 
     paginator = Paginator(query.order_by('full_name'), 25)
     page = request.GET.get('page')

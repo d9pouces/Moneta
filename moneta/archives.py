@@ -105,8 +105,9 @@ class ArFile(object):
         magic = data[58:60]  # byte
         if magic != b'\x60\x0a':
             return None
-        ar_info = ArInfo(data[0:16].strip().decode('utf-8'))
-        ar_info.filename = data[0:16].strip().decode('utf-8')
+        assert isinstance(data, bytes)
+        ar_info = ArInfo(data[0:16].decode('utf-8').strip())
+        ar_info.filename = data[0:16].decode('utf-8').strip()
         ar_info.timestamp = data[16:28]
         ar_info.owner_id = data[28:34]
         ar_info.group_id = data[34:40]

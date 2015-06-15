@@ -1,9 +1,9 @@
-{% load i18n %}
+{% load i18n moneta %}
 <p>{% trans 'You should also add a GPG signature:' %}</p>
 <pre>{% if is_os_x %}SHASUM=`shasum -a 256 $FILENAME | cut -d ' ' -f 1`{% else %}SHASUM=`sha256 $FILENAME | cut -d ' ' -f 1`{% endif %}
 gpg -b $FILENAME
-curl --data-binary @$FILENAME.sig -u : --anyauth {{ absolute_url }}{% url 'moneta.core.views.add_element_signature' rid=repo.id %}\?method=gpg\&sha256=$SHASUM</pre>
+{% curl %} --data-binary @$FILENAME.sig {{ absolute_url }}{% url 'moneta.views.add_element_signature' rid=repo.id %}\?method=gpg\&sha256=$SHASUM</pre>
 <p>{% trans 'Or a OpenSSL/x509 signature:' %}</p>
 <pre>{% if is_os_x %}SHASUM=`shasum -a 256 $FILENAME | cut -d ' ' -f 1`{% else %}SHASUM=`sha256 $FILENAME | cut -d ' ' -f 1`{% endif %}
 openssl dgst -sha256 -sign {% trans 'privatekey.pem' %} -out $FILENAME.ssl $FILENAME
-curl --data-binary @$FILENAME.ssl -u : --anyauth {{ absolute_url }}{% url 'moneta.core.views.add_element_signature' rid=repo.id %}\?method=gpg\&sha256=$SHASUM</pre>
+{% curl %} --data-binary @$FILENAME.ssl {{ absolute_url }}{% url 'moneta.views.add_element_signature' rid=repo.id %}\?method=gpg\&sha256=$SHASUM</pre>

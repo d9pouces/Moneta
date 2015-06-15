@@ -1,8 +1,8 @@
 {% load i18n moneta %}
 <h3>{{ element }}</h3>
 <ul class="list-unstyled">
-    <li>{% trans 'Filesize: ' %} {{ element.filesize|filesizeformat }}</li>
-    <li>{% trans 'States: ' %}{% for state in element.states.all %}{{ state.name }} {% empty %}{% trans 'No state' %}{% endfor %}</li>
+    <li>{% trans 'Filesize: ' %} <strong>{{ element.filesize|filesizeformat }}</strong></li>
+    <li>{% trans 'States: ' %}<strong>{% for state in element.states.all %}{{ state.name }} {% empty %}{% trans 'No state' %}{% endfor %}</strong></li>
     <li>
         <div class="btn-group">
             <a href="{{ element|direct_link }}" class="btn btn-success btn-xs">
