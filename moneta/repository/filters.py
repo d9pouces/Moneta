@@ -8,7 +8,7 @@ import tarfile
 import zipfile
 
 from moneta.core.archives import ArFile
-from moneta.core.utils import mkdtemp
+from moneta.utils import mkdtemp
 
 
 __author__ = 'flanker'

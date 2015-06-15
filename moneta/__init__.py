@@ -1,7 +1,3 @@
-#coding=utf-8
-
-
-from six import u
-
-__author__ = u('flanker')
-
+# coding=utf-8
+__version__ = '1.5'
+__author__ = 'flanker'

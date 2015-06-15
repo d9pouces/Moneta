@@ -1,8 +1,32 @@
+from django.conf import settings
 from django.http import HttpResponseBadRequest
+from moneta.utils import import_path
 
 __author__ = 'flanker'
 from django.utils.translation import ugettext_lazy as _
 from django.conf.urls import patterns
+
+
+class RepositoryModelsClasses(object):
+    _models = None
+
+    @classmethod
+    def get_model(cls, cls_name):
+        return cls.get_models()[cls_name]
+
+    @classmethod
+    def get_models(cls):
+        if cls._models is None:
+            # noinspection PyPep8Naming
+            cls._models = {}
+            for mw_path in settings.REPOSITORY_CLASSES:
+                modelcls = import_path(mw_path)()
+                cls._models[modelcls.archive_type] = modelcls
+        return cls._models
+
+    def __iter__(self):
+        for x, y in self.get_models().items():
+            yield x, str(y)
 
 
 class RepositoryModel(object):

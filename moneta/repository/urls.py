@@ -1,10 +1,10 @@
-#coding=utf-8
+# coding=utf-8
 
 from django.conf.urls import patterns, include
 
 
 def get_patterns():
-    from moneta.repository.models import RepositoryModelsClasses
+    from moneta.repositories.base import RepositoryModelsClasses
     pattern_list_ = []
     for name, model in RepositoryModelsClasses().get_models().items():
         pattern_list_.append((r'^p/%s/' % name, include(model.public_urls, namespace=name)))

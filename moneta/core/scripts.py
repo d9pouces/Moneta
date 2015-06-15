@@ -1,4 +1,4 @@
-#coding=utf-8
+# coding=utf-8
 """
 Define a main() function, allowing you to manage your Django project.
 """

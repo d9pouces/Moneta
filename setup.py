@@ -1,26 +1,20 @@
-#coding=utf-8
+# coding=utf-8
 
 __author__ = 'flanker'
-
 
 """Setup file for the Moneta project.
 """
 
 import codecs
 import os.path
-import ez_setup
-ez_setup.use_setuptools()
+
 from setuptools import setup, find_packages
 
-# get README content from README.rst file
 with codecs.open(os.path.join(os.path.dirname(__file__), 'README.rst'), encoding='utf-8') as fd:
     long_description = fd.read()
-
-# get version value from VERSION file
-with codecs.open(os.path.join(os.path.dirname(__file__), 'VERSION'), encoding='utf-8') as fd:
-    version = fd.read().strip()
-entry_points = {'console_scripts': ['moneta-manage = moneta.core.scripts:main',
-                                    'moneta-gunicorn = moneta.core.scripts:gunicorn']}
+from moneta import __version__ as version
+entry_points = {'console_scripts': ['moneta-manage = djangofloor.scripts:manage',
+                                    'moneta-gunicorn = djangofloor.scripts:gunicorn']}
 
 setup(
     name='moneta',
@@ -35,12 +29,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    test_suite='moneta.tests',
-    install_requires=['six', 'setuptools>=1.0', 'django>=1.7', 'gunicorn', 'django-bootstrap3',
-                      'django-pipeline', 'django-grappelli', 'django-debug-toolbar', 'django-smart-selects',
-                      'python-gnupg', ],
-    setup_requires=['six', 'setuptools>=1.0', 'django>=1.7', 'gunicorn', 'django-bootstrap3',
-                    'django-pipeline', 'django-grappelli', 'django-debug-toolbar', 'django-smart-selects',
-                    'python-gnupg'],
+    install_requires=['setuptools>=1.0', 'djangofloor', 'django-grappelli', 'django-smart-selects', 'python-gnupg', ],
+    setup_requires=[],
     classifiers=[],
 )

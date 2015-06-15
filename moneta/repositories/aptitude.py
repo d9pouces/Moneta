@@ -18,10 +18,10 @@ from django.utils.timezone import get_current_timezone
 from django.utils.translation import ugettext as _
 
 from moneta.core.archives import ArFile
-from moneta.core.exceptions import InvalidRepositoryException
+from moneta.exceptions import InvalidRepositoryException
 from moneta.core.signing import GPGSigner
-from moneta.core.utils import parse_control_data
-from moneta.core.views import get_file, sendpath
+from moneta.utils import parse_control_data
+from moneta.views import get_file, sendpath
 from moneta.repositories.base import RepositoryModel
 from moneta.repository.models import storage, Repository, Element, ArchiveState
 

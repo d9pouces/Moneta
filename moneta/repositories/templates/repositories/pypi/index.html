@@ -1,4 +1,4 @@
-{% extends "core/base_package.html" %}{% load staticfiles i18n moneta %}
+{% extends "moneta/base_package.html" %}{% load staticfiles i18n moneta %}
 
 {% block extrahead %}
 
@@ -9,42 +9,51 @@
     {% with view=repo|moneta_url:'simple' %}
 
         <ul class="nav nav-tabs">
-            <li class="active"><a href="#all-packages" data-toggle="tab">{% trans 'All packages' %}</a></li>
-            {% for state in states %}
-                <li><a href="#{{ state.slug }}" data-toggle="tab">{{ state.name }}</a></li>
+            {% for tab_info in tab_infos %}
+                <li {% if forloop.first %}class="active"{% endif %}><a href="#{{ tab_info.2.slug }}" data-toggle="tab">{{ tab_info.2.name }}</a></li>
             {% endfor %}
         </ul>
 
         <div class="tab-content">
-            <div class="tab-pane active" id="all-packages">
-                {% trans 'Modifiy your $HOME/.pip/pip.conf file:' %}
+            {% for tab_info in tab_infos %}
+                <div class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ tab_info.2.slug }}">
+                    {% trans 'Modifiy your $HOME/.pip/pip.conf file to use pip:' %}
 <pre>[global]
-extra-index-url = {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug %}{% if use_https %}
-        cert = {% trans '/Path/to/your/ROOT/CA.pem' %}{% endif %}</pre>
-                {% trans 'Modifiy your $HOME/.pydistutils.cfg file:' %}
+extra-index-url = {{ absolute_url }}{{ tab_info.0 }}{% if use_https %}
+cert = {% trans '/Path/to/your/ROOT/CA.pem' %}{% endif %}</pre>
+                    {% trans 'Modifiy your $HOME/.pydistutils.cfg file to use easy_install:' %}
 <pre>[easy_install]
-find_links = {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug %}</pre>
-    {% if admin %}{% trans 'In order to add a new package, please run the following command:' %}
-        <pre>FILENAME=filename-version(.tar.gz|.tar.bz2|.tar.xz|.whl|.zip|.egg)
-curl --data-binary @$FILENAME -u : --anyauth {{ absolute_url }}{% url 'moneta.core.views.add_element_post' rid=repo.id %}\?filename=$FILENAME{% for state in states %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
-            </div>
-            {% for state in states %}
-                <div class="tab-pane" id="{{ state.slug }}">
-                    {% trans 'Modifiy your $HOME/.pip/pip.conf file:' %}
+find_links = {{ absolute_url }}{{ tab_info.0 }}</pre>
+                {% trans 'If you already uses an extra Python mirror, update your $HOME/.pip/pip.conf in this way:' %}
 <pre>[global]
-extra-index-url = {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug state_slug=state.slug %}{% if use_https %}
-        cert = {% trans '/Path/to/your/ROOT/CA.pem' %}{% endif %}</pre>
-                    {% trans 'Modifiy your $HOME/.pydistutils.cfg file:' %}
+extra-index-url = http://…/simple<strong style="color:blue">\</strong>
+    {{ absolute_url }}{{ tab_info.0 }}</pre>
+                    {% trans '… and your $HOME/.pydistutils.cfg:' %}
 <pre>[easy_install]
-find_links = {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug state_slug=state.slug %}</pre>
-    {% if admin %}{% trans 'In order to add a new package, please run the following command:' %}
-        <pre>FILENAME=filename-version(.tar.gz|.tar.bz2|.tar.xz|.whl|.zip|.egg)
-curl --data-binary @$FILENAME -u : --anyauth {{ absolute_url }}{% url 'moneta.core.views.add_element_post' rid=repo.id %}\?filename=$FILENAME\&amp;states={{ state }}</pre>{% endif %}
+find_links = http://…/simple<strong style="color:blue">\</strong>
+    {{ absolute_url }}{{ tab_info.0 }}</pre>
+
+        {% if use_https %}<p>{% trans 'Before using easy_install, you probably need to add your root certificate to the first existing file among:' %}</p>
+            <ul class="">
+                <li>/etc/pki/tls/certs/ca-bundle.crt</li>
+                <li>/etc/ssl/certs/ca-certificates.crt</li>
+                <li>/usr/share/ssl/certs/ca-bundle.crt</li>
+                <li>/usr/local/share/certs/ca-root.crt</li>
+                <li>/etc/ssl/cert.pem</li>
+                <li>/System/Library/OpenSSL/certs/cert.pem</li>
+            </ul>
+        {% endif %}
+
+
+                    {% if admin %}<h3>{% trans 'Add a package' %}</h3>{% trans 'In order to add a new package, please run the following command:' %}
+                        <pre>FILENAME=filename-version(.tar.gz|.tar.bz2|.tar.xz|.whl|.zip|.egg)
+curl --data-binary @$FILENAME -u : --anyauth {{ absolute_url }}{% url 'moneta.views.add_element_post' rid=repo.id %}\?filename=$FILENAME{% for state in tab_info.1 %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
                 </div>
             {% endfor %}
+
         </div>
 
     {% endwith %}
 
-    {% include 'core/add_signature.html' %}
+    {% include 'moneta/add_signature.html' %}
 {% endblock %}

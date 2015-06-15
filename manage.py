@@ -1,3 +1,6 @@
 #!/usr/bin/env python
-from moneta.core.scripts import main
-main()
+# -*- coding: utf-8 -*-
+from djangofloor.scripts import manage
+import os
+os.environ['DJANGOFLOOR_PROJECT_NAME'] = 'moneta'
+manage()

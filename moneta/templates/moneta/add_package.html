@@ -1,0 +1,15 @@
+{% extends "moneta/base_package.html" %}{% load bootstrap3 i18n %}
+
+{% block bootstrap3_title %}{% trans 'Add package' %}{% endblock %}
+{% block repo_content %}
+
+      <!-- Example row of columns -->
+        <h2>{% blocktrans %}Add a package to {{ repo }}{% endblocktrans %}</h2>
+
+        <form enctype="multipart/form-data" method="post" action="?">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <input type="submit" value="{% trans 'Add package!' %}" class="btn btn-primary" />
+        </form>
+{% endblock %}
+

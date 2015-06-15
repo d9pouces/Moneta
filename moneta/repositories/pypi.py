@@ -9,19 +9,17 @@ from django.core.exceptions import PermissionDenied
 from django.core.files.uploadedfile import UploadedFile
 from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.http.response import Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.utils.timezone import get_current_timezone
 from django.utils.translation import ugettext as _
-from moneta.core.exceptions import InvalidRepositoryException
-from moneta.core.templatetags.moneta import moneta_url
 
-from moneta.core.utils import parse_control_data
+from moneta.exceptions import InvalidRepositoryException
+from moneta.templatetags.moneta import moneta_url
+from moneta.utils import parse_control_data
 from moneta.repositories.aptitude import Aptitude
 from moneta.repositories.xmlrpc import XMLRPCSite, register_rpc_method
 from moneta.repository.models import storage, Repository, Element, ArchiveState
-
 
 __author__ = 'flanker'
 
@@ -113,9 +111,11 @@ class Pypi(Aptitude):
         archive_file = storage(settings.STORAGE_ARCHIVE).get_file(element.archive_key)
         py_archive = self.open_file(element.filename, archive_file)
         if py_archive is None:
-            raise InvalidRepositoryException(_('Unable to open file.'))
+            raise InvalidRepositoryException(_('Unable to open file'))
         try:
             control_data_value = py_archive.get_pkg_info()
+            if not control_data_value:
+                raise InvalidRepositoryException(_('No control data in archive'))
             element.extra_data = control_data_value
             control_data = parse_control_data(control_data_value, continue_line='        ', skip_after_blank=True)
             for key, attr in (('Name', 'archive'), ('Version', 'version'), ('Home-page', 'official_link'),
@@ -157,13 +157,24 @@ class Pypi(Aptitude):
 
     def index(self, request, rid):
         repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
-        template_values = {'repo': repo, 'states': ArchiveState.objects.filter(repository=repo).order_by('name'),
+        states = list(ArchiveState.objects.filter(repository=repo).order_by('name'))
+        template_values = {'repo': repo, 'states': states,
                            'admin': True, 'admin_allowed': repo.admin_allowed(request), }
+        view_name = moneta_url(repo, 'simple')
+        tab_infos = [
+            (reverse(view_name, kwargs={'rid': repo.id, 'repo_slug': repo.slug}), states, ArchiveState(name=_('All states'), slug='all-states')),
+        ]
+        for state in states:
+            tab_infos.append(
+                (reverse(view_name, kwargs={'rid': repo.id, 'repo_slug': repo.slug, 'state_slug': state.slug}), [state], state)
+            )
+        template_values['tab_infos'] = tab_infos
         return render_to_response('repositories/pypi/index.html', template_values, RequestContext(request))
 
     @staticmethod
     def get_filename(request, eid):
-        from moneta.core.views import get_file
+        from moneta.views import get_file
+
         return get_file(request, eid)
 
     # noinspection PyUnusedLocal
@@ -178,7 +189,7 @@ class Pypi(Aptitude):
             base_query = base_query.filter(archive__iexact=search_pattern)
         view_name = moneta_url(repo, 'get_file')
         elements = [(x.filename, x.md5, reverse(view_name, kwargs={'eid': x.id, })) for x in base_query[0:1000]]
-        template_values = {'elements': elements, 'rid': rid, 'base': request.build_absolute_uri(''), }
+        template_values = {'elements': elements, 'rid': rid, }
         return render_to_response('repositories/pypi/simple.html', template_values, RequestContext(request))
 
     def xmlrpc(self, request, rid, repo_slug, state_slug):
@@ -194,7 +205,7 @@ class Pypi(Aptitude):
             raise PermissionDenied
         filters = None
         for query_name, attr_name in (('name', 'archive'), ('version', 'version'), ('home_page', 'official_link'),
-                                      ('description', 'long_description'), ):
+                                      ('description', 'long_description'),):
             if query_name in rpc_args[0]:
                 value = rpc_args[0][query_name]
                 if isinstance(value, list):
@@ -260,7 +271,7 @@ class Pypi(Aptitude):
         repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.model)
         if state_slug:
             state = get_object_or_404(ArchiveState, repository=repo, name=state_slug)
-            query = Element.objects.filter(repository=repo, state=state).filter(author__name__icontains=author)\
+            query = Element.objects.filter(repository=repo, state=state).filter(author__name__icontains=author) \
                 .order_by('name')
         else:
             query = Element.objects.filter(repository=repo).filter(author__name__icontains=author).order_by('name')

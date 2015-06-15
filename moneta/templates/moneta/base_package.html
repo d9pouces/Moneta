@@ -1,0 +1,34 @@
+{% extends "moneta.html" %}{% load staticfiles i18n moneta %}
+
+{% block extrahead %}
+
+{% endblock %}
+
+{% block bootstrap3_content %}
+    <div class="container">
+        <!-- Example row of columns -->
+        <div class="row">
+            <div class="col-md-12">
+                <h1><a href="{{ repo.get_absolute_url }}">{{ repo }}</a></h1>
+
+                <div class="btn-group">
+                    <a class="btn btn-sm btn-default" href="{{ repo.get_absolute_url }}">{% trans 'usage' %}</a>
+                    <a class="btn btn-sm btn-default"
+                       href="{% url 'moneta.views.search_package' rid=repo.id %}">{% trans 'browse repository' %}</a>
+                    <a class="btn btn-sm btn-default"
+                       href="{% url 'moneta.views.compare_states' rid=repo.id %}">{% trans 'check' %}</a>
+                    {% if admin_allowed %}
+                        <a class="btn btn-sm btn-default"
+                           href="{% url 'moneta.views.add_element' rid=repo.id %}">{% trans 'add package' %}</a>
+                        <a class="btn btn-sm btn-default"
+                           href="{% url 'moneta.views.modify_repository' rid=repo.id %}">{% trans 'modify repository' %}</a>
+                        <a class="btn btn-sm btn-danger"
+                           href="{% url 'moneta.views.delete_repository' rid=repo.id %}">{% trans 'delete repository' %}</a>
+                    {% endif %}
+                </div>
+                {% block repo_content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

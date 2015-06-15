@@ -1,0 +1,62 @@
+{% extends "moneta/base_package.html" %}{% load bootstrap3 i18n %}
+{% block bootstrap3_title %}{% trans 'Compare states' %}{% endblock %}
+
+{% block repo_content %}
+
+    <div>
+        <h2>{% trans 'Compare states' %}</h2>
+
+        <form method="post" action="?" class="form-inline">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <input class="btn btn-primary" type="submit" value="{% trans 'Compare!' %}"/>
+        </form>
+    </div>
+
+    {% if all_valid %}
+        <div class="col-md-12">
+            <div class="alert alert-success">{% trans 'All packages are valid.' %}</div>
+        </div>
+    {% endif %}
+
+    {% if invalid_values %}
+        <div class="col-md-12">
+            <h3>{% trans 'Invalid packages' %}</h3>
+            <ul class="">
+                {% for values in invalid_values %}
+                    <li>{{ values.0 }} ({{ state_left }} : {{ values.1.0 }}, {{ state_right }}
+                        : {{ values.2.0 }})
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+
+    {% if only_left %}
+        <div class="col-md-12">
+            <h3>{% trans 'Files only in the left state' %}</h3>
+            <ul class="">
+                {% for name, elt in only_left.items %}
+                    {% for package in elt.1 %}
+                        <li><a href="{{ package.get_absolute_url }}">{{ package.filename }}</a></li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% if only_right %}
+        <div class="col-md-12">
+            <h3>{% trans 'Files only in the right state' %}</h3>
+            <ul class="">
+                {% for name, elt in only_right.items %}
+                    {% for package in elt.1 %}
+                        <li><a href="{{ package.get_absolute_url }}">{{ package.filename }}</a></li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+{% endblock %}
+

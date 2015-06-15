@@ -93,16 +93,6 @@ BOOTSTRAP3 = {
 }
 
 
-ARCHIVE_FILTERS = [
-    'moneta.repository.filters.informations',
-    # 'moneta.repository.filters.deb_archive',
-]
-REPOSITORY_CLASSES = [
-    'moneta.repositories.aptitude.Aptitude',
-    'moneta.repositories.pypi.Pypi',
-    'moneta.repositories.maven3.Maven3',
-
-]
 SECRET_KEY = 'kg0ohOjT3WxuYejDf4Q0VPzxldt4Q3FzmEaoMskYH5OyVxoq4X'
 MIDDLEWARE_CLASSES = [
     'django.middleware.cache.UpdateCacheMiddleware',
@@ -172,11 +162,6 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
-        'color_console': {
-            'level': 'INFO',
-            'filters': [],
-            'class': 'moneta.core.utils.ColorizedHandler'
-        }
     },
     'loggers': {
         'django.request': {
@@ -194,27 +179,6 @@ LOGGING = {
 }
 
 # TO BE CONFIGURED
-STORAGES = {
-    'archive': {
-        'ENGINE': 'moneta.core.storages.FlatStorage',
-        'ROOT': os.path.join(LOCAL_PATH, 'archives'),
-        'PATH_LEN': 1,
-    },
-    'default': {
-        'ENGINE': 'moneta.core.storages.FlatStorage',
-        'ROOT': os.path.join(LOCAL_PATH, 'uncompressed'),
-        'PATH_LEN': 1,
-    },
-    'cache': {
-        'ENGINE': 'moneta.core.storages.FlatStorage',
-        'ROOT': os.path.join(LOCAL_PATH, 'cache'),
-        'PATH_LEN': 1,
-    }
-}
-
-STORAGE_ARCHIVE = 'archive'
-STORAGE_UNCOMPRESSED = 'uncompressed'
-STORAGE_CACHE = 'cache'
 
 # TO BE CONFIGURED
 GNUPG_HOME = os.path.join(LOCAL_PATH, 'gpg')

@@ -1,0 +1,19 @@
+{% extends "moneta.html" %}{% load bootstrap3 i18n %}
+{% block bootstrap3_title %}{% trans 'Delete repository' %}{% endblock %}
+{% block bootstrap3_content %}
+    <div class="container">
+        <!-- Example row of columns -->
+        <div class="row">
+            <div class="col-md-12">
+                <h1>{{ repo }}</h1>
+                <h2>{% trans 'Delete repository' %}</h2>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    {% bootstrap_form form %}
+                    <input class="btn btn-xs btn-danger" type="submit" value="{% trans 'Delete' %}"/>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

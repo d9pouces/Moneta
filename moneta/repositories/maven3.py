@@ -10,7 +10,7 @@ from django.template.loader import render_to_string
 from django.utils.timezone import get_current_timezone
 from django.utils.translation import ugettext as _
 
-from moneta.core.utils import parse_control_data
+from moneta.utils import parse_control_data
 
 from moneta.repositories.aptitude import Aptitude
 from moneta.repositories.xmlrpc import XMLRPCSite
@@ -130,7 +130,7 @@ class Maven3(Aptitude):
                                          version__iexact=components[-2], filename=components[-1])[0:1]
             elements = list(elements)
             if elements:
-                from moneta.core.views import get_file
+                from moneta.views import get_file
                 return get_file(request, None, element=elements[0])
         all_paths = set()
         for sub_query in queries:
@@ -141,8 +141,7 @@ class Maven3(Aptitude):
         values = [(x, os.path.dirname(x)) for x in all_paths]
         if request_path:
             values.insert(0, (os.path.join(request_path, '..'), '..'))
-        template_values = {'repo': repo, 'admin_allowed': repo.admin_allowed(request),
-                           'absolute_url': request.build_absolute_uri('/')[:-1], 'repo_slug': repo_slug, 'admin': True,
+        template_values = {'repo': repo, 'admin_allowed': repo.admin_allowed(request), 'repo_slug': repo_slug, 'admin': True,
                            'paths': values, 'request_path': request_path}
         return render_to_response('repositories/maven3/browse.html', template_values, RequestContext(request))
 
@@ -173,19 +172,19 @@ class Maven3(Aptitude):
     def index(self, request, rid):
         repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
         states = ArchiveState.objects.filter(repository=repo).order_by('name')
-        template_values = {'repo': repo, 'states': states, 'admin_allowed': repo.admin_allowed(request),
-                           'absolute_url': request.build_absolute_uri('/')[:-1], }
+        template_values = {'repo': repo, 'states': states, 'admin_allowed': repo.admin_allowed(request)}
         maven_settings_xml = []
         template_values['state_slug'] = None
-        setting_str = render_to_string('repositories/maven3/maven_settings.xml', template_values)
+        request_context = RequestContext(request)
+        setting_str = render_to_string('repositories/maven3/maven_settings.xml', template_values, request_context)
         maven_settings_xml.append(('all-packages', str(setting_str)))
         for state in states:
             template_values['state_slug'] = state.slug
-            setting_str = render_to_string('repositories/maven3/maven_settings.xml', template_values)
+            setting_str = render_to_string('repositories/maven3/maven_settings.xml', template_values, request_context)
             maven_settings_xml.append((state.slug, str(setting_str), ))
         template_values['maven_settings_xml'] = maven_settings_xml
         template_values['admin'] = True
-        return render_to_response('repositories/maven3/index.html', template_values, RequestContext(request))
+        return render_to_response('repositories/maven3/index.html', template_values, request_context)
 
     # noinspection PyUnusedLocal
     def folder_index(self, request, rid, repo_slug, state_slug=None, name=None, archive=None, version=None):

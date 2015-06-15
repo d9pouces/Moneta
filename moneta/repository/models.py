@@ -1,59 +1,50 @@
-#coding=utf-8
+# coding=utf-8
 import logging
-import multiprocessing
 import os
 import uuid
+import functools
 
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
+from django.db import models
 from django.db.models import Q
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.utils.text import slugify
 from django.utils.translation import ugettext as _, ugettext
 
-from moneta.core.exceptions import InvalidRepositoryException
-from moneta.core.utils import normalize_str, remove, import_path
+from moneta.exceptions import InvalidRepositoryException
+from moneta.utils import normalize_str, remove, import_path
 
 __author__ = 'flanker'
 
 
-from django.db import models
 logger = logging.getLogger('moneta.files')
 
 
-MUTEX = multiprocessing.Lock()
 ARCHIVE_FILTER_CALLABLES = None
 STORAGES = {}
 
 
+@functools.lru_cache()
 def storage(name):
-    global STORAGES, MUTEX
-    if name not in STORAGES:
-        MUTEX.acquire()
-        kwargs = settings.STORAGES.get(name, settings.STORAGES['default'])
-        cls = import_path(kwargs['ENGINE'])
-        STORAGES[name] = cls(**kwargs)
-        MUTEX.release()
-    return STORAGES[name]
+    kwargs = settings.STORAGES.get(name, settings.STORAGES['default'])
+    cls = import_path(kwargs['ENGINE'])
+    return cls(**kwargs)
 
 
+@functools.lru_cache()
 def archive_filters():
     """
     Check if archive filters set in settings are loaded. If not, load them.
 
     :return: a list of callable to call on new archives files.
     """
-    global ARCHIVE_FILTER_CALLABLES, MUTEX
-    MUTEX.acquire()
-    if ARCHIVE_FILTER_CALLABLES is None:
-        # noinspection PyPep8Naming
-        ARCHIVE_FILTER_CALLABLES = []
-        for middleware_path in settings.ARCHIVE_FILTERS:
-            ARCHIVE_FILTER_CALLABLES.append(import_path(middleware_path))
-    MUTEX.release()
-    return ARCHIVE_FILTER_CALLABLES
+    result = []
+    for middleware_path in settings.ARCHIVE_FILTERS:
+        result.append(import_path(middleware_path))
+    return result
 
 
 class BaseModel(models.Model):
@@ -75,33 +66,8 @@ class BaseModel(models.Model):
         super().save(*args, **kwargs)
 
 
-class RepositoryModelsClasses(object):
-    _models = None
-
-    @classmethod
-    def get_model(cls, cls_name):
-        return cls.get_models()[cls_name]
-
-    @classmethod
-    def get_models(cls):
-        MUTEX.acquire()
-        if cls._models is None:
-            # noinspection PyPep8Naming
-            cls._models = {}
-            for mw_path in settings.REPOSITORY_CLASSES:
-                modelcls = import_path(mw_path)()
-                cls._models[modelcls.archive_type] = modelcls
-        MUTEX.release()
-        return cls._models
-
-    def __iter__(self):
-        for x, y in self.get_models().items():
-            yield x, str(y)
-
-
 class Repository(BaseModel):
-    archive_type = models.CharField(_('Repository type'), choices=RepositoryModelsClasses(), db_index=True,
-                                    max_length=100)
+    archive_type = models.CharField(_('Repository type'), db_index=True, max_length=100)
     on_index = models.BooleanField(_('Display on public index?'), db_index=True, default=True, blank=True)
     is_private = models.BooleanField(_('Should readers be authenticated?'), db_index=True, default=False, blank=True)
     admin_group = models.ManyToManyField(Group, verbose_name=_('Admin groups'), db_index=True, blank=True,
@@ -110,6 +76,7 @@ class Repository(BaseModel):
                                           related_name='repository_reader')
 
     def get_model(self):
+        from moneta.repositories.base import RepositoryModelsClasses
         return RepositoryModelsClasses.get_model(self.archive_type)
 
     def get_absolute_url(self):
@@ -119,8 +86,8 @@ class Repository(BaseModel):
     def index_queryset(request):
         user = request.user
         if user.is_anonymous():
-            return Repository.reader_queryset(request).filter(on_index=True)
-        return Repository.reader_queryset(request).filter(Q(on_index=True) | Q(author=user))
+            return Repository.objects.filter(on_index=True)
+        return Repository.objects.filter(Q(on_index=True) | Q(author=user)).distinct()
 
     @staticmethod
     def admin_queryset(request):
@@ -241,8 +208,7 @@ class Element(BaseModel):
                 raise InvalidRepositoryException(
                     _('Repositories %(repo)s are unable to handle this file.') % {'repo': _(', ').join(exceptions), })
             self.archive_file = None
-        self.full_name = _('%(name)s-%(version)s %(filename)s') % {'name': self.name, 'version': self.version,
-                                                                   'filename': self.filename}
+        self.full_name = self.filename
         self.full_name_normalized = normalize_str(self.full_name)
         super().save(*args, **kwargs)
 

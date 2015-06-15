@@ -2,7 +2,7 @@
 import mimetypes
 import os
 import shutil
-from moneta.core.utils import makedir, remove
+from moneta.utils import makedir, remove
 
 __author__ = 'flanker'
 

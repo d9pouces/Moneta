@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+{% load bootstrap3 staticfiles djangofloor pipeline %}
+<html lang="{{ df_language_code }}">
+<head>
+    <title>Moneta — {% block bootstrap3_title %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content=""/>
+    <meta name="robots" content="index, follow"/>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <meta name="keywords" content="moneta"/>
+    {% block head_pipeline %}{% javascript 'default' %}{% stylesheet 'default' %}<!--[if lt IE 9 ]>{% javascript 'ie9' %}<![endif]-->{% endblock %}
+    {% block pipelineheaders %}{% endblock %}
+    {% block extraheaders %}{% endblock %}
+    <link rel="shortcut icon" href="{% static 'img/favicon.png' %}">
+
+</head>
+<body>
+{% block bootstrap3_nav %}
+    <div class="navbar navbar-inverse" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="{% url 'moneta.views.index' %}">Moneta</a>
+                {% if user.is_authenticated and not df_remote_authenticated %}
+                    <a class="navbar-brand" href="{% url 'account_email' %}">{% fontawesome_icon 'pencil' %}&nbsp;
+                        <small>{{ user }}</small>
+                    </a>
+                    <a class="navbar-brand" href="{% url 'account_logout' %}">{% fontawesome_icon 'sign-out' %}</a>
+                {% elif user.is_anonymous %}
+                    <a class="navbar-brand" href="{% url 'account_login' %}">{% fontawesome_icon 'sign-in' %}</a>
+                {% endif %}
+                {% if user.is_staff %}
+                    <a class="navbar-brand" href="{% url 'admin:index' %}">{% fontawesome_icon 'wrench' %}</a>
+                {% endif %}
+                {% block navbar %}
+                    <form class="navbar-form navbar-right" role="form">
+                    </form>
+                {% endblock %}
+
+            </div>
+        </div>
+    </div>
+    {% bootstrap_messages %}
+{% endblock %}
+{% block bootstrap3_content %}
+{% endblock %}
+{% block bootstrap3_footer %}
+    <hr>
+    <footer>
+        <p>Moneta {{ moneta_version }} &copy; 2015 Matthieu Gallet</p>
+    </footer>{% endblock %}
+{#    </div> <!-- /container -->#}
+
+</body>
+</html>
