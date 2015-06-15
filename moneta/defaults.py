@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 FLOOR_URL_CONF = 'moneta.root_urls.urls'
 EXTRA_INSTALLED_APP = 'bootstrap3'
-FLOOR_INSTALLED_APPS = ['moneta', 'moneta.repositories', 'moneta.core', 'moneta.repository', '{EXTRA_INSTALLED_APP}']
+FLOOR_INSTALLED_APPS = ['moneta', 'moneta.repositories', 'moneta.repository', '{EXTRA_INSTALLED_APP}']
 FLOOR_INDEX = 'moneta.views.index'
 FLOOR_PROJECT_NAME = _('Moneta')
 
