@@ -45,7 +45,7 @@ class Aptitude(RepositoryModel):
     def is_file_valid(self, uploaded_file):
         return uploaded_file.name.endswith('.deb')
 
-    def element(self, element):
+    def update_element(self, element):
         """
         Extract some informations from element to prepare the repository
         :param element: Element to add to the repository

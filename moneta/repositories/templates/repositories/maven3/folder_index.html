@@ -1,4 +1,4 @@
-{% extends "core/base_package.html" %}{% load staticfiles i18n %}
+{% extends "moneta/base_package.html" %}{% load staticfiles i18n %}
 {% block bootstrap3_title %}{% blocktrans %}Repository {{ repo }}/{{ state }}{% endblocktrans %}{% endblock %}
 
 {% block repo_content %}
@@ -7,7 +7,7 @@
         <span class="badge">{{ element_count }}</span></p>
     <ul class="nav nav-pills">
         {% for element in elements %}
-            <li>{% include 'core/element.html' %}</li>
+            <li>{% include 'moneta/element.html' %}</li>
         {% endfor %}
     </ul>
 {% endblock %}

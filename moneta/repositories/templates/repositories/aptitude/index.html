@@ -20,6 +20,9 @@
             {% trans 'Do not forget to install apt-transport-https first.' %}
             <pre>sudo apt-get install apt-transport-https</pre>
         {% endif %}
+                {% if repo.is_private %}
+                    <div>{% trans 'As far we know, the only method to authenticate APT clients is to use client SSL certificates.' %}</div>
+                {% endif %}
         {% trans 'Please run the following command to register the GPG key of this repository:' %}
         {% with view=repo|moneta_url:"gpg_key" %}<pre>{% curl repo %} {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug slug2=repo.slug %} | sudo apt-key add -</pre>{% endwith %}
         {% trans 'The Release file can be downloaded using cURL:' %}

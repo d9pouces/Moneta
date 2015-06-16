@@ -200,7 +200,7 @@ class Element(BaseModel):
             if not cls.is_file_valid(uploaded_file):
                 exceptions.append(str(self.repository))
             else:
-                cls.element(self)
+                cls.update_element(self)
             if len(exceptions) == 1:
                 raise InvalidRepositoryException(
                     _('Repository %(repo)s is unable to handle this file.') % {'repo': exceptions[0], })

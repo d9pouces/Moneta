@@ -258,12 +258,12 @@ def generic_add_element(request: HttpRequest, repo, uploaded_file, state_names, 
     element.archive_file = uploaded_file
     # form.cleaned_data['package'].file.name = form.cleaned_data['package'].name
     element.save()
-    states = ArchiveState.objects.filter(repository=repo, slug__in=state_names)
-    # remove previous versions
+    states = list(ArchiveState.objects.filter(repository=repo, slug__in=state_names))
+    # remove previous versions from the given states:
+    # noinspection PyUnresolvedReferences
     Element.states.through.objects.exclude(element__version=element.version) \
         .filter(archivestate__in=states, element__archive=element.archive).delete()
-    for state in states:
-        element.states.add(state)
+    element.states.add(*states)
     return element
 
 

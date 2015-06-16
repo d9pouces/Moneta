@@ -1,26 +1,62 @@
+# -*- coding=utf-8 -*-
+"""
+Emulate a Maven3-compatible repository.
+
+
+/$groupId[0]/../${groupId[n]/$artifactId/$version/$artifactId-$version.$extension
+/$groupId[0]/../$groupId[n]/$artifactId/$version/$artifactId-$version-$classifier.$extension
+/org/codehaus/plexus/plexus-container/0.15/
+                     /plexus-container-0.15.jar
+                     /plexus-container-0.15.jar.md5
+                     /plexus-container-0.15.pom
+                     /plexus-container-0.15.pom.md5
+                     /plexus-container-0.15-javadoc.jar
+                     /plexus-container-0.15-javadoc.jar.md5
+                     /plexus-container-0.15-javasrc.jar
+                     /plexus-container-0.15-javasrc.jar.md5
+
+Maven3 variables:
+    * $groupId = org.codehaus.plexus
+    * $artifactId = plexus-container
+    * $version = 0.15
+    * $extension = jar
+    * $classifier = javadoc, javasrc
+
+Moneta mapping:
+    * element.version maps to $version
+    * element.archive maps to $groupId.$artifactId
+    * element.name maps to $artifactId => built from element.archive
+    * element.filename maps to $artifactId-$version-$classifier.$extension
+    * element.full_name = element.filename
+
+Command for uploading files:
+curl --data-binary @$FILENAME http://[...]/\?filename=$FILENAME\&states=prod\&states=qualif\&archive=$groupId.$artifactId\&version=$version
+
+URLs to emulate:
+    /$groupId[0]/../$groupId[n]/$artifactId/$version/(filename)$
+    /$groupId[0]/../$groupId[n]/$artifactId/$version/(filename).md5$
+    /$groupId[0]/../$groupId[n]/$artifactId/$version/(filename).sha1$
+    /$groupId[0]/../$groupId[n]/$artifactId/$version/(filename).sha256$
+"""
 import os.path
 import zipfile
 
 from django.conf import settings
-
 from django.conf.urls import url
+from django.db.models import Q
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.template.loader import render_to_string
-from django.utils.timezone import get_current_timezone
+
 from django.utils.translation import ugettext as _
 
 from moneta.utils import parse_control_data
-
 from moneta.repositories.aptitude import Aptitude
-from moneta.repositories.xmlrpc import XMLRPCSite
 from moneta.repository.models import storage, Repository, Element, ArchiveState
-
+from moneta.views import get_file
 
 __author__ = 'flanker'
-
-tz = get_current_timezone()
-XML_RPC_SITE = XMLRPCSite()
 
 
 class Maven3(Aptitude):
@@ -31,7 +67,7 @@ class Maven3(Aptitude):
     def is_file_valid(self, uploaded_file):
         return True
 
-    def element(self, element):
+    def update_element(self, element):
         """
         Extract some informations from element to prepare the repository
         :param element: Element to add to the repository
@@ -40,7 +76,9 @@ class Maven3(Aptitude):
         ar -x control.tar.gz
         tar -xf control.tar.gz control
         """
-        if element.filename.endswith('.jar'):
+        if element.archive:
+            element.name = element.archive.rpartition('.')[2]
+        if element.filename.endswith('.jar') and False:
             archive_file = storage(settings.STORAGE_ARCHIVE).get_file(element.archive_key)
 
             compressed_file = zipfile.ZipFile(archive_file)
@@ -60,31 +98,103 @@ class Maven3(Aptitude):
                     setattr(element, attr, control_data.get(key, ''))
             # element.filename = '%s-%s.jar' % (element.archive.rpartition('.')[2], element.version)
 
+    @staticmethod
+    def browse_repo(request: HttpRequest, rid: int, repo_slug: str, query_string: str):
+        """
+        :param rid:
+        :param repo_slug:
+        :param query_string: a single str corresponding to $groupId/$artifactId/$version/$filename.$extension
+        :return:
+            a string -> send it in a HttpResponse
+            an Element -> send it with views.get_file
+        """
+        # noinspection PyUnusedLocal
+        repo_slug = repo_slug
+        if query_string[-1:] == '/':
+            query_string = query_string[:-1]
+        gav, sep, filename = query_string.rpartition('/')
+        dotted_gavf = query_string.replace('/', '.')
+        if sep == '/':
+            group_artifact, sep, version = gav.rpartition('/')
+            group_artifact = group_artifact.replace('/', '.')
+            dotted_gav = gav.replace('/', '.')
+            if sep == '/':
+                # URL: "gro/up/arti/fact/version/filename*"
+                # URL: "gro/up/arti/fact/version*"
+                # URL: "gro/up/arti/fact*"
+                no_ext, sep, ext = filename.rpartition('.')
+                if ext not in ('sha1', 'sha256', 'md5') and sep == '.':
+                    no_ext = filename
+                query = Element.objects.filter(
+                    Q(archive=group_artifact, version=version, filename=no_ext) |
+                    Q(archive=dotted_gav, version=filename) |
+                    Q(archive=dotted_gavf) | Q(archive__startswith=dotted_gavf + '.')
+                )
+            else:
+                # URL: "group_artifact/version"
+                query = Element.objects.filter(
+                    Q(archive=dotted_gav, version=filename) |
+                    Q(archive=dotted_gavf) | Q(archive__startswith=dotted_gavf + '.')
+                )
+        else:
+            # URL: "group_artifact"
+            query = Element.objects.filter(archive__startswith=dotted_gavf)
+        query = query.filter(repository__id=rid)
+        no_ext, sep, ext = query_string.rpartition('.')
+        if ext not in ('sha1', 'sha256', 'md5') and sep == '.':
+            no_ext = query_string
+
+        # ok, we have to check
+        results = {}
+        for elt in query:
+            elt_gavf = '%s/%s/%s' % (elt.archive.replace('.', '/'), elt.version, elt.filename)
+
+            if elt_gavf == no_ext:
+                if ext in ('sha1', 'sha256', 'md5'):
+                    return getattr(elt, ext)
+                return elt
+            elt_gav = '%s/%s' % (elt.archive.replace('.', '/'), elt.version)
+            if elt_gav == query_string:
+                pass
+            parents_results = results
+            for path_comp in elt.archive.split('.'):
+                parents_results = parents_results.setdefault(path_comp, {})
+            parents_results.setdefault(elt.version, set()).add(elt)
+        return results
+
+    def browse_repo2(self, request: HttpRequest, rid: int, repo_slug: str, query_string: str) -> HttpResponse:
+        result = self.browse_repo(request, rid, repo_slug, query_string)
+        if isinstance(result, str):
+            return HttpResponse(result)
+        elif isinstance(result, Element):
+            return get_file(request, eid=result.pk, element=result)
+
     def public_url_list(self):
         """
         Return a list of URL patterns specific to this repository
         Sample recognized urls:
-            *
-
+            /$groupId[0]/../$groupId[n]/$artifactId/$version/(filename)(|.md5|sha1|sha256)$
+            r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/(?P<gav>.+)/(?P<filename>[^/]+)$'
+            '
         :return: a patterns as expected by django
 
         """
 
         # http://mvnrepository.com/artifact/org.requs/requs-exec/1.11
         pattern_list = [
+            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/browse/(?P<gavf>.+)$',
+                self.wrap_view('browse_repo'), name='browse'),
+            url(r"^(?P<rid>\d+)/$", self.wrap_view('index'), name="index"),
             # url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/artifact/(?P<name>[\w\._\-]+)/"
             # r"(?P<archive>[\w\._\-]+)/(?P<version>[\w\._\-]+)/(?P<filename>.*)$",
             #     self.wrap_view('get_filename'), name="get_file"),
-
-            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/s/(?P<state_slug>[\w\-\._]+)/artifact/(?P<value>[\w\-/\.]*)$',
-                self.wrap_view('browse'), name='browse'),
-            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/s/(?P<state_slug>[\w\-\._]+)/artifact/$',
-                self.wrap_view('browse'), name='browse'),
-            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/artifact/(?P<value>[\w\-/\.]*)$', self.wrap_view('browse'),
-                name='browse'),
-            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/artifact/$', self.wrap_view('browse'),
-                name='browse'),
-
+            # url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/s/(?P<state_slug>[\w\-\._]+)/artifact/$',
+            #     self.wrap_view('browse'), name='browse'),
+            # url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/artifact/(?P<value>[\w\-/\.]*)$', self.wrap_view('browse'),
+            #     name='browse'),
+            # url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/artifact/$', self.wrap_view('browse'),
+            #     name='browse'),
+            #
             # url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/artifact/(?P<name>[\w\._\-]+)/"
             #     r"(?P<archive>[\w\._\-]+)/(?P<version>[\w\._\-]+)/$", self.wrap_view('browse'), name="browse"),
             # url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/artifact/(?P<name>[\w\._\-]+)/"
@@ -104,9 +214,6 @@ class Maven3(Aptitude):
             #     self.wrap_view('browse'), name="browse"),
             # url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/artifact/$",
             #     self.wrap_view('browse'), name="browse"),
-
-
-            url(r"^(?P<rid>\d+)/$", self.wrap_view('index'), name="index"),
         ]
         return pattern_list
 
@@ -131,7 +238,7 @@ class Maven3(Aptitude):
             elements = list(elements)
             if elements:
                 from moneta.views import get_file
-                return get_file(request, None, element=elements[0])
+                return get_file(request, eid=elements[0].pk, element=elements[0])
         all_paths = set()
         for sub_query in queries:
             for element in base_query.filter(**sub_query):
@@ -219,6 +326,6 @@ class Maven3(Aptitude):
         state = get_object_or_404(ArchiveState, repository=repo, slug=state_slug)
         element = get_object_or_404(Element, repository=repo, states=state, name=name, archive=archive,
                                     version=version, filename=filename)
-        from moneta.core.views import get_file
+        from moneta.views import get_file
 
-        return get_file(request, None, element=element)
+        return get_file(request, eid=element.pk, element=element)
