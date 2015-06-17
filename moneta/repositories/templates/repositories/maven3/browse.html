@@ -18,6 +18,8 @@
     <ul class="list-unstyled">
         {% for path in paths %}
             <li><a href="{{ path.1 }}">{{ path.0 }}</a></li>
+            {% empty %}
+            <li>{% trans 'No available package' %}</li>
         {% endfor %}
     </ul>
 {% endblock %}

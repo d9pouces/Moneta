@@ -8,19 +8,15 @@
 {% block repo_content %}
                 <h2>{% trans 'Maven settings' %}</h2>
         <ul class="nav nav-tabs">
-            <li class="active"><a href="#all-packages" data-toggle="tab">{% trans 'All packages' %}</a></li>
-            {% for state in states %}
-                <li><a href="#{{ state.slug }}" data-toggle="tab">{{ state.name }}</a></li>
+            {% for state_info in state_infos %}
+            <li {% if forloop.first %}class="active"{% endif %}><a href="#state_{{ state_info.0 }}" data-toggle="tab">{{ state_info.2 }}</a></li>
             {% endfor %}
         </ul>
         <div class="tab-content">
-            {% for setting in maven_settings_xml %}
-                <div class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ setting.0 }}">
+            {% for state_info in state_infos %}
+                <div class="tab-pane {% if forloop.first %}active{% endif %}" id="state_{{ state_info.0 }}">
                 <p>{% trans 'Add the following repositories to your $HOME/.m2/settings.xml in the repository section:' %}</p>
-                    <pre>{{ setting.1 }}</pre>
-                </div>
-            {% endfor %}
-        </div>
+                    <pre>{{ state_info.1 }}</pre>
                 {% if admin_allowed %}
                     <h3>{% trans 'Add a package' %}</h3>
                     <p>{% trans 'In order to add a new Java archive, please run the following command:' %}</p>
@@ -28,6 +24,9 @@
                 <pre>FILENAME=filename-version.XXX
 ARCHIVE=$groupId.$artifactId
 VERSION=$version
-{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta.views.add_element_post' rid=repo.id %}\?filename=$FILENAME\&archive=$ARCHIVE\&version=$VERSION{% for state in states %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
+{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta.views.add_element_post' rid=repo.id %}\?filename=$FILENAME\&archive=$ARCHIVE\&version=$VERSION{% for state in state_info.3 %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
+                </div>
+            {% endfor %}
+        </div>
     {% include 'moneta/add_signature.html' %}
 {% endblock %}

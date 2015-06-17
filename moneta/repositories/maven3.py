@@ -228,18 +228,17 @@ class Maven3(Aptitude):
 
     def index(self, request, rid):
         repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
-        states = ArchiveState.objects.filter(repository=repo).order_by('name')
+        states = list(ArchiveState.objects.filter(repository=repo).order_by('name'))
         template_values = {'repo': repo, 'states': states, 'admin_allowed': repo.admin_allowed(request)}
-        maven_settings_xml = []
+        state_infos = []
         template_values['state_slug'] = None
         request_context = RequestContext(request)
         setting_str = render_to_string('repositories/maven3/maven_settings.xml', template_values, request_context)
-        maven_settings_xml.append(('all-packages', str(setting_str)))
 
+        state_infos.append(('all-packages', str(setting_str), _('All states'), states))
         for state in states:
             template_values['state_slug'] = state.slug
             setting_str = render_to_string('repositories/maven3/maven_settings.xml', template_values, request_context)
-            maven_settings_xml.append((state.slug, str(setting_str), ))
-        template_values['maven_settings_xml'] = maven_settings_xml
-        print(template_values)
+            state_infos.append((state.slug, str(setting_str), state.name, [state]))
+        template_values['state_infos'] = state_infos
         return render_to_response('repositories/maven3/index.html', template_values, request_context)
