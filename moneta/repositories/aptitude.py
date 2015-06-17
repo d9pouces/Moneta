@@ -247,7 +247,7 @@ class Aptitude(RepositoryModel):
         tab_infos = [(states, ArchiveState(name=_('All states'), slug='all-states')), ]
         tab_infos += [([state], state) for state in states]
 
-        template_values = {'repo': repo, 'states': states, 'admin': True, 'admin_allowed': repo.admin_allowed(request),
+        template_values = {'repo': repo, 'states': states, 'admin_allowed': repo.admin_allowed(request),
                            'index_url': reverse(moneta_url(repo, 'index'), kwargs={'rid': repo.id, }),
                            'tab_infos': tab_infos, }
         return render_to_response('repositories/aptitude/index.html', template_values, RequestContext(request))

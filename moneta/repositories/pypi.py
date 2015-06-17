@@ -158,8 +158,7 @@ class Pypi(Aptitude):
     def index(self, request, rid):
         repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
         states = list(ArchiveState.objects.filter(repository=repo).order_by('name'))
-        template_values = {'repo': repo, 'states': states,
-                           'admin': True, 'admin_allowed': repo.admin_allowed(request), }
+        template_values = {'repo': repo, 'states': states, 'admin_allowed': repo.admin_allowed(request), }
         view_name = moneta_url(repo, 'simple')
         tab_infos = [
             (reverse(view_name, kwargs={'rid': repo.id, 'repo_slug': repo.slug}), states, ArchiveState(name=_('All states'), slug='all-states')),

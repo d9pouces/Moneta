@@ -1,5 +1,10 @@
-{% extends "moneta/base_package.html" %}{% load staticfiles i18n %}
+{% extends "moneta/base_package.html" %}{% load staticfiles i18n moneta %}
 
+{% block other_repo_urls %}
+    {% with view=repo|moneta_url:'browse' %}<a class="btn btn-sm btn-default"
+                       href="{% url view rid=repo.id repo_slug=repo.slug %}">{% trans 'Show packages' %}</a>
+    {% endwith %}
+{% endblock %}
 {% block repo_content %}
                 <h2>{% trans 'Maven settings' %}</h2>
         <ul class="nav nav-tabs">
@@ -16,14 +21,13 @@
                 </div>
             {% endfor %}
         </div>
-                {% if admin %}<p>{% trans 'In order to add a new Java archive, please run the following command:' %}</p>
-                <pre>FILENAME=filename-version.jar
-{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta.core.views.add_element_post' rid=repo.id %}\?filename=$FILENAME{% for state in states %}\&amp;states={{ state }}{% endfor %}</pre>
-            <p>{% trans 'You can also add generic packages by specifying archive (groupId), name (artifactId, name of the package) and version:' %}</p>
+                {% if admin_allowed %}
+                    <h3>{% trans 'Add a package' %}</h3>
+                    <p>{% trans 'In order to add a new Java archive, please run the following command:' %}</p>
+            <p>{% trans 'You can also add packages by specifying archive (groupId.artifactId, name of the package) and version:' %}</p>
                 <pre>FILENAME=filename-version.XXX
-ARCHIVE=groupId
-NAME=artifactId
-VERSION=version
-{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta.core.views.add_element_post' rid=repo.id %}\?filename=$FILENAME\&name=$NAME\&archive=$ARCHIVE\&version=$VERSION{% for state in states %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
+ARCHIVE=$groupId.$artifactId
+VERSION=$version
+{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta.views.add_element_post' rid=repo.id %}\?filename=$FILENAME\&archive=$ARCHIVE\&version=$VERSION{% for state in states %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
     {% include 'moneta/add_signature.html' %}
 {% endblock %}

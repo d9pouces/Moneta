@@ -105,11 +105,7 @@ class Repository(BaseModel):
                                          | Q(admin_group=user.groups.all())).distinct()
 
     def admin_allowed(self, request):
-        user = request.user
-        if user.is_anonymous():
-            return self.author is None
-        return self.author == user or \
-            (not {x.id for x in user.groups.all()}.isdisjoint({x.id for x in self.admin_group.all()}))
+        return self.admin_queryset(request).filter(id=self.id)[0:1].count() > 0
 
     def reader_allowed(self, request):
         user = request.user

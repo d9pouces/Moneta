@@ -53,22 +53,30 @@ class TestMaven3(TestCase):
         self.assertEqual(Element.objects.filter(repository=self.repo).count(), 5)
 
     def test_xpp3(self):
-        self.assertEqual(len(Maven3.browse_repo(HttpRequest(), self.repo.id, 'slug', 'xpp3')), 1)
-        self.assertEqual(len(Maven3.browse_repo(HttpRequest(), self.repo.id, 'slug', 'xpp3/xpp3_min')), 1)
-        self.assertEqual(len(Maven3.browse_repo(HttpRequest(), self.repo.id, 'slug', 'xpp3/xpp3_m')), 0)
-        self.assertEqual(len(Maven3.browse_repo(HttpRequest(), self.repo.id, 'slug', 'xpp3/xpp3_min/1.1.4')), 0)
-        self.assertEqual(len(Maven3.browse_repo(HttpRequest(), self.repo.id, 'slug', 'xpp3/')), 1)
-        self.assertEqual(len(Maven3.browse_repo(HttpRequest(), self.repo.id, 'slug', 'xpp3/xpp3_min/')), 1)
-        self.assertEqual(len(Maven3.browse_repo(HttpRequest(), self.repo.id, 'slug', 'xpp3/xpp3_min/1.1.4')), 0)
-        self.assertEqual(len(Maven3.browse_repo(HttpRequest(), self.repo.id, 'slug', 'xpp3/xpp3_min/1.1.4c')), 1)
-        self.assertEqual(len(Maven3.browse_repo(HttpRequest(), self.repo.id, 'slug', 'xpp3/xpp3_min/1.1.4c/')), 1)
-        self.assertIsInstance(Maven3.browse_repo(HttpRequest(), self.repo.id, 'slug', 'xpp3/xpp3_min/1.1.4c/xpp3_min-1.1.4c.jar'), Element)
-        self.assertIsInstance(Maven3.browse_repo(HttpRequest(), self.repo.id, 'slug', 'xpp3/xpp3_min/1.1.4c/xpp3_min-1.1.4c.jar.sha1'), str)
-        self.assertEqual(Maven3.browse_repo(HttpRequest(), self.repo.id, 'slug', 'xpp3/xpp3_min/1.1.4c/xpp3_min-1.1.4c.jar.sha1'),
+        self.assertEqual(len(Maven3.browse_repo_inner(self.repo.id, 'xpp3')), 1)
+        self.assertEqual(len(Maven3.browse_repo_inner(self.repo.id, 'xpp3/xpp3_min')), 1)
+        self.assertEqual(len(Maven3.browse_repo_inner(self.repo.id, 'xpp3/xpp3_m')), 0)
+        self.assertEqual(len(Maven3.browse_repo_inner(self.repo.id, 'xpp3/xpp3_min/1.1.4')), 0)
+        self.assertEqual(len(Maven3.browse_repo_inner(self.repo.id, 'xpp3/')), 1)
+        self.assertEqual(len(Maven3.browse_repo_inner(self.repo.id, 'xpp3/xpp3_min/')), 1)
+        self.assertEqual(len(Maven3.browse_repo_inner(self.repo.id, 'xpp3/xpp3_min/1.1.4')), 0)
+        self.assertEqual(len(Maven3.browse_repo_inner(self.repo.id, 'xpp3/xpp3_min/1.1.4c')), 1)
+        self.assertEqual(len(Maven3.browse_repo_inner(self.repo.id, 'xpp3/xpp3_min/1.1.4c/')), 1)
+        self.assertIsInstance(Maven3.browse_repo_inner(self.repo.id, 'xpp3/xpp3_min/1.1.4c/xpp3_min-1.1.4c.jar'), Element)
+        self.assertIsInstance(Maven3.browse_repo_inner(self.repo.id, 'xpp3/xpp3_min/1.1.4c/xpp3_min-1.1.4c.jar.sha1'), str)
+        self.assertEqual(Maven3.browse_repo_inner(self.repo.id, 'xpp3/xpp3_min/1.1.4c/xpp3_min-1.1.4c.jar.sha1'),
                          '19d4e90b43059058f6e056f794f0ea4030d60b86')
         self.assertEqual(Element.objects.filter(repository=self.repo).count(), 5)
 
     def test_javax(self):
-        result = Maven3.browse_repo(HttpRequest(), self.repo.id, 'slug', 'javax')
+        result = Maven3.browse_repo_inner(self.repo.id, 'javax')
         self.assertEqual(len(result), 1)
-        print(result)
+        self.assertIsInstance(result, dict)
+        self.assertTrue('javax' in result)
+
+    def test_all(self):
+        result = Maven3.browse_repo_inner(self.repo.id, '')
+        self.assertEqual(len(result), 2)
+        self.assertIsInstance(result, dict)
+        self.assertTrue('javax' in result)
+        self.assertTrue('xpp3' in result)

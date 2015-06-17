@@ -317,9 +317,15 @@ def add_element_signature(request: HttpRequest, rid):
 
 @csrf_exempt
 def add_element_post(request: HttpRequest, rid):
-    repo = get_object_or_404(Repository.admin_queryset(request), id=rid)
+    print(request.user)
+    for k in Repository.admin_queryset(request):
+        print(k)
+    try:
+        repo = Repository.admin_queryset(request).get(id=rid)
+    except Repository.DoesNotExist:
+        return HttpResponse(_('You cannot upload new packages to this repository'), status=403)
     if request.method != 'POST':
-        return render_to_response('moneta/not_allowed.html', status=405)
+        return HttpResponse(_('Method not allowed'), status=405)
     validators = [RegexValidator(r'[\w\.\-\(\)/]+')]
 
     class ElementForm(forms.Form):

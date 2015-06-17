@@ -43,6 +43,7 @@ import zipfile
 
 from django.conf import settings
 from django.conf.urls import url
+from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
@@ -50,6 +51,7 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 
 from django.utils.translation import ugettext as _
+from moneta.templatetags.moneta import moneta_url
 
 from moneta.utils import parse_control_data
 from moneta.repositories.aptitude import Aptitude
@@ -99,19 +101,19 @@ class Maven3(Aptitude):
             # element.filename = '%s-%s.jar' % (element.archive.rpartition('.')[2], element.version)
 
     @staticmethod
-    def browse_repo(request: HttpRequest, rid: int, repo_slug: str, query_string: str):
-        """
+    def browse_repo_inner(rid: int, query_string: str, state_slug: str=None):
+        """should only called from browse_repository()
+
         :param rid:
-        :param repo_slug:
         :param query_string: a single str corresponding to $groupId/$artifactId/$version/$filename.$extension
         :return:
             a string -> send it in a HttpResponse
             an Element -> send it with views.get_file
+            a dict -> {"net": {"19pouces": {"moneta": {"1.6.0": {set of <Element>}, }, }, }
         """
-        # noinspection PyUnusedLocal
-        repo_slug = repo_slug
         if query_string[-1:] == '/':
             query_string = query_string[:-1]
+        state = get_object_or_404(ArchiveState, repository__id=rid, name=state_slug) if state_slug else None
         gav, sep, filename = query_string.rpartition('/')
         dotted_gavf = query_string.replace('/', '.')
         if sep == '/':
@@ -140,6 +142,8 @@ class Maven3(Aptitude):
             # URL: "group_artifact"
             query = Element.objects.filter(archive__startswith=dotted_gavf)
         query = query.filter(repository__id=rid)
+        if state:
+            query = query.filter(states=state)
         no_ext, sep, ext = query_string.rpartition('.')
         if ext not in ('sha1', 'sha256', 'md5') and sep == '.':
             no_ext = query_string
@@ -162,12 +166,44 @@ class Maven3(Aptitude):
             parents_results.setdefault(elt.version, set()).add(elt)
         return results
 
-    def browse_repo2(self, request: HttpRequest, rid: int, repo_slug: str, query_string: str) -> HttpResponse:
-        result = self.browse_repo(request, rid, repo_slug, query_string)
-        if isinstance(result, str):
+    def browse_repository(self, request: HttpRequest, rid: int, repo_slug: str, query_string: str='', state_slug: str=None) -> HttpResponse:
+        repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
+        result = self.browse_repo_inner(rid, query_string, state_slug=state_slug)
+        if isinstance(result, str):  # sha1/sha256/md5
             return HttpResponse(result)
         elif isinstance(result, Element):
             return get_file(request, eid=result.pk, element=result)
+        assert isinstance(result, dict)
+
+        new_query_string = ''
+        bread_crumbs = [(_('Root'), self.get_browse_url(repo, new_query_string))]
+        while len(result) == 1 and isinstance(result, dict):
+            path_component, result = result.popitem()
+            new_query_string += path_component + '/'
+            bread_crumbs.append((path_component, self.get_browse_url(repo, new_query_string)))
+        if isinstance(result, set):
+            url_list = []
+            for elt in result:
+                new_gavf_elt_filename = new_query_string + elt.filename
+                elt_url = self.get_browse_url(repo, new_gavf_elt_filename)
+                url_list += [(new_gavf_elt_filename, elt_url),
+                           (new_gavf_elt_filename + '.sha1', elt_url + '.sha1'),
+                           (new_gavf_elt_filename + '.sha256', elt_url + '.sha256'),
+                           (new_gavf_elt_filename + '.md5', elt_url + '.md5'),
+                ]
+        else:
+            assert isinstance(result, dict)
+            url_list = [(new_query_string + key, self.get_browse_url(repo, new_query_string + key))
+                        for key in result]
+        template_values = {'repo': repo, 'admin_allowed': repo.admin_allowed(request), 'repo_slug': repo_slug, 'admin': True,
+                           'paths': url_list, 'request_path': new_query_string,
+                           'bread_crumbs': bread_crumbs, }
+        return render_to_response('repositories/maven3/browse.html', template_values, RequestContext(request))
+
+    @staticmethod
+    def get_browse_url(repo, new_query_string):
+        browse_view_name = moneta_url(repo, 'browse')
+        return reverse(browse_view_name, kwargs={'rid': repo.id, 'repo_slug': repo.slug, 'query_string': new_query_string})
 
     def public_url_list(self):
         """
@@ -182,99 +218,13 @@ class Maven3(Aptitude):
 
         # http://mvnrepository.com/artifact/org.requs/requs-exec/1.11
         pattern_list = [
-            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/browse/(?P<gavf>.+)$',
-                self.wrap_view('browse_repo'), name='browse'),
+            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/browse/(?P<query_string>.*)$', self.wrap_view('browse_repository'), name='browse'),
+            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/s/(?P<state_slug>[\w\-\._]+)/browse/(?P<query_string>.*)$', self.wrap_view('browse_repository'), name='browse'),
+            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/browse/$', self.wrap_view('browse_repository'), name='browse'),
+            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/s/(?P<state_slug>[\w\-\._]+)/browse/$', self.wrap_view('browse_repository'), name='browse'),
             url(r"^(?P<rid>\d+)/$", self.wrap_view('index'), name="index"),
-            # url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/artifact/(?P<name>[\w\._\-]+)/"
-            # r"(?P<archive>[\w\._\-]+)/(?P<version>[\w\._\-]+)/(?P<filename>.*)$",
-            #     self.wrap_view('get_filename'), name="get_file"),
-            # url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/s/(?P<state_slug>[\w\-\._]+)/artifact/$',
-            #     self.wrap_view('browse'), name='browse'),
-            # url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/artifact/(?P<value>[\w\-/\.]*)$', self.wrap_view('browse'),
-            #     name='browse'),
-            # url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/artifact/$', self.wrap_view('browse'),
-            #     name='browse'),
-            #
-            # url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/artifact/(?P<name>[\w\._\-]+)/"
-            #     r"(?P<archive>[\w\._\-]+)/(?P<version>[\w\._\-]+)/$", self.wrap_view('browse'), name="browse"),
-            # url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/artifact/(?P<name>[\w\._\-]+)/"
-            #     r"(?P<archive>[\w\._\-]+)/$", self.wrap_view('browse'), name="browse"),
-            # url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/artifact/(?P<name>[\w\._\-]+)/$",
-            #     self.wrap_view('browse'), name="browse"),
-            # url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/artifact/$",
-            #     self.wrap_view('browse'), name="browse"),
-            # url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/artifact/(?P<name>[\w\._\-]+)/"
-            #     r"(?P<archive>[\w\._\-]+)/(?P<version>[\w\._\-]+)/(?P<filename>.*)$",
-            #     self.wrap_view('get_filename'), name="get_file"),
-            # url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/artifact/(?P<name>[\w\._\-]+)/"
-            #     r"(?P<archive>[\w\._\-]+)/(?P<version>[\w\._\-]+)/$", self.wrap_view('browse'), name="browse"),
-            # url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/artifact/(?P<name>[\w\._\-]+)/"
-            #     r"(?P<archive>[\w\._\-]+)/$", self.wrap_view('browse'), name="browse"),
-            # url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/artifact/(?P<name>[\w\._\-]+)/$",
-            #     self.wrap_view('browse'), name="browse"),
-            # url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/artifact/$",
-            #     self.wrap_view('browse'), name="browse"),
         ]
         return pattern_list
-
-    def browse(self, request, rid, repo_slug, state_slug=None, value=''):
-        repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
-        request_path = os.path.abspath('/' + value)[1:]
-        components = list(filter(lambda x: x, request_path.split('/')))
-        base_query = Element.objects.filter(repository=repo)
-        if state_slug:
-            state = get_object_or_404(ArchiveState.objects.filter(repository=repo), slug=state_slug)
-            base_query = base_query.filter(states=state)
-        queries = [{'archive__istartswith': '.'.join(components)}]
-        if len(components) >= 2:
-            queries.append({'archive__iexact': '.'.join(components[0:-1]), 'name__istartswith': components[-1], })
-            queries.append({'archive__iexact': '.'.join(components[0:-1]), 'version__istartswith': components[-1], })
-        if len(components) >= 3:
-            queries.append({'archive__iexact': '.'.join(components[0:-2]), 'name__iexact': components[-2],
-                            'version__istartswith': components[-1], })
-        if len(components) >= 4:
-            elements = base_query.filter(archive__iexact='.'.join(components[0:-3]), name__iexact=components[-3],
-                                         version__iexact=components[-2], filename=components[-1])[0:1]
-            elements = list(elements)
-            if elements:
-                from moneta.views import get_file
-                return get_file(request, eid=elements[0].pk, element=elements[0])
-        all_paths = set()
-        for sub_query in queries:
-            for element in base_query.filter(**sub_query):
-                all_paths.add(self.element_to_path(element, request_path))
-        all_paths = list(filter(lambda x: x, all_paths))
-        all_paths.sort()
-        values = [(x, os.path.dirname(x)) for x in all_paths]
-        if request_path:
-            values.insert(0, (os.path.join(request_path, '..'), '..'))
-        template_values = {'repo': repo, 'admin_allowed': repo.admin_allowed(request), 'repo_slug': repo_slug, 'admin': True,
-                           'paths': values, 'request_path': request_path}
-        return render_to_response('repositories/maven3/browse.html', template_values, RequestContext(request))
-
-    @staticmethod
-    def element_to_path(element, request_path):
-        """ renvoie le chemin à afficher dans la liste
-        """
-        element_components = element.archive.split('.')
-        element_components += [element.name, element.version, element.filename]
-        request_components = request_path.split('/')
-        element_components = list(filter(lambda x: x, element_components))
-        print(element_components)
-
-        if len(request_components) > len(element_components):
-            return None
-        elif not request_components:
-            return '%s/' % element_components[0]
-        index = len(request_components) - 1
-        if element_components[index] == request_components[index]:
-            selection = element_components[0:index + 2]
-        else:
-            selection = element_components[0:index + 1]
-        result = '/'.join(selection)
-        if len(element_components) > len(request_components) + 1:
-            result += '/'
-        return result
 
     def index(self, request, rid):
         repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
@@ -285,47 +235,11 @@ class Maven3(Aptitude):
         request_context = RequestContext(request)
         setting_str = render_to_string('repositories/maven3/maven_settings.xml', template_values, request_context)
         maven_settings_xml.append(('all-packages', str(setting_str)))
+
         for state in states:
             template_values['state_slug'] = state.slug
             setting_str = render_to_string('repositories/maven3/maven_settings.xml', template_values, request_context)
             maven_settings_xml.append((state.slug, str(setting_str), ))
         template_values['maven_settings_xml'] = maven_settings_xml
-        template_values['admin'] = True
+        print(template_values)
         return render_to_response('repositories/maven3/index.html', template_values, request_context)
-
-    # noinspection PyUnusedLocal
-    def folder_index(self, request, rid, repo_slug, state_slug=None, name=None, archive=None, version=None):
-        """
-        Return a HttpResponse
-        :param request: HttpRequest
-        :raise:
-        """
-        repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
-        if state_slug:
-            state = get_object_or_404(ArchiveState, repository=repo, slug=state_slug)
-            query = Element.objects.filter(repo=repo, states=state)
-        else:
-            query = Element.objects.filter(repo=repo)
-        if archive is not None:
-            query = query.filter(archive=archive)
-        if name is not None:
-            query = query.filter(name=name)
-        if version is not None:
-            query = query.filter(version=version)
-        element_query = query.select_related()[0:100]
-        element_count = query.count()
-        template_values = {'repo': repo, 'state': state_slug, 'element_count': element_count,
-                           'admin_allowed': repo.admin_allowed(request),
-                           'elements': element_query, 'name': name, 'archive': archive, 'version': version, }
-        return render_to_response('repositories/maven3/folder_index.html', template_values,
-                                  RequestContext(request))
-
-    # noinspection PyUnusedLocal
-    def get_filename(self, request, rid, repo_slug, state_slug, name, archive, version, filename):
-        repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
-        state = get_object_or_404(ArchiveState, repository=repo, slug=state_slug)
-        element = get_object_or_404(Element, repository=repo, states=state, name=name, archive=archive,
-                                    version=version, filename=filename)
-        from moneta.views import get_file
-
-        return get_file(request, eid=element.pk, element=element)
