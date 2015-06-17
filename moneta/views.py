@@ -318,9 +318,6 @@ def add_element_signature(request: HttpRequest, rid):
 
 @csrf_exempt
 def add_element_post(request: HttpRequest, rid):
-    print(request.user)
-    for k in Repository.upload_queryset(request):
-        print(k)
     try:
         repo = Repository.upload_queryset(request).get(id=rid)
     except Repository.DoesNotExist:

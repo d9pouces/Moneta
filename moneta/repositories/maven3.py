@@ -198,7 +198,8 @@ class Maven3(Aptitude):
         template_values = {'repo': repo, 'upload_allowed': repo.upload_allowed(request), 'repo_slug': repo_slug, 'admin': True,
                            'paths': url_list, 'request_path': new_query_string,
                            'bread_crumbs': bread_crumbs, }
-        return render_to_response('repositories/maven3/browse.html', template_values, RequestContext(request))
+        status_code = 200 if url_list else 404
+        return render_to_response('repositories/maven3/browse.html', template_values, RequestContext(request), status=status_code)
 
     @staticmethod
     def get_browse_url(repo, new_query_string):

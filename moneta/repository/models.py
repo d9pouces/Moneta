@@ -94,6 +94,8 @@ class Repository(BaseModel):
         user = request.user
         if user.is_anonymous():
             return Repository.objects.filter(author=None)
+        elif user.is_superuser:
+            return Repository.objects.all()
         return Repository.objects.filter(Q(admin_group=user.groups.all()) | Q(author=user)).distinct()
 
     @staticmethod
@@ -110,8 +112,6 @@ class Repository(BaseModel):
         user = request.user
         if user.is_anonymous():
             return Repository.objects.filter(Q(is_private=False) | Q(author=None)).distinct()
-        elif user.is_superuser:
-            return Repository.objects.all()
         return Repository.objects.filter(Q(is_private=False) | Q(author=user) | Q(reader_group=user.groups.all())
                                          | Q(admin_group=user.groups.all())).distinct()
 
