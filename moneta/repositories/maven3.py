@@ -195,7 +195,7 @@ class Maven3(Aptitude):
             assert isinstance(result, dict)
             url_list = [(new_query_string + key, self.get_browse_url(repo, new_query_string + key))
                         for key in result]
-        template_values = {'repo': repo, 'admin_allowed': repo.admin_allowed(request), 'repo_slug': repo_slug, 'admin': True,
+        template_values = {'repo': repo, 'upload_allowed': repo.upload_allowed(request), 'repo_slug': repo_slug, 'admin': True,
                            'paths': url_list, 'request_path': new_query_string,
                            'bread_crumbs': bread_crumbs, }
         return render_to_response('repositories/maven3/browse.html', template_values, RequestContext(request))
@@ -229,7 +229,8 @@ class Maven3(Aptitude):
     def index(self, request, rid):
         repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
         states = list(ArchiveState.objects.filter(repository=repo).order_by('name'))
-        template_values = {'repo': repo, 'states': states, 'admin_allowed': repo.admin_allowed(request)}
+        template_values = {'repo': repo, 'states': states, 'upload_allowed': repo.upload_allowed(request),
+                           'admin_allowed': repo.admin_allowed(request), }
         state_infos = []
         template_values['state_slug'] = None
         request_context = RequestContext(request)

@@ -86,23 +86,37 @@ class Repository(BaseModel):
     def index_queryset(request):
         user = request.user
         if user.is_anonymous():
-            return Repository.objects.filter(on_index=True)
+            return Repository.objects.filter(Q(on_index=True) | Q(author=None)).distinct()
         return Repository.objects.filter(Q(on_index=True) | Q(author=user)).distinct()
+
+    @staticmethod
+    def upload_queryset(request):
+        user = request.user
+        if user.is_anonymous():
+            return Repository.objects.filter(author=None)
+        return Repository.objects.filter(Q(admin_group=user.groups.all()) | Q(author=user)).distinct()
 
     @staticmethod
     def admin_queryset(request):
         user = request.user
         if user.is_anonymous():
-            return Repository.objects.filter(author=None).distinct()
-        return Repository.objects.filter(Q(admin_group=user.groups.all()) | Q(author=user)).distinct()
+            return Repository.objects.filter(author=None)
+        elif user.is_superuser:
+            return Repository.objects.all()
+        return Repository.objects.filter(author=user)
 
     @staticmethod
     def reader_queryset(request):
         user = request.user
         if user.is_anonymous():
             return Repository.objects.filter(Q(is_private=False) | Q(author=None)).distinct()
+        elif user.is_superuser:
+            return Repository.objects.all()
         return Repository.objects.filter(Q(is_private=False) | Q(author=user) | Q(reader_group=user.groups.all())
                                          | Q(admin_group=user.groups.all())).distinct()
+
+    def upload_allowed(self, request):
+        return self.upload_queryset(request).filter(id=self.id)[0:1].count() > 0
 
     def admin_allowed(self, request):
         return self.admin_queryset(request).filter(id=self.id)[0:1].count() > 0

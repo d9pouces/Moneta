@@ -57,16 +57,17 @@ def index(request: HttpRequest):
     else:
         form = get_repository_form()()
     # compute repos with admin rights
+    upload_ids = {x.id for x in Repository.upload_queryset(request)}
     admin_ids = {x.id for x in Repository.admin_queryset(request)}
     template_values = {'repositories': repositories, 'form': form, 'request': request,
-                       'admin_ids': admin_ids}
+                       'upload_ids': upload_ids, 'admin_ids': admin_ids, }
     return render_to_response('moneta/index.html', template_values, RequestContext(request))
 
 
 def delete_repository(request: HttpRequest, rid):
     from moneta.repository.forms import DeleteRepositoryForm
 
-    repo = get_object_or_404(Repository.admin_queryset(request), id=rid)
+    repo = get_object_or_404(Repository.upload_queryset(request), id=rid)
     if request.method == 'POST':
         form = DeleteRepositoryForm(request.POST)
         if form.is_valid():
@@ -129,7 +130,7 @@ def check(request: HttpRequest):
 
 
 def modify_repository(request: HttpRequest, rid):
-    repo = get_object_or_404(Repository.admin_queryset(request), id=rid)
+    repo = get_object_or_404(Repository.upload_queryset(request), id=rid)
     author = None if request.user.is_anonymous() else request.user
 
     if request.method == 'POST':
@@ -159,7 +160,7 @@ def modify_repository(request: HttpRequest, rid):
                                              'reader_group': list(repo.reader_group.all()),
                                              'states': ' '.join([x.name for x in repo.archivestate_set.all()]),
                                              'admin_group': list(repo.admin_group.all())})
-    template_values = {'form': form, 'repo': repo, 'admin_allowed': repo.admin_allowed(request)}
+    template_values = {'form': form, 'repo': repo, 'upload_allowed': repo.upload_allowed(request)}
     return render_to_response('moneta/modify_repo.html', template_values, RequestContext(request))
 
 
@@ -201,14 +202,14 @@ def search_package(request: HttpRequest, rid):
         # If page is out of range (e.g. 9999), deliver last page of results.
         elements = paginator.page(paginator.num_pages)
     template_values = {'elements': elements, 'repo': repo, 'pattern': search_pattern, 'form': form,
-                       'admin_allowed': repo.admin_allowed(request)}
+                       'upload_allowed': repo.upload_allowed(request)}
     return render_to_response('moneta/search_repo.html', template_values, RequestContext(request))
 
 
 def delete_element(request: HttpRequest, rid, eid):
     from moneta.repository.forms import DeleteRepositoryForm
 
-    repo = get_object_or_404(Repository.admin_queryset(request), id=rid)
+    repo = get_object_or_404(Repository.upload_queryset(request), id=rid)
     element = get_object_or_404(Element.objects.filter(repository=repo, id=eid))
     if request.method == 'POST':
         form = DeleteRepositoryForm(request.POST)
@@ -268,7 +269,7 @@ def generic_add_element(request: HttpRequest, repo, uploaded_file, state_names, 
 
 
 def add_element(request: HttpRequest, rid):
-    repo = get_object_or_404(Repository.admin_queryset(request), id=rid)
+    repo = get_object_or_404(Repository.upload_queryset(request), id=rid)
 
     class ElementForm(forms.Form):
         package = forms.FileField(label=_('Package'))
@@ -293,7 +294,7 @@ def add_element(request: HttpRequest, rid):
             return HttpResponseRedirect(reverse('moneta.views.add_element', kwargs={'rid': rid}))
     else:
         form = ElementForm()
-    template_values = {'form': form, 'repo': repo, 'admin_allowed': repo.admin_allowed(request)}
+    template_values = {'form': form, 'repo': repo, 'upload_allowed': repo.upload_allowed(request)}
     return render_to_response('moneta/add_package.html', template_values, RequestContext(request))
 
 
@@ -318,10 +319,10 @@ def add_element_signature(request: HttpRequest, rid):
 @csrf_exempt
 def add_element_post(request: HttpRequest, rid):
     print(request.user)
-    for k in Repository.admin_queryset(request):
+    for k in Repository.upload_queryset(request):
         print(k)
     try:
-        repo = Repository.admin_queryset(request).get(id=rid)
+        repo = Repository.upload_queryset(request).get(id=rid)
     except Repository.DoesNotExist:
         return HttpResponse(_('You cannot upload new packages to this repository'), status=403)
     if request.method != 'POST':
@@ -370,7 +371,7 @@ def show_file(request: HttpRequest, eid):
         raise Http404
     element = elements[0]
     template_values = {'element': element, 'repo': element.repository,
-                       'admin_allowed': element.repository.admin_allowed(request)}
+                       'upload_allowed': element.repository.upload_allowed(request)}
     return render_to_response('moneta/show_package.html', template_values, RequestContext(request))
 
 
@@ -506,7 +507,7 @@ def compare_states(request: HttpRequest, rid):
         operator = forms.ChoiceField([(x, x) for x in operators], label=_('Assert operator'))
         state_right = forms.ModelChoiceField(states, label=_('Right state'))
 
-    template_values = {'repo': repo, 'admin_allowed': repo.admin_allowed(request)}
+    template_values = {'repo': repo, 'upload_allowed': repo.upload_allowed(request)}
     if request.method == 'POST':
         form = CompareForm(request.POST)
         if form.is_valid():

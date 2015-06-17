@@ -17,7 +17,7 @@
                 <div class="tab-pane {% if forloop.first %}active{% endif %}" id="state_{{ state_info.0 }}">
                 <p>{% trans 'Add the following repositories to your $HOME/.m2/settings.xml in the repository section:' %}</p>
                     <pre>{{ state_info.1 }}</pre>
-                {% if admin_allowed %}
+                {% if upload_allowed %}
                     <h3>{% trans 'Add a package' %}</h3>
                     <p>{% trans 'In order to add a new Java archive, please run the following command:' %}</p>
             <p>{% trans 'You can also add packages by specifying archive (groupId.artifactId, name of the package) and version:' %}</p>

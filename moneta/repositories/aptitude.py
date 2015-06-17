@@ -222,7 +222,7 @@ class Aptitude(RepositoryModel):
         element_count = q.count()
         template_values = {'repo': repo, 'state': state_slug, 'element_count': element_count,
                            'elements': element_query, 'folder': folder,
-                           'admin_allowed': repo.admin_allowed(request), }
+                           'upload_allowed': repo.upload_allowed(request), }
         return render_to_response('repositories/aptitude/folder_index.html', template_values,
                                   RequestContext(request))
 
@@ -247,14 +247,14 @@ class Aptitude(RepositoryModel):
         tab_infos = [(states, ArchiveState(name=_('All states'), slug='all-states')), ]
         tab_infos += [([state], state) for state in states]
 
-        template_values = {'repo': repo, 'states': states, 'admin_allowed': repo.admin_allowed(request),
+        template_values = {'repo': repo, 'states': states, 'upload_allowed': repo.upload_allowed(request),
                            'index_url': reverse(moneta_url(repo, 'index'), kwargs={'rid': repo.id, }),
-                           'tab_infos': tab_infos, }
+                           'tab_infos': tab_infos, 'admin_allowed': repo.admin_allowed(request), }
         return render_to_response('repositories/aptitude/index.html', template_values, RequestContext(request))
 
     # noinspection PyUnusedLocal
     def force_index(self, request, rid, repo_slug):
-        repo = get_object_or_404(Repository.admin_queryset(request), id=rid, archive_type=self.archive_type)
+        repo = get_object_or_404(Repository.upload_queryset(request), id=rid, archive_type=self.archive_type)
         self.generate_indexes(repo)
         return HttpResponse(_('Indexes have been successfully rebuilt.'))
 
