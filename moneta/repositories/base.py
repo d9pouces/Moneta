@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.http import HttpResponseBadRequest
+from moneta.repository.models import Element
 from moneta.utils import import_path
 
 __author__ = 'flanker'
@@ -58,6 +59,15 @@ class RepositoryModel(object):
         :return: Unicode string containing meta-data
         """
         return ''
+
+    def finish_element(self, element: Element, states: list):
+        """
+        Called after the .save() operations, with all states associated to this new element.
+        Currently, only add all states to this element.
+        :param element: Element
+        :param states: list of ArchiveState
+        """
+        element.states.add(*states)
 
     def url_list(self):
         """

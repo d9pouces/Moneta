@@ -74,6 +74,19 @@ class Aptitude(RepositoryModel):
         element.official_link = parsed_data.get('Homepage', '')
         element.long_description = parsed_data.get('Description', '')
 
+    def finish_element(self, element: Element, states: list):
+        """
+        Called after the .save() operations, with all states associated to this new element.
+        Remove previous versions from target states
+        :param element: Element
+        :param states: list of ArchiveState
+        """
+        # remove previous versions from the given states:
+        # noinspection PyUnresolvedReferences
+        Element.states.through.objects.exclude(element__version=element.version) \
+            .filter(archivestate__in=states, element__archive=element.archive).delete()
+        super().finish_element(element, states)
+
     @staticmethod
     def get_subfile(ar_file, prefix='control.tar.'):
         for name in ar_file.getnames():

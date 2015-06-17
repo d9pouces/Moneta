@@ -164,14 +164,6 @@ Now, it's time to install moneta (use Python3.2 on Debian 7)::
         remote_user_header = HTTP_REMOTE_USER
         ; leave it blank if you do not use kerberos
 
-        [elasticsearch]
-        hosts = 127.0.0.1:9200
-        index = moneta
-
-        [redis]
-        host = 127.0.0.1
-        port = 6379
-
         [database]
         engine = django.db.backends.postgresql_psycopg2
         name = moneta
@@ -181,15 +173,11 @@ Now, it's time to install moneta (use Python3.2 on Debian 7)::
         port = 5432
         EOF
 
-        # Debian7 only
-        echo "CACHES = {'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}" > $VIRTUAL_ENV/etc/moneta/settings.py
-
         moneta-manage migrate auth
         # this command will finish in error :(
         moneta-manage migrate sites
         moneta-manage migrate auth
         moneta-manage migrate
-        moneta-manage init_es
         moneta-manage collectstatic --noinput
         moneta-manage createsuperuser
 

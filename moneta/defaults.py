@@ -58,7 +58,7 @@ STORAGES = {
 STORAGE_ARCHIVE = 'archive'
 STORAGE_UNCOMPRESSED = 'uncompressed'
 STORAGE_CACHE = 'cache'
-
+CACHES = {'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}
 
 FLOOR_FAKE_AUTHENTICATION_USERNAME = 'flanker'
 DEBUG = True
