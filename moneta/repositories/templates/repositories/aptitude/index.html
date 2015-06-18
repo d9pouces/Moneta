@@ -27,7 +27,7 @@
         {% with view=repo|moneta_url:"gpg_key" %}<pre>{% curl repo %} {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug slug2=repo.slug %} | sudo apt-key add -</pre>{% endwith %}
         {% trans 'The Release file can be downloaded using cURL:' %}
         {% with view=repo|moneta_url:"repo_release" %}<pre>{% curl repo %} {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug filename='Release' %}</pre>{% endwith %}
-        {% if upload_allowed %}<h3>{% trans 'Add a package' %}</h3>
+        {% if upload_allowed %}<h2>{% trans 'Add a package' %}</h2>
             {% trans 'In order to add a new package, please run the following command:' %}
         <pre>FILENAME=filename-version.deb
 {% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta.views.add_element_post' rid=repo.id %}\?filename=$FILENAME{% for state in tab_info.0 %}\&amp;states={{ state.slug }}{% endfor %}</pre>

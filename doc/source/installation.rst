@@ -157,10 +157,6 @@ Now, it's time to install moneta (use Python3.2 on Debian 7)::
         language_code = fr-fr
         x_send_file =  true
         x_accel_converter = false
-        public_bookmarks = true
-        public_proxies = true
-        public_index = true
-        public_docs = true
         remote_user_header = HTTP_REMOTE_USER
         ; leave it blank if you do not use kerberos
 

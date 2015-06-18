@@ -3,6 +3,7 @@ from bootstrap3.templatetags.bootstrap3 import get_pagination_context
 from django import template
 from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
 register = template.Library()
 
@@ -31,6 +32,17 @@ def direct_link(element):
     if element.repository.is_private:
         return reverse('moneta.views.get_file', kwargs={'eid': element.id, 'name': element.filename})
     return reverse('moneta.views.get_file_p', kwargs={'eid': element.id, 'name': element.filename})
+
+
+@register.filter
+def human_join(list_of_elements):
+    if not list_of_elements:
+        return ''
+    elif len(list_of_elements) == 1:
+        return list_of_elements[0]
+    result = _(', ').join([str(x) for x in list_of_elements[:-1]])
+    result += _(' and ') + str(list_of_elements[-1])
+    return result
 
 
 @register.filter

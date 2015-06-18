@@ -51,6 +51,7 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 
 from django.utils.translation import ugettext as _
+from moneta.repositories.base import RepositoryModel
 from moneta.templatetags.moneta import moneta_url
 
 from moneta.utils import parse_control_data
@@ -95,10 +96,18 @@ class Maven3(Aptitude):
             control_data = parse_control_data(control_data_value, continue_line=' ')
             for key, attr in (('Bundle-SymbolicName', 'name'), ('Bundle-Version', 'version'),
                               ('Implementation-Title', 'archive'), ('Implementation-Version', 'version'),
-                              ('Name', 'name'), ):
+                              ('Name', 'name'),):
                 if key in control_data:  # archive : PackageName, name : Organization Name
                     setattr(element, attr, control_data.get(key, ''))
-            # element.filename = '%s-%s.jar' % (element.archive.rpartition('.')[2], element.version)
+                    # element.filename = '%s-%s.jar' % (element.archive.rpartition('.')[2], element.version)
+
+    def finish_element(self, element: Element, states: list):
+        """
+        Called after the .save() operations, with all states associated to this new element.
+        :param element: Element
+        :param states: list of ArchiveState
+        """
+        RepositoryModel.finish_element(self, element, states)
 
     @staticmethod
     def browse_repo_inner(rid: int, query_string: str, state_slug: str=None):
@@ -176,35 +185,37 @@ class Maven3(Aptitude):
         assert isinstance(result, dict)
 
         new_query_string = ''
-        bread_crumbs = [(_('Root'), self.get_browse_url(repo, new_query_string))]
+        bread_crumbs = [(_('Root'), self.get_browse_url(repo, new_query_string, state_slug=state_slug))]
         while len(result) == 1 and isinstance(result, dict):
             path_component, result = result.popitem()
             new_query_string += path_component + '/'
-            bread_crumbs.append((path_component, self.get_browse_url(repo, new_query_string)))
+            bread_crumbs.append((path_component, self.get_browse_url(repo, new_query_string, state_slug=state_slug)))
         if isinstance(result, set):
             url_list = []
             for elt in result:
                 new_gavf_elt_filename = new_query_string + elt.filename
-                elt_url = self.get_browse_url(repo, new_gavf_elt_filename)
-                url_list += [(new_gavf_elt_filename, elt_url),
-                           (new_gavf_elt_filename + '.sha1', elt_url + '.sha1'),
-                           (new_gavf_elt_filename + '.sha256', elt_url + '.sha256'),
-                           (new_gavf_elt_filename + '.md5', elt_url + '.md5'),
-                ]
+                elt_url = self.get_browse_url(repo, new_gavf_elt_filename, state_slug=state_slug)
+                url_list += [(new_gavf_elt_filename, elt_url, elt.id),
+                             (new_gavf_elt_filename + '.sha1', elt_url + '.sha1', None),
+                             (new_gavf_elt_filename + '.sha256', elt_url + '.sha256', None),
+                             (new_gavf_elt_filename + '.md5', elt_url + '.md5', None),
+                             ]
         else:
             assert isinstance(result, dict)
-            url_list = [(new_query_string + key, self.get_browse_url(repo, new_query_string + key))
+            url_list = [(new_query_string + key, self.get_browse_url(repo, new_query_string + key, state_slug=state_slug), None)
                         for key in result]
         template_values = {'repo': repo, 'upload_allowed': repo.upload_allowed(request), 'repo_slug': repo_slug, 'admin': True,
-                           'paths': url_list, 'request_path': new_query_string,
+                           'paths': url_list, 'request_path': new_query_string, 'state_slug': state_slug,
                            'bread_crumbs': bread_crumbs, }
         status_code = 200 if url_list else 404
         return render_to_response('repositories/maven3/browse.html', template_values, RequestContext(request), status=status_code)
 
     @staticmethod
-    def get_browse_url(repo, new_query_string):
+    def get_browse_url(repo, new_query_string, state_slug=None):
         browse_view_name = moneta_url(repo, 'browse')
-        return reverse(browse_view_name, kwargs={'rid': repo.id, 'repo_slug': repo.slug, 'query_string': new_query_string})
+        if state_slug is None:
+            return reverse(browse_view_name, kwargs={'rid': repo.id, 'repo_slug': repo.slug, 'query_string': new_query_string})
+        return reverse(browse_view_name, kwargs={'rid': repo.id, 'repo_slug': repo.slug, 'query_string': new_query_string, 'state_slug': state_slug, })
 
     def public_url_list(self):
         """

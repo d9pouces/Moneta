@@ -19,7 +19,7 @@ REPOSITORY_CLASSES = [
     'moneta.repositories.aptitude.Aptitude',
     'moneta.repositories.pypi.Pypi',
     'moneta.repositories.maven3.Maven3',
-
+    'moneta.repositories.flat_files.FlatFile',
 ]
 
 TEMPLATE_CONTEXT_PROCESSORS = [

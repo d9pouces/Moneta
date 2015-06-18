@@ -15,6 +15,7 @@ from django.utils.timezone import get_current_timezone
 from django.utils.translation import ugettext as _
 
 from moneta.exceptions import InvalidRepositoryException
+from moneta.repositories.base import RepositoryModel
 from moneta.templatetags.moneta import moneta_url
 from moneta.utils import parse_control_data
 from moneta.repositories.aptitude import Aptitude
@@ -65,6 +66,14 @@ class Pypi(Aptitude):
     verbose_name = _('Pypi repository for Python packages')
     storage_uid = '61610000-0000-0000-0000-%012d'
     archive_type = 'pypy'
+
+    def finish_element(self, element: Element, states: list):
+        """
+        Called after the .save() operations, with all states associated to this new element.
+        :param element: Element
+        :param states: list of ArchiveState
+        """
+        RepositoryModel.finish_element(self, element, states)
 
     def is_file_valid(self, uploaded_file: UploadedFile):
         return True

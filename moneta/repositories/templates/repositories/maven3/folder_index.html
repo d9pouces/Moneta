@@ -1,5 +1,5 @@
 {% extends "moneta/base_package.html" %}{% load staticfiles i18n %}
-{% block bootstrap3_title %}{% blocktrans %}Repository {{ repo }}/{{ state }}{% endblocktrans %}{% endblock %}
+{% block bootstrap3_title %}{% blocktrans %}Repository {{ repo }}{% endblocktrans %}{% if state_slug %}/{{ state_slug }}{% endif %}{% endblock %}
 
 {% block repo_content %}
     <h1><a href="{{ repo.get_absolute_url }}">{% blocktrans %}Repository {{ repo }}/{{ state }}{% endblocktrans %}</a></h1>

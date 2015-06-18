@@ -1,11 +1,10 @@
 {% extends "moneta/base_package.html" %}{% load staticfiles i18n moneta %}
+
 {% block base_repo_urls %}
     <div class="btn-group">
         <a class="btn btn-sm btn-default" href="{{ repo.get_absolute_url }}">{% trans 'usage' %}</a>
         <a class="btn btn-sm btn-default"
            href="{% url 'moneta.views.search_package' rid=repo.id %}">{% trans 'browse repository' %}</a>
-        <a class="btn btn-sm btn-default"
-           href="{% url 'moneta.views.compare_states' rid=repo.id %}">{% trans 'check' %}</a>
         {% if admin_allowed %}
             <a class="btn btn-sm btn-default"
                href="{% url 'moneta.views.modify_repository' rid=repo.id %}">{% trans 'modify repository' %}</a>
@@ -15,24 +14,26 @@
     </div>{% endblock %}
 
 {% block repo_content %}
-                <h2>{% trans 'Maven settings' %}</h2>
+
         <ul class="nav nav-tabs">
             {% for state_info in state_infos %}
             <li {% if forloop.first %}class="active"{% endif %}><a href="#state_{{ state_info.0 }}" data-toggle="tab">{{ state_info.2 }}</a></li>
             {% endfor %}
         </ul>
         <div class="tab-content">
+                <h2>{% trans 'Show files' %}</h2>
             {% for state_info in state_infos %}
                 <div class="tab-pane {% if forloop.first %}active{% endif %}" id="state_{{ state_info.0 }}">
-                <p>{% trans 'Add the following repositories to your pom.xml in the repositories section:' %}</p>
-                    <pre>{{ state_info.1 }}</pre>
-                {% if upload_allowed %}
-                    <h2>{% trans 'Add a package' %}</h2>
-            <p>{% trans 'You can add packages by specifying archive (groupId.artifactId, name of the package) and version:' %}</p>
-                <pre>FILENAME=filename-version.XXX
-ARCHIVE=$groupId.$artifactId
+                <p>You can browse uploaded packages at the following address:</p>
+                <a href="{{ state_info.1 }}">{{ absolute_url }}{{ state_info.1 }}</a>
+                    {% if upload_allowed %}
+                    <h2>{% trans 'Add a file' %}</h2>
+                    <p>{% trans 'In order to add a new archive, please run the following command:' %}</p>
+                <pre>FILENAME=filename.xxx
+IDENTIFIER=$identifier
 VERSION=$version
-{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta.views.add_element_post' rid=repo.id %}\?filename=$FILENAME\&archive=$ARCHIVE\&version=$VERSION{% for state in state_info.3 %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
+{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta.views.add_element_post' rid=repo.id %}\?filename=$FILENAME\&archive=$IDENTIFIER\&version=$VERSION{% for state in state_info.3 %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
+                {% if state_info.3 %}<p>Only the last uploaded version of this identifier will be kept in state{{ state_info.3|pluralize }} {{ state_info.3|human_join }}.</p>{% endif %}
                 </div>
             {% endfor %}
         </div>
