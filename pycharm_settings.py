@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 ACCOUNT_EMAIL_SUBJECT_PREFIX = '[localhost] '
 ACCOUNT_EMAIL_VERIFICATION = None
@@ -85,6 +85,7 @@ REPOSITORY_CLASSES = [
     'moneta.repositories.pypi.Pypi',
     'moneta.repositories.maven3.Maven3',
     'moneta.repositories.flat_files.FlatFile',
+    'moneta.repositories.yum.Yum',
 ]
 REVERSE_PROXY_ACCESS_LOG_FILE = '/Users/flanker/.virtualenvs/moneta/var/moneta/log/access.log'
 REVERSE_PROXY_ERROR_LOG_FILE = '/Users/flanker/.virtualenvs/moneta/var/moneta/log/error.log'

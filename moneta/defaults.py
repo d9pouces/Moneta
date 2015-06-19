@@ -20,6 +20,8 @@ REPOSITORY_CLASSES = [
     'moneta.repositories.pypi.Pypi',
     'moneta.repositories.maven3.Maven3',
     'moneta.repositories.flat_files.FlatFile',
+    'moneta.repositories.yum.Yum',
+    # 'moneta.repositories.ruby.RubyGem',
 ]
 
 TEMPLATE_CONTEXT_PROCESSORS = [

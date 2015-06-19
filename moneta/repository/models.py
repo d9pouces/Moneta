@@ -15,6 +15,7 @@ from django.utils.text import slugify
 from django.utils.translation import ugettext as _, ugettext
 
 from moneta.exceptions import InvalidRepositoryException
+from moneta.repository.storages import BaseStorage
 from moneta.utils import normalize_str, remove, import_path
 
 __author__ = 'flanker'
@@ -28,7 +29,7 @@ STORAGES = {}
 
 
 @functools.lru_cache()
-def storage(name):
+def storage(name) -> BaseStorage:
     kwargs = settings.STORAGES.get(name, settings.STORAGES['default'])
     cls = import_path(kwargs['ENGINE'])
     return cls(**kwargs)
@@ -239,6 +240,7 @@ class Element(BaseModel):
         except Exception as e:
             logging.error(ugettext('Unable to add the archive file'), exc_info=True)
             raise e
+        obj_file.seek(0)
         for f in temp_files:
             remove(f)
 

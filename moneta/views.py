@@ -19,6 +19,7 @@ from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db.models import Count
 from django.http import HttpResponseRedirect, Http404, StreamingHttpResponse, HttpResponse, HttpRequest
+from django.views.decorators.cache import never_cache
 
 from django.views.decorators.csrf import csrf_exempt
 from djangofloor.views import send_file
@@ -36,6 +37,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext_lazy as _
 
 
+@never_cache
 def index(request: HttpRequest):
     repositories = Repository.index_queryset(request).annotate(package_count=Count('element'))
     if not request.user.has_perm('repository.add_repository'):
@@ -82,11 +84,13 @@ def delete_repository(request: HttpRequest, rid):
     return render_to_response('moneta/delete_repo.html', template_values, RequestContext(request))
 
 
+@never_cache
 def public_check(request: HttpRequest):
     messages.success(request, _('You can access to this page.'))
     return render_to_response('moneta/empty.html', RequestContext(request))
 
 
+@never_cache
 def private_check(request: HttpRequest):
     if request.user.is_anonymous():
         messages.error(request, _('You are not authenticated.'))
@@ -95,6 +99,7 @@ def private_check(request: HttpRequest):
     return render_to_response('moneta/empty.html', RequestContext(request))
 
 
+@never_cache
 def check(request: HttpRequest):
     s_h = settings.SECURE_PROXY_SSL_HEADER
     a_h = settings.AUTHENTICATION_HEADER
@@ -129,6 +134,7 @@ def check(request: HttpRequest):
     return render_to_response('moneta/help.html', template_values, RequestContext(request))
 
 
+@never_cache
 def modify_repository(request: HttpRequest, rid):
     repo = get_object_or_404(Repository.upload_queryset(request), id=rid)
     author = None if request.user.is_anonymous() else request.user
@@ -164,6 +170,7 @@ def modify_repository(request: HttpRequest, rid):
     return render_to_response('moneta/modify_repo.html', template_values, RequestContext(request))
 
 
+@never_cache
 def search_package(request: HttpRequest, rid):
     repo = get_object_or_404(Repository.reader_queryset(request), id=rid)
     repo_states = list(ArchiveState.objects.filter(repository=repo))
@@ -265,6 +272,7 @@ def generic_add_element(request: HttpRequest, repo, uploaded_file, state_names, 
     return element
 
 
+@never_cache
 def add_element(request: HttpRequest, rid):
     repo = get_object_or_404(Repository.upload_queryset(request), id=rid)
 
@@ -358,6 +366,7 @@ def add_element_post(request: HttpRequest, rid):
     return HttpResponse(_('Package %(element)s successfully added to repository %(repo)s.\n') % template_values)
 
 
+@never_cache
 def show_file(request: HttpRequest, eid):
     q = Element.reader_queryset(request).filter(id=eid).select_related()[0:1]
     elements = list(q)

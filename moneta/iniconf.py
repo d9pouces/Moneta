@@ -4,7 +4,7 @@ from djangofloor.iniconf import OptionParser, bool_setting
 
 def x_accel_converter(value):
     if bool_setting(value):
-        return [('{MEDIA_ROOT}/', '{MEDIA_URL}'), ]
+        return [('{LOCAL_PATH}/storage/', '{MEDIA_URL}'), ]
     return []
 
 

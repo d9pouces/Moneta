@@ -1,0 +1,6 @@
+<package pkgid="{{ rpm.checksum }}" name="{{ header.name }}" arch="{{ header.architecture }}">
+  <version epoch="{{ header.epoch }}" ver="{{ header.version }}" rel="{{ header.release }}"/>
+    {% for file in rpm.filelist %}
+  <file {% if file.type != 'file' %}type="{{ file.type }}"{% endif %}>{{ file.name }}</file>
+    {% endfor %}
+</package>

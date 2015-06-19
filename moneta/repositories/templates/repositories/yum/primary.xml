@@ -1,0 +1,42 @@
+<!--suppress ALL -->
+<package type="rpm">
+  <name>{{ header.name }}</name>
+  <arch>{{ header.architecture }}</arch>
+  <version epoch="{{ header.epoch }}" ver="{{ header.version }}" rel="{{ header.release }}"/>
+  <checksum type="sha256" pkgid="YES">{{ rpm.checksum }}</checksum>
+  <summary>{{ summary }}</summary>
+  <description>{{ description }}</description>
+  <packager>{{ packager }}</packager>
+  <url>{{ url }}</url>
+  <time file="{{ header.build_time }}" build="{{ header.build_time }}"/>
+  <size package="{{ rpm.filesize }}" installed="{{ header.size }}" archive="{{ signature.payload_size }}"/>
+  <location href="Packages/{{ rpm.canonical_filename }}"/>
+  <format>
+    <rpm:license>{{ header.license }}</rpm:license>
+    <rpm:vendor>{{ header.vendor }}</rpm:vendor>
+    <rpm:group>{{ header.group }}</rpm:group>
+    <rpm:buildhost>worker1.bsys.centos.org</rpm:buildhost>
+    <rpm:sourcerpm>{{ header.source_rpm }}</rpm:sourcerpm>
+    <rpm:header-range start="1384" end="171748"/>
+    <rpm:provides>
+        {% for info in rpm.provides %}
+        <rpm:entry name="{{ info.name }}" {% if info.str_flags %}flags="{{ info.str_flags }}"{% endif %}{% if info.version.1 %} epoch="{{ info.version.0 }}" ver="{{ info.version.1 }}" rel="{{ info.version.2 }}"{% endif %}/>
+        {% endfor %}
+    </rpm:provides>
+    <rpm:requires>
+        {% for info in rpm.requires %}
+        <rpm:entry name="{{ info.name }}" {% if info.str_flags %}flags="{{ info.str_flags }}"{% endif %}{% if info.version.1 %} epoch="{{ info.version.0 }}" ver="{{ info.version.1 }}" rel="{{ info.version.2 }}"{% endif %}/>
+        {% endfor %}
+    </rpm:requires>
+    <rpm:conflicts>
+        {% for info in rpm.conflicts %}
+        <rpm:entry name="{{ info.name }}" {% if info.str_flags %}flags="{{ info.str_flags }}"{% endif %}{% if info.version.1 %} epoch="{{ info.version.0 }}" ver="{{ info.version.1 }}" rel="{{ info.version.2 }}"{% endif %}/>
+        {% endfor %}
+    </rpm:conflicts>
+    <rpm:obsoletes>
+        {% for info in rpm.obsoletes %}
+        <rpm:entry name="{{ info.name }}" {% if info.str_flags %}flags="{{ info.str_flags }}"{% endif %}{% if info.version.1 %} epoch="{{ info.version.0 }}" ver="{{ info.version.1 }}" rel="{{ info.version.2 }}"{% endif %}/>
+        {% endfor %}
+    </rpm:obsoletes>
+  </format>
+</package>
