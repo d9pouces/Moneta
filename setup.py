@@ -19,7 +19,7 @@ entry_points = {'console_scripts': ['moneta-manage = djangofloor.scripts:manage'
 setup(
     name='moneta',
     version=version,
-    description='No description yet.',
+    description='Moneta is an emulator for different kinds (Aptitude/Yum/Pypi/Maven) of package repositories on the same server.',
     long_description=long_description,
     author='flanker',
     author_email='flanker@19pouces.net',
