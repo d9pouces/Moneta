@@ -163,7 +163,7 @@ class BZ2File(object):
 def split_lines(fd, compression=None, bufsize=10240):
     __buffer = ''
     if compression == 'gz':
-        tmp_file = tempfile.TemporaryFile()
+        tmp_file = tempfile.TemporaryFile(dir=settings.TEMP_ROOT)
         data = fd.read(bufsize)
         while data:
             tmp_file.write(data)

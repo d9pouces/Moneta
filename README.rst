@@ -11,7 +11,6 @@ TODO
         * Jetbrains
         * brew
         * Perl
-        * RPM
         * LaTeX
         * Ruby
         * PHP

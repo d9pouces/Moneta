@@ -23,14 +23,15 @@ def get_repository_form():
     class RepositoryForm(forms.Form):
         name = forms.CharField(max_length=80, label=_('Repository name'), validators=[repo_name_validator])
         archive_type = forms.ChoiceField(label=_('Type of archives'), choices=RepositoryModelsClasses())
-        on_index = forms.BooleanField(label=_('Display on index for everybody?'), initial=True, required=False)
-        is_private = forms.BooleanField(label=_('Authentication required?'), initial=False, required=False)
+        on_index = forms.BooleanField(label=_('Add on public index?'), initial=True, required=False)
+        is_private = forms.BooleanField(label=_('Authentication required?'), initial=False, required=False, widget=forms.HiddenInput())
         states = forms.CharField(label=_('Possible states for archives'), initial='qualif prod',
                                  help_text=_('Please separate values by spaces'),
                                  validators=[RegexValidator('\w+(\s\w)*')])
         admin_group = forms.ModelMultipleChoiceField(Group.objects.all(), label=_('Groups allowed to upload packages'),
                                                      required=False)
-        reader_group = forms.ModelMultipleChoiceField(Group.objects.all(), label=_('Groups allowed to download packages'),
+        reader_group = forms.ModelMultipleChoiceField(Group.objects.all(), widget=forms.HiddenInput(),
+                                                      label=_('Groups allowed to download packages'),
                                                       help_text=_('Only if downloads require authentication'), required=False)
 
     return RepositoryForm
@@ -52,15 +53,15 @@ class DeleteRepositoryForm(forms.Form):
 
 class RepositoryUpdateForm(forms.Form):
     on_index = forms.BooleanField(label=_('Display on index for everybody?'), initial=True, required=False)
-    is_private = forms.BooleanField(label=_('Must downloads be authenticated?'), initial=False, required=False)
+    is_private = forms.BooleanField(label=_('Must downloads be authenticated?'), initial=False, required=False, widget=forms.HiddenInput())
     states = forms.CharField(label=_('Possible states'), initial='dev qualif prod',
                              help_text=_('Please separate values by spaces'),
                              validators=[RegexValidator('\w+(\s\w)*')])
     admin_group = forms.ModelMultipleChoiceField(Group.objects.all(), label=_('Groups allowed to upload'),
                                                  required=False)
-    reader_group = forms.ModelMultipleChoiceField(Group.objects.all(),
-                                                  help_text=_('Only if downloads are authenticated'),
-                                                  label=_('Groups allowed to download packages'), required=False)
+    # reader_group = forms.ModelMultipleChoiceField(Group.objects.all(), widget=forms.HiddenInput(),
+    #                                               help_text=_('Only if downloads are authenticated'),
+    #                                               label=_('Groups allowed to download packages'), required=False)
 
 
 class SignatureForm(forms.Form):

@@ -83,7 +83,9 @@ class Yum(Aptitude):
             url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/(?P<state_slug>[\w\-\._]+)/(?P<folder>[\w\-\._]+)/Packages/'
                 r'(?P<filename>[\w\-\.]+)$', self.wrap_view('get_file'), name='get_file'),
             url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/(?P<state_slug>[\w\-\._]+)/(?P<arch>[\w\-\._]+)/repodata/'
-                r'(?P<filename>[\w\-\.]+)(?P<compression>|.bz2|.gz)$', self.wrap_view('repodata_file'), name='repodata_file'),
+                r'(?P<filename>\w+\.xml)(?P<compression>|.bz2|.gz)$', self.wrap_view('repodata_file'), name='repodata_file'),
+            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/(?P<state_slug>[\w\-\._]+)/(?P<arch>[\w\-\._]+)$',
+                self.wrap_view('index'), name='repo_index'),
             url(r"^(?P<rid>\d+)/gpg_key.asc$", self.wrap_view('gpg_key'), name="gpg_key"),
             url(r"^(?P<rid>\d+)/$", self.wrap_view('index'), name="index"),
         ]
@@ -97,7 +99,7 @@ class Yum(Aptitude):
         return HttpResponse(signature, content_type="text/plain")
 
     def repodata_file(self, request, rid, repo_slug, state_slug, arch, filename, compression):
-        if filename not in ('comps.xml', 'primary.xml', 'other.xml', 'filelists.xml', 'repomd.xml' ):
+        if filename not in ('comps.xml', 'primary.xml', 'other.xml', 'filelists.xml', 'repomd.xml', ):
             return HttpResponse(_('File not found'), status=404)
         if compression and filename == 'repomd.xml':
             return HttpResponse(_('File not found'), status=404)
@@ -150,7 +152,7 @@ class Yum(Aptitude):
                 for name in ('other.xml', 'filelists.xml', 'comps.xml', 'primary.xml', ):
 
                     filename = self.index_filename(state_slug, architecture, name)
-                    open_files[filename] = tempfile.TemporaryFile(mode='w+b')
+                    open_files[filename] = tempfile.TemporaryFile(mode='w+b', dir=settings.TEMP_ROOT)
                     write(name, '<?xml version="1.0" encoding="UTF-8"?>\n')
                 package_count = package_count_by_state_arch[state_slug][architecture]
                 write('other.xml', '<otherdata xmlns="http://linux.duke.edu/metadata/other" packages="%d">\n' % package_count)
@@ -186,7 +188,7 @@ class Yum(Aptitude):
         for state_slug, architectures in architectures_by_state.items():
             for architecture in architectures:
                 filename = self.index_filename(state_slug, architecture, 'repomd.xml')
-                open_files[filename] = tempfile.TemporaryFile(mode='w+b')
+                open_files[filename] = tempfile.TemporaryFile(mode='w+b', dir=settings.TEMP_ROOT)
                 other = self.index_filename(state_slug, architecture, 'other.xml')
                 filelists = self.index_filename(state_slug, architecture, 'filelists.xml')
                 comps = self.index_filename(state_slug, architecture, 'comps.xml')

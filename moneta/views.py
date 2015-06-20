@@ -152,9 +152,9 @@ def modify_repository(request: HttpRequest, rid):
             repo.admin_group.clear()
             for group in form.cleaned_data['admin_group']:
                 repo.admin_group.add(group)
-            repo.reader_group.clear()
-            for group in form.cleaned_data['reader_group']:
-                repo.reader_group.add(group)
+            # repo.reader_group.clear()
+            # for group in form.cleaned_data['reader_group']:
+            #     repo.reader_group.add(group)
             removed_states = ArchiveState.objects.filter(name__in=old_state_names - new_state_names, repository=repo)
             # noinspection PyUnresolvedReferences
             Element.states.through.objects.filter(archivestate__in=removed_states).delete()
@@ -342,7 +342,7 @@ def add_element_post(request: HttpRequest, rid):
     if not form.is_valid():
         return render_to_response('moneta/not_allowed.html', status=405)
 
-    tmp_file = tempfile.TemporaryFile(mode='w+b')
+    tmp_file = tempfile.TemporaryFile(mode='w+b', dir=settings.TEMP_ROOT)
     c = False
     chunk = request.read(32768)
     while chunk:
@@ -438,7 +438,7 @@ def get_file(request: HttpRequest, eid: int, compression: str=None, path: str=''
     else:
         raise Http404
     if arc_storage is not None:
-        temp_file = tempfile.TemporaryFile(mode='w+b')
+        temp_file = tempfile.TemporaryFile(mode='w+b', dir=settings.TEMP_ROOT)
         comp_file = None
         ext = ''
         if compression == 'zip':

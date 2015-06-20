@@ -187,9 +187,6 @@ Supervisor is required to automatically launch moneta::
         [program:moneta_gunicorn]
         command = /home/moneta/.virtualenvs/moneta/bin/moneta-gunicorn
         user = moneta
-        [program:moneta_celery]
-        command = /home/moneta/.virtualenvs/moneta/bin/moneta-celery worker
-        user = moneta
         EOF
         sudo /etc/init.d/supervisor restart
 

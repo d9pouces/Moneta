@@ -3,29 +3,27 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Updoc's documentation!
-=================================
+Welcome to Moneta's documentation!
+==================================
 
-UpDoc is a web application for uploading developer documentations, with a few interesting tips.
+Moneta is a web application emulating different kinds of package repositories.
+The goal is not to replace official mirrors like packages.debian.org or mirror.centos.org, but to have a single location
+for all your Python/Java/Debian/RedHat private packages.
 
 
-Main features:
-
-    * drag and drop archives of documentations (.zip or .tar.gz with a bunch of HTML files) to upload them,
-    * RSS feed with the last uploaded docs,
-    * RSS feed with the docs that you frequently check,
-    * upload archives with a single cURL request,
-    * generate RSS feeds with your bookmarks,
-    * generate a proxy.PAC file.
-
-RSS feeds can be added as bookmarks folders in Firefox, so it is very easy to share sets of bookmarks in a company.
-Archives are fully indexed, so you can search any text inside all documentations, or inside a specific one.
 
 :doc:`installation`
     Instruction on how to get the distribution
 
 :doc:`configuration`
     All configuration options
+
+.. image:: _static/index.png
+
+.. image:: _static/apt.png
+
+.. image:: _static/package.png
+
 
 
 Full table of contents

@@ -62,8 +62,8 @@ STORAGE_UNCOMPRESSED = 'uncompressed'
 STORAGE_CACHE = 'cache'
 CACHES = {'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}
 
-FLOOR_FAKE_AUTHENTICATION_USERNAME = 'flanker'
-DEBUG = True
+FLOOR_FAKE_AUTHENTICATION_USERNAME = None
+DEBUG = False
 # TO BE CONFIGURED
 GNUPG_HOME = DirectoryPath('{LOCAL_PATH}/gpg')
 # TO BE CONFIGURED
@@ -71,4 +71,4 @@ TEMP_ROOT = DirectoryPath('{LOCAL_PATH}/tmp')
 # TO BE CONFIGURED
 GNUPG_KEYID = '1DA759EA7F5EF06F'
 # TO BE CONFIGURED
-GNUPG_PATH = '/usr/local/Cellar/gnupg/1.4.18/bin/gpg'
+GNUPG_PATH = 'gpg'

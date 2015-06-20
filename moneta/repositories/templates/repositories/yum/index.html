@@ -8,11 +8,17 @@
                 <li {% if forloop.first %}class="active"{% endif %}><a href="#{{ tab_info.1.slug }}" data-toggle="tab">{{ tab_info.1.name }}</a></li>
         {% endfor %}
         </ul>
-        <div class="tab-content">
+        <div class="tab-content">{% with view=repo|moneta_url:"repo_index" %}
             {% for tab_info in tab_infos %}
                 <div class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ tab_info.1.slug }}">
-        <pre>{% for state in tab_info.0 %}{% with view=repo|moneta_url:"repodata_file" %}{{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug state_slug=state.slug arch='x86_64' filename='repomd.xml' compression='' %}{% endwith %}
-{% endfor %}</pre>
+        <pre>cat << EOF | sudo tee /etc/yum.repos.d/{{ repo.slug }}.repo{% for state in tab_info.0 %}
+[{{ repo.slug }}_{{ state.slug }}]
+name={{ repo.name }} {{ state.name }}
+baseurl={{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug state_slug=state.slug arch='x86_64' %}
+gpgcheck=0
+enabled=1{% endfor %}
+EOF
+        </pre>
                     {% if upload_allowed %}<h2>{% trans 'Add a package' %}</h2>
             {% trans 'In order to add a new package, please run the following command:' %}
         <pre>FILENAME=filename-version.rpm
@@ -21,7 +27,7 @@
         {% with view=repo|auth_moneta_url:"force_index" %}<pre>{% curl %} {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug %}</pre>{% endwith %}
         {% endif %}
                 </div>
-            {% endfor %}
+            {% endfor %}{% endwith %}
 
         </div>
 

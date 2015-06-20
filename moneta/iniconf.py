@@ -21,6 +21,9 @@ INI_MAPPING = [
     OptionParser('FLOOR_AUTHENTICATION_HEADER', 'global.remote_user_header'),
     OptionParser('EXTRA_INSTALLED_APP', 'global.extra_app'),
 
+    OptionParser('GNUPG_HOME', 'gnupg.home'),
+    OptionParser('GNUPG_KEYID', 'gnupg.keyid'),
+    OptionParser('GNUPG_PATH', 'gnupg.path'),
 
     OptionParser('DATABASE_ENGINE', 'database.engine'),
     OptionParser('DATABASE_NAME', 'database.name'),
