@@ -11,7 +11,9 @@
         <div class="tab-content">
             {% for tab_info in tab_infos %}
                 <div class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ tab_info.1.slug }}">
-        {% if upload_allowed %}<h2>{% trans 'Add a package' %}</h2>
+        <pre>{% for state in tab_info.0 %}{% with view=repo|moneta_url:"repodata_file" %}{{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug state_slug=state.slug arch='x86_64' filename='repomd.xml' compression='' %}{% endwith %}
+{% endfor %}</pre>
+                    {% if upload_allowed %}<h2>{% trans 'Add a package' %}</h2>
             {% trans 'In order to add a new package, please run the following command:' %}
         <pre>FILENAME=filename-version.rpm
 {% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta.views.add_element_post' rid=repo.id %}\?filename=$FILENAME{% for state in tab_info.0 %}\&amp;states={{ state.slug }}{% endfor %}</pre>

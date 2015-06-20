@@ -9,10 +9,10 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 # noinspection PyPackageRequirements
-from pyrpm import rpm
 from django.utils.translation import ugettext as _
 
 from moneta.repositories.aptitude import Aptitude
+from moneta.repositories import rpm
 from moneta.repository.models import Repository, storage, Element, ArchiveState
 from moneta.repository.signing import GPGSigner
 from moneta.views import sendpath
@@ -59,6 +59,7 @@ class Yum(Aptitude):
                 'changelog': [{'name': x.name, 'time': x.time, 'text': x.text, } for x in rpm_obj.changelog],
                 'obsoletes': [{'name': x.name, 'str_flags': x.str_flags, 'version': list(x.version)} for x in rpm_obj.provides],
                 'conflicts': [{'name': x.name, 'str_flags': x.str_flags, 'version': list(x.version)} for x in rpm_obj.provides],
+                'header_range': list(rpm_obj.header.header_range),
                 }
         rpm_dict = {'header': header, 'signature': signature, 'rpm': rpm_, }
         element.extra_data = json.dumps(rpm_dict)
@@ -96,12 +97,14 @@ class Yum(Aptitude):
         return HttpResponse(signature, content_type="text/plain")
 
     def repodata_file(self, request, rid, repo_slug, state_slug, arch, filename, compression):
-        if filename not in ('comps.xml', 'primary.xml', 'other.xml', 'filelists.xml', ):
+        if filename not in ('comps.xml', 'primary.xml', 'other.xml', 'filelists.xml', 'repomd.xml' ):
+            return HttpResponse(_('File not found'), status=404)
+        if compression and filename == 'repomd.xml':
             return HttpResponse(_('File not found'), status=404)
         # noinspection PyUnusedLocal
         repo_slug = repo_slug
         filename = self.index_filename(state_slug, arch, filename + compression)
-        mimetype = ''
+        mimetype = 'text/xml'
         repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
         uid = self.storage_uid % repo.id
         key = storage(settings.STORAGE_CACHE).uid_to_key(uid)
@@ -154,7 +157,6 @@ class Yum(Aptitude):
                 write('comps.xml', '<!DOCTYPE comps PUBLIC "-//CentOS//DTD Comps info//EN" "comps.dtd">\n')
                 write('comps.xml', '<comps>\n')
                 write('primary.xml', '<metadata xmlns="http://linux.duke.edu/metadata/common" xmlns:rpm="http://linux.duke.edu/metadata/rpm" packages="%d">\n' % package_count)
-        print(open_files)
         # fill all files with RPMs
         for rpm_dict in rpm_objects:
             filelists = render_to_string('repositories/yum/filelists.xml', rpm_dict)

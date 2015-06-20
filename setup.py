@@ -29,8 +29,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=['setuptools>=1.0', 'djangofloor', 'django-grappelli', 'django-smart-selects', 'python-gnupg',
-                      'pyrpm-02strich', ],
+    install_requires=['setuptools>=1.0', 'djangofloor', 'django-grappelli', 'django-smart-selects', 'python-gnupg', ],
     setup_requires=[],
     classifiers=[],
 )

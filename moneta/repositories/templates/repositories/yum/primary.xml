@@ -17,7 +17,7 @@
     <rpm:group>{{ header.group }}</rpm:group>
     <rpm:buildhost>worker1.bsys.centos.org</rpm:buildhost>
     <rpm:sourcerpm>{{ header.source_rpm }}</rpm:sourcerpm>
-    <rpm:header-range start="1384" end="171748"/>
+    <rpm:header-range start="{{ rpm.header_range.0 }}" end="{{ rpm.header_range.1 }}"/>
     <rpm:provides>
         {% for info in rpm.provides %}<rpm:entry name="{{ info.name }}" {% if info.str_flags %}flags="{{ info.str_flags }}"{% endif %}{% if info.version.1 %} epoch="{{ info.version.0 }}" ver="{{ info.version.1 }}" rel="{{ info.version.2 }}"{% endif %}/>
         {% endfor %}

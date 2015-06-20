@@ -16,12 +16,12 @@
         <open-size>{{ filelists.4 }}</open-size>
     </data>
     <data type="group_gz">
-        <checksum type="sha256">{{ group_gz.3 }}</checksum>
-        <open-checksum type="sha256">{{ group.3 }}</open-checksum>
+        <checksum type="sha256">{{ comps_gz.3 }}</checksum>
+        <open-checksum type="sha256">{{ comps.3 }}</open-checksum>
         <location href="repodata/comps.xml.gz"/>
         <timestamp>{{ revision }}</timestamp>
-        <size>{{ group_gz.4 }}</size>
-        <open-size>{{ group.4 }}</open-size>
+        <size>{{ comps_gz.4 }}</size>
+        <open-size>{{ comps.4 }}</open-size>
     </data>
     <data type="primary">
         <checksum type="sha256">{{ primary_gz.3 }}</checksum>
