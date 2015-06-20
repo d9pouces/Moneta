@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<repomd xmlns="http://linux.duke.edu/metadata/repo" xmlns:rpm="http://linux.duke.edu/metadata/rpm">
+    <revision>{{ revision }}</revision>
+    <data type="group">
+        <checksum type="sha256">{{ comps.3 }}</checksum>
+        <location href="repodata/comps.xml"/>
+        <timestamp>{{ revision }}</timestamp>
+        <size>{{ comps.4 }}</size>
+    </data>
+    <data type="filelists">
+        <checksum type="sha256">{{ filelists_gz.3 }}</checksum>
+        <open-checksum type="sha256">{{ filelists.3 }}</open-checksum>
+        <location href="repodata/filelists.xml.gz"/>
+        <timestamp>{{ revision }}</timestamp>
+        <size>{{ filelists_gz.4 }}</size>
+        <open-size>{{ filelists.4 }}</open-size>
+    </data>
+    <data type="group_gz">
+        <checksum type="sha256">{{ group_gz.3 }}</checksum>
+        <open-checksum type="sha256">{{ group.3 }}</open-checksum>
+        <location href="repodata/comps.xml.gz"/>
+        <timestamp>{{ revision }}</timestamp>
+        <size>{{ group_gz.4 }}</size>
+        <open-size>{{ group.4 }}</open-size>
+    </data>
+    <data type="primary">
+        <checksum type="sha256">{{ primary_gz.3 }}</checksum>
+        <open-checksum type="sha256">{{ primary.3 }}</open-checksum>
+        <location href="repodata/primary.xml.gz"/>
+        <timestamp>{{ revision }}</timestamp>
+        <size>{{ primary_gz.4 }}</size>
+        <open-size>{{ primary.4 }}</open-size>
+    </data>
+    <data type="other">
+        <checksum type="sha256">{{ other_gz.3 }}</checksum>
+        <open-checksum type="sha256">{{ other.3 }}</open-checksum>
+        <location href="repodata/other.xml.gz"/>
+        <timestamp>{{ revision }}</timestamp>
+        <size>{{ other_gz.4 }}</size>
+        <open-size>{{ other.4 }}</open-size>
+    </data>
+</repomd>

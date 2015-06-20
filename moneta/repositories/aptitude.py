@@ -100,7 +100,7 @@ class Aptitude(RepositoryModel):
         fileobj = storage(settings.STORAGE_CACHE).get_file(key, cache_filename)
         if fileobj is None:
             tmpfile = tempfile.NamedTemporaryFile()
-            archive_file = storage(settings.STORAGE_ARCHIVE).get_file(element.archive_key)
+            archive_file = storage(settings.STORAGE_ARCHIVE).get_file(element.archive_key, sub_path='')
             ar_file = ArFile(element.filename, mode='r', fileobj=archive_file)
             data_file = self.get_subfile(ar_file, 'data.tar.')
             tar_file = tarfile.open(name='data', mode='r:*', fileobj=data_file)
@@ -272,7 +272,15 @@ class Aptitude(RepositoryModel):
         return HttpResponse(_('Indexes have been successfully rebuilt.'))
 
     @staticmethod
-    def compress_files(open_files, root, uid):
+    def compress_files(open_files: dict, root: str, uid: str) -> list:
+        """ Return a list of tuples ((os.path.relpath(filename, root), md5, sha1, sha256, actual_size).
+        Also stores the generated files (and original ones)
+
+        :param open_files: dict[filename] = open file descriptor in mode w+b
+        :param root:
+        :param uid:
+        :return:
+        """
         hash_controls = []
         for filename, package_file in open_files.items():
             package_file.seek(0)
@@ -299,21 +307,21 @@ class Aptitude(RepositoryModel):
             all_files = [(package_file, filename), (gz_file, gz_filename), (bz2_file, bz2_filename), ]
             if lzma is not None:
                 all_files.append((xz_file, xz_filename))
-            for obj, name in all_files:
+            for obj, filename in all_files:
                 obj.flush()
                 obj.seek(0)
-                data = obj.read(10240)
+                data = obj.read(32768)
                 md5, sha1, sha256, size = hashlib.md5(), hashlib.sha1(), hashlib.sha256(), 0
                 while data:
                     md5.update(data)
                     sha1.update(data)
                     sha256.update(data)
                     size += len(data)
-                    data = obj.read(10240)
-                hash_controls.append((os.path.relpath(name, root), md5.hexdigest(), sha1.hexdigest(),
+                    data = obj.read(32768)
+                hash_controls.append((os.path.relpath(filename, root), md5.hexdigest(), sha1.hexdigest(),
                                       sha256.hexdigest(), size))
                 obj.seek(0)
-                storage(settings.STORAGE_CACHE).store_descriptor(uid, name, obj)
+                storage(settings.STORAGE_CACHE).store_descriptor(uid, filename, obj)
                 obj.close()
                 # build the following files:
         return hash_controls
