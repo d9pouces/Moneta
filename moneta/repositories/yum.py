@@ -55,10 +55,10 @@ class Yum(Aptitude):
                 'checksum': rpm_obj.checksum, 'filesize': rpm_obj.filesize, 'source': rpm_obj.source,
                 'filelist': [{'type': x.type, 'name': x.name, } for x in rpm_obj.filelist],
                 'provides': [{'name': x.name, 'str_flags': x.str_flags, 'version': list(x.version)} for x in rpm_obj.provides],
-                'requires': [{'name': x.name, 'str_flags': x.str_flags, 'version': list(x.version)} for x in rpm_obj.provides],
+                'requires': [{'name': x.name, 'str_flags': x.str_flags, 'version': list(x.version)} for x in rpm_obj.requires],
                 'changelog': [{'name': x.name, 'time': x.time, 'text': x.text, } for x in rpm_obj.changelog],
-                'obsoletes': [{'name': x.name, 'str_flags': x.str_flags, 'version': list(x.version)} for x in rpm_obj.provides],
-                'conflicts': [{'name': x.name, 'str_flags': x.str_flags, 'version': list(x.version)} for x in rpm_obj.provides],
+                'obsoletes': [{'name': x.name, 'str_flags': x.str_flags, 'version': list(x.version)} for x in rpm_obj.obsoletes],
+                'conflicts': [{'name': x.name, 'str_flags': x.str_flags, 'version': list(x.version)} for x in rpm_obj.conflicts],
                 'header_range': list(rpm_obj.header.header_range),
                 }
         rpm_dict = {'header': header, 'signature': signature, 'rpm': rpm_, }
@@ -135,9 +135,10 @@ class Yum(Aptitude):
             if len(package_count_by_arch) == 1:  # only 'noarch' architecture
                 package_count_by_arch['x86_64'] = 0
                 architectures_by_state[state_slug] = {'x86_64', }
-            for architecture in package_count_by_arch:
-                package_count_by_arch[architecture] += package_count_by_arch['noarch']
+            noarch_count = package_count_by_arch['noarch']
             del package_count_by_arch['noarch']
+            for architecture in package_count_by_arch:
+                package_count_by_arch[architecture] += noarch_count
 
         # prepare all files
         open_files = {}
