@@ -1,0 +1,28 @@
+{% extends "moneta/base_package.html" %}{% load staticfiles i18n moneta %}
+
+{% block repo_content %}
+        <h2>{% trans 'Available APT sources' %}</h2>
+
+        <ul class="nav nav-tabs">
+        {% for tab_info in tab_infos %}
+                <li {% if forloop.first %}class="active"{% endif %}><a href="#{{ tab_info.1.slug }}" data-toggle="tab">{{ tab_info.1.name }}</a></li>
+        {% endfor %}
+        </ul>
+        <div class="tab-content">
+            {% for tab_info in tab_infos %}
+                <div class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ tab_info.1.slug }}">
+        {% if upload_allowed %}<h2>{% trans 'Add a package' %}</h2>
+            {% trans 'In order to add a new package, please run the following command:' %}
+        <pre>FILENAME=filename-version.rpm
+{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta.views.add_element_post' rid=repo.id %}\?filename=$FILENAME{% for state in tab_info.0 %}\&amp;states={{ state.slug }}{% endfor %}</pre>
+        {% trans 'Run the following command to re-index packages after an upload:' %}
+        {% with view=repo|auth_moneta_url:"force_index" %}<pre>{% curl %} {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug %}</pre>{% endwith %}
+        {% endif %}
+                </div>
+            {% endfor %}
+
+        </div>
+
+    {% include 'moneta/add_signature.html' %}
+{% endblock %}
+

@@ -19,23 +19,19 @@
     <rpm:sourcerpm>{{ header.source_rpm }}</rpm:sourcerpm>
     <rpm:header-range start="1384" end="171748"/>
     <rpm:provides>
-        {% for info in rpm.provides %}
-        <rpm:entry name="{{ info.name }}" {% if info.str_flags %}flags="{{ info.str_flags }}"{% endif %}{% if info.version.1 %} epoch="{{ info.version.0 }}" ver="{{ info.version.1 }}" rel="{{ info.version.2 }}"{% endif %}/>
+        {% for info in rpm.provides %}<rpm:entry name="{{ info.name }}" {% if info.str_flags %}flags="{{ info.str_flags }}"{% endif %}{% if info.version.1 %} epoch="{{ info.version.0 }}" ver="{{ info.version.1 }}" rel="{{ info.version.2 }}"{% endif %}/>
         {% endfor %}
     </rpm:provides>
     <rpm:requires>
-        {% for info in rpm.requires %}
-        <rpm:entry name="{{ info.name }}" {% if info.str_flags %}flags="{{ info.str_flags }}"{% endif %}{% if info.version.1 %} epoch="{{ info.version.0 }}" ver="{{ info.version.1 }}" rel="{{ info.version.2 }}"{% endif %}/>
+        {% for info in rpm.requires %}<rpm:entry name="{{ info.name }}" {% if info.str_flags %}flags="{{ info.str_flags }}"{% endif %}{% if info.version.1 %} epoch="{{ info.version.0 }}" ver="{{ info.version.1 }}" rel="{{ info.version.2 }}"{% endif %}/>
         {% endfor %}
     </rpm:requires>
     <rpm:conflicts>
-        {% for info in rpm.conflicts %}
-        <rpm:entry name="{{ info.name }}" {% if info.str_flags %}flags="{{ info.str_flags }}"{% endif %}{% if info.version.1 %} epoch="{{ info.version.0 }}" ver="{{ info.version.1 }}" rel="{{ info.version.2 }}"{% endif %}/>
+        {% for info in rpm.conflicts %}<rpm:entry name="{{ info.name }}" {% if info.str_flags %}flags="{{ info.str_flags }}"{% endif %}{% if info.version.1 %} epoch="{{ info.version.0 }}" ver="{{ info.version.1 }}" rel="{{ info.version.2 }}"{% endif %}/>
         {% endfor %}
     </rpm:conflicts>
     <rpm:obsoletes>
-        {% for info in rpm.obsoletes %}
-        <rpm:entry name="{{ info.name }}" {% if info.str_flags %}flags="{{ info.str_flags }}"{% endif %}{% if info.version.1 %} epoch="{{ info.version.0 }}" ver="{{ info.version.1 }}" rel="{{ info.version.2 }}"{% endif %}/>
+        {% for info in rpm.obsoletes %}<rpm:entry name="{{ info.name }}" {% if info.str_flags %}flags="{{ info.str_flags }}"{% endif %}{% if info.version.1 %} epoch="{{ info.version.0 }}" ver="{{ info.version.1 }}" rel="{{ info.version.2 }}"{% endif %}/>
         {% endfor %}
     </rpm:obsoletes>
   </format>

@@ -8,8 +8,8 @@ from django.conf.urls import url
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
+# noinspection PyPackageRequirements
 from pyrpm import rpm
-from pyrpm.rpm import RPMError
 from django.utils.translation import ugettext as _
 
 from moneta.repositories.aptitude import Aptitude
@@ -24,13 +24,14 @@ class Yum(Aptitude):
     verbose_name = _('YUM repository for Linux .rpm packages')
     storage_uid = 'a87172de-0000-0000-0000-%012d'
     archive_type = 'yum'
+    index_html = 'repositories/yum/index.html'
 
     def is_file_valid(self, uploaded_file):
         if not uploaded_file.name.endswith('.rpm'):
             return False
         try:
             rpm.RPM(uploaded_file.file)
-        except RPMError:
+        except rpm.RPMError:
             return False
         return True
 
@@ -47,7 +48,9 @@ class Yum(Aptitude):
             for entry in header_base:
                 available[entry.tag] = entry.value
             for attr_name, infos in header_base.TAGS.items():
-                obj_dict[attr_name] = available.get(infos[0], infos[1])
+                attr_value = available.get(infos[0], infos[1])
+                if not isinstance(attr_value, bytes):
+                    obj_dict[attr_name] = attr_value
         rpm_ = {'binary': rpm_obj.binary, 'canonical_filename': rpm_obj.canonical_filename,
                 'checksum': rpm_obj.checksum, 'filesize': rpm_obj.filesize, 'source': rpm_obj.source,
                 'filelist': [{'type': x.type, 'name': x.name, } for x in rpm_obj.filelist],
@@ -108,12 +111,11 @@ class Yum(Aptitude):
         if states is None:
             states = list(ArchiveState.objects.filter(repository=repository).order_by('name'))
         revision = int(time.time())
-
         architectures_by_state = {x.slug: set() for x in states}  # architectures_by_state[archive_state.slug] = {'x86_64', 'c7', }
         # load all dict infos and count all architectures
         rpm_objects = []
         package_count_by_state_arch = {x.slug: {'noarch': 0} for x in states}
-        for element in Element.objects.filter(repository=repository).select_related('states'):
+        for element in Element.objects.filter(repository=repository).prefetch_related('states'):
             rpm_dict = json.loads(element.extra_data)
             rpm_objects.append(rpm_dict)
             rpm_dict['states'] = [s.slug for s in element.states.all()]
@@ -141,8 +143,8 @@ class Yum(Aptitude):
                 def write(name_, data):
                     filename_ = self.index_filename(state_slug, architecture, name_)
                     open_files[filename_].write(data.encode('utf-8'))
-
                 for name in ('other.xml', 'filelists.xml', 'comps.xml', 'primary.xml', ):
+
                     filename = self.index_filename(state_slug, architecture, name)
                     open_files[filename] = tempfile.TemporaryFile(mode='w+b')
                     write(name, '<?xml version="1.0" encoding="UTF-8"?>\n')
@@ -152,13 +154,13 @@ class Yum(Aptitude):
                 write('comps.xml', '<!DOCTYPE comps PUBLIC "-//CentOS//DTD Comps info//EN" "comps.dtd">\n')
                 write('comps.xml', '<comps>\n')
                 write('primary.xml', '<metadata xmlns="http://linux.duke.edu/metadata/common" xmlns:rpm="http://linux.duke.edu/metadata/rpm" packages="%d">\n' % package_count)
-
+        print(open_files)
         # fill all files with RPMs
         for rpm_dict in rpm_objects:
             filelists = render_to_string('repositories/yum/filelists.xml', rpm_dict)
             primary = render_to_string('repositories/yum/primary.xml', rpm_dict)
             other = render_to_string('repositories/yum/other.xml', rpm_dict)
-            for state_slug in rpm_dict.states:
+            for state_slug in rpm_dict['states']:
                 architectures = {rpm_dict['header']['architecture'], }
                 if architectures == {'noarch', }:
                     architectures = architectures_by_state[state_slug]
@@ -166,7 +168,6 @@ class Yum(Aptitude):
                     open_files[self.index_filename(state_slug, architecture, 'filelists.xml')].write(filelists.encode('utf-8'))
                     open_files[self.index_filename(state_slug, architecture, 'primary.xml')].write(primary.encode('utf-8'))
                     open_files[self.index_filename(state_slug, architecture, 'other.xml')].write(other.encode('utf-8'))
-
         # finish all files
         for state_slug, architectures in architectures_by_state.items():
             for architecture in architectures:
@@ -204,5 +205,5 @@ class Yum(Aptitude):
                 storage(settings.STORAGE_CACHE).store_descriptor(storage_uid, filename, repomd_file)
 
     @staticmethod
-    def index_filename(state, architecture, name):
-        return '%(state)s/%(architecture)s/repodata/%(name)s' % {'state': state.slug, 'architecture': architecture, 'name': name, }
+    def index_filename(state: str, architecture: str, name: str):
+        return '%(state)s/%(architecture)s/repodata/%(name)s' % {'state': state, 'architecture': architecture, 'name': name, }

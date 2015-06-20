@@ -41,6 +41,7 @@ class Aptitude(RepositoryModel):
     verbose_name = _('APT repository for Linux .deb packages')
     storage_uid = 'a97172de-0000-0000-0000-%012d'
     archive_type = 'aptitude'
+    index_html = 'repositories/aptitude/index.html'
 
     def is_file_valid(self, uploaded_file):
         return uploaded_file.name.endswith('.deb')
@@ -137,8 +138,7 @@ class Aptitude(RepositoryModel):
 
         """
         pattern_list = [
-            url(r'^(?P<rid>\d)/force_index/(?P<repo_slug>[\w\-\._]+)/$', self.wrap_view('force_index'),
-                name='force_index'),
+            url(r'^(?P<rid>\d+)/force_index/(?P<repo_slug>[\w\-\._]+)/$', self.wrap_view('force_index'), name='force_index'),
         ]
         return pattern_list
 
@@ -263,7 +263,7 @@ class Aptitude(RepositoryModel):
         template_values = {'repo': repo, 'states': states, 'upload_allowed': repo.upload_allowed(request),
                            'index_url': reverse(moneta_url(repo, 'index'), kwargs={'rid': repo.id, }),
                            'tab_infos': tab_infos, 'admin_allowed': repo.admin_allowed(request), }
-        return render_to_response('repositories/aptitude/index.html', template_values, RequestContext(request))
+        return render_to_response(self.index_html, template_values, RequestContext(request))
 
     # noinspection PyUnusedLocal
     def force_index(self, request, rid, repo_slug):
