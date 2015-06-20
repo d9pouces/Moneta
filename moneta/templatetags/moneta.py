@@ -97,7 +97,7 @@ class CurlNode(template.Node):
             return mark_safe('curl')
         if context['df_remote_authenticated']:
             return mark_safe('curl --anyauth -u :')
-        return mark_safe('curl --basic -u $USERNAME:$PASSWORD')
+        return mark_safe('curl --basic -u $MONETA_USER:$MONETA_PASSWORD')
 
 
 # noinspection PyUnusedLocal

@@ -3,12 +3,12 @@ Complete configuration
 
 You can look current settings with the following command::
 
-    updoc-manage config
+    moneta-manage config
 
 Here is the complete list of settings::
 
     [global]
-    server_name = updoc.19pouces.net
+    server_name = moneta.19pouces.net
     protocol = https
     bind_address = 127.0.0.1:8129
     data_path = /var/updoc
@@ -23,14 +23,6 @@ Here is the complete list of settings::
     public_docs = true
     remote_user_header = HTTP_REMOTE_USER
 
-    [elasticsearch]
-    hosts = 127.0.0.1:9200
-    index = updoc
-
-    [redis]
-    host = 127.0.0.1
-    port = 6379
-
     [database]
     engine =
     name =
@@ -39,4 +31,4 @@ Here is the complete list of settings::
     host =
     port =
 
-If you need more complex settings, you can override default values (given in `djangofloor.defaults` and `updoc.defaults`) by creating a file named `[prefix]/etc/updoc/settings.py`.
+If you need more complex settings, you can override default values (given in `djangofloor.defaults` and `moneta.defaults`) by creating a file named `[prefix]/etc/moneta/settings.py`.

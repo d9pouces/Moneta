@@ -107,7 +107,7 @@ class Aptitude(RepositoryModel):
             tar_file = tarfile.open(name='data', mode='r:*', fileobj=data_file)
             members = tar_file.getmembers()
             members = filter(lambda x: x.isfile(), members)
-            names = [x.path[2:].decode() for x in members]
+            names = [x.path[2:] for x in members]
             tar_file.close()
             ar_file.close()
             archive_file.close()
@@ -366,7 +366,7 @@ class Aptitude(RepositoryModel):
                 if architecture == 'all':
                     elt_architectures = default_architectures
                 else:
-                    elt_architectures = (architecture, )
+                    elt_architectures = {architecture, }
                 state_architectures |= elt_architectures
                 for architecture in elt_architectures:
                     complete_file_list.setdefault(architecture, [])

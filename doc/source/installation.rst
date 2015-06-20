@@ -110,7 +110,7 @@ If you want Kerberos authentication and SSL::
                 Satisfy any
             </Location>
             XSendFile on
-            XSendFilePath /var/moneta/data/media/
+            XSendFilePath /var/moneta/storage/
             # in older versions of XSendFile (<= 0.9), use XSendFileAllowAbove On
             <Location /static/>
                 Order deny,allow
@@ -176,6 +176,20 @@ Now, it's time to install moneta (use Python3.2 on Debian 7)::
         moneta-manage migrate
         moneta-manage collectstatic --noinput
         moneta-manage createsuperuser
+        chmod 0700 /var/moneta/gpg
+        moneta-manage gpg_gen generate
+        KEY_ID=`moneta-manage gpg_gen show | tail -n 1 | cut -f 4 -d ' ' | cut -f 1 -d ','`
+        cat << EOF >> $VIRTUAL_ENV/etc/moneta/settings.ini
+        [gnupg]
+        keyid = $KEY_ID
+        EOF
+
+
+On VirtualBox, you may need to install rng-tools to generate enough entropy for GPG keys::
+
+        sudo apt-get install rng-tools
+        echo "HRNGDEVICE=/dev/urandom" | sudo tee -a /etc/default/rng-tools
+        sudo /etc/init.d/rng-tools restart
 
 supervisor
 ----------
