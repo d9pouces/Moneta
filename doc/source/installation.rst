@@ -170,10 +170,6 @@ Now, it's time to install moneta (use Python3.2 on Debian 7)::
         port = 5432
         EOF
 
-        moneta-manage migrate auth
-        # this command will finish in error :(
-        moneta-manage migrate sites
-        moneta-manage migrate auth
         moneta-manage migrate
         moneta-manage collectstatic --noinput
         moneta-manage createsuperuser
