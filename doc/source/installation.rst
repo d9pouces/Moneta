@@ -42,7 +42,7 @@ I only present the installation with Apache, but an installation behind nginx sh
             ProxyIOBufferSize 65536
             ServerSignature off
             XSendFile on
-            XSendFilePath /var/moneta/data/media/
+            XSendFilePath /var/moneta/storage/
             # in older versions of XSendFile (<= 0.9), use XSendFileAllowAbove On
             <Location /static/>
                 Order deny,allow
