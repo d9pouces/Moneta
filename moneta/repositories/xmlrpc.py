@@ -1,6 +1,7 @@
-#coding=utf-8
+# coding=utf-8
 from xmlrpc.client import dumps, Fault, loads
 from django.http.response import HttpResponse
+
 
 class XMLRPCSite(object):
     def __init__(self):

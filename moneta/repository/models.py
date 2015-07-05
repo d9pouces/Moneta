@@ -5,11 +5,11 @@ import uuid
 import functools
 
 from django.conf import settings
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q
-from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_delete, post_migrate
 from django.dispatch import receiver
 from django.utils.text import slugify
 from django.utils.translation import ugettext as _, ugettext
@@ -277,3 +277,13 @@ def delete_element(sender, instance=None, **kwargs):
     """
     if instance is not None and isinstance(instance, Element):
         instance.remove_file()
+
+
+@receiver(post_migrate)
+def create_default_group(signal, sender, app_config, verbosity, interactive, using):
+    if sender.name != 'moneta.repository':
+        return
+    group, created = Group.objects.get_or_create(name=settings.FLOOR_DEFAULT_GROUP_NAME)
+    perms = list(Permission.objects.filter(codename='add_repository')[0:1])
+    if perms:
+        group.permissions.add(*perms)

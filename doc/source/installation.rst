@@ -104,8 +104,14 @@ If you want Kerberos authentication and SSL::
                 KrbMethodNegotiate On
                 KrbSaveCredentials On
                 Require valid-user
+                RequestHeader set REMOTE_USER %{REMOTE_USER}s
             </Location>
-            <Location /moneta/show_alt/>
+            <Location /core/p/>
+                Order deny,allow
+                Allow from all
+                Satisfy any
+            </Location>
+            <Location /repo/p/>
                 Order deny,allow
                 Allow from all
                 Satisfy any

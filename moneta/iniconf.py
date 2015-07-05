@@ -2,6 +2,7 @@
 __author__ = 'flanker'
 from djangofloor.iniconf import OptionParser, bool_setting
 
+
 def x_accel_converter(value):
     if bool_setting(value):
         return [('{LOCAL_PATH}/storage/', '{MEDIA_URL}'), ]

@@ -1,6 +1,7 @@
 # coding=utf-8
 __author__ = 'flanker'
 
+
 class InvalidRepositoryException(BaseException):
     def __init__(self, msg):
         self.msg = msg
