@@ -3,6 +3,7 @@ import hashlib
 import os.path
 import tarfile
 import tempfile
+import io
 # noinspection PyCompatibility
 import bz2
 from moneta.templatetags.moneta import moneta_url
@@ -10,7 +11,7 @@ from moneta.templatetags.moneta import moneta_url
 try:
     import lzma
 except ImportError:
-    lzma = None
+    from backports import lzma
 import datetime
 
 from django.conf import settings
@@ -57,10 +58,17 @@ class Aptitude(RepositoryModel):
         """
         archive_file = storage(settings.STORAGE_ARCHIVE).get_file(element.archive_key)
         ar_file = ArFile(element.filename, mode='r', fileobj=archive_file)
-        control_file = self.get_subfile(ar_file, 'control.tar.')
+        control_file, control_file_name = self.get_subfile(ar_file, 'control.tar.')
         if control_file is None:
             raise InvalidRepositoryException('No control file found in .deb package')
-        tar_file = tarfile.open(name='control', mode='r:*', fileobj=control_file)
+        mode = 'r:*'
+        if control_file_name.endswith('.xz') or control_file_name.endswith('.lzma'):
+            control_file_content = control_file.read()
+            control_file_content_uncompressed = lzma.decompress(control_file_content)
+            control_file.close()
+            control_file = io.BytesIO(control_file_content_uncompressed)
+            mode = 'r'
+        tar_file = tarfile.open(name='control', mode=mode, fileobj=control_file)
         control_data = tar_file.extractfile('./control')
         # poulating different informations on the element
         control_data_value = control_data.read().decode('utf-8')
@@ -92,8 +100,8 @@ class Aptitude(RepositoryModel):
     def get_subfile(ar_file, prefix='control.tar.'):
         for name in ar_file.getnames():
             if name.startswith(prefix):
-                return ar_file.extractfile(name)
-        return None
+                return ar_file.extractfile(name), name
+        return None, None
 
     def file_list(self, element, uid):
         cache_filename = 'filelist_%s' % element.sha256
@@ -103,8 +111,15 @@ class Aptitude(RepositoryModel):
             tmpfile = tempfile.NamedTemporaryFile(dir=settings.TEMP_ROOT)
             archive_file = storage(settings.STORAGE_ARCHIVE).get_file(element.archive_key, sub_path='')
             ar_file = ArFile(element.filename, mode='r', fileobj=archive_file)
-            data_file = self.get_subfile(ar_file, 'data.tar.')
-            tar_file = tarfile.open(name='data', mode='r:*', fileobj=data_file)
+            data_file, data_file_name = self.get_subfile(ar_file, 'data.tar.')
+            mode = 'r:*'
+            if data_file_name.endswith('.xz') or data_file_name.endswith('.lzma'):
+                data_file_content = data_file.read()
+                data_file_content_uncompressed = lzma.decompress(data_file_content)
+                data_file.close()
+                data_file = io.BytesIO(data_file_content_uncompressed)
+                mode = 'r'
+            tar_file = tarfile.open(name='data', mode=mode, fileobj=data_file)
             members = tar_file.getmembers()
             members = filter(lambda x: x.isfile(), members)
             names = [x.path[2:] for x in members]
@@ -161,10 +176,10 @@ class Aptitude(RepositoryModel):
         if lzma is None:
             compression = '(?P<compression>|.bz2|.gz)'
         pattern_list = [
-            url(r"^(?P<rid>\d+)/pool/(?P<repo_slug>[\w\-\._]+)/(?P<state_slug>[\w\-\._]+)/(?P<folder>[\w\-\.]+)/$",
+            url(r"^(?P<rid>\d+)/pool/(?P<repo_slug>[\w\-\._]+)/(?P<state_slug>[\w\-\._]+)/(?P<folder>[\w\-\.~_]+)/$",
                 self.wrap_view('folder_index'), name="folder_index"),
-            url(r"^(?P<rid>\d+)/pool/(?P<repo_slug>[\w\-\._]+)/(?P<state_slug>[\w\-\._]+)/(?P<folder>[\w\-\.]+)/"
-                r"(?P<filename>[\w\-\.]+)$",
+            url(r"^(?P<rid>\d+)/pool/(?P<repo_slug>[\w\-\._]+)/(?P<state_slug>[\w\-\._]+)/(?P<folder>[\w\-\.~_]+)/"
+                r"(?P<filename>[\w\-\.~_ ]+)$",
                 self.wrap_view('get_file'), name="get_file"),
             url(r"^(?P<rid>\d+)/dists/(?P<repo_slug>[\w\-\._]+)/(?P<filename>Release|Release.gpg)$",
                 self.wrap_view('repo_release'), name="repo_release"),

@@ -16,7 +16,7 @@ import zlib
 from django.conf import settings
 from django.core import exceptions
 from django.http import QueryDict
-from django.utils.importlib import import_module
+from djangofloor.utils import import_module
 from django.utils.translation import ugettext_lazy as _
 
 
