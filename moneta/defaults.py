@@ -2,13 +2,12 @@
 from djangofloor.utils import DirectoryPath
 
 __author__ = 'flanker'
-from django.utils.translation import ugettext_lazy as _
 
 FLOOR_URL_CONF = 'moneta.root_urls.urls'
 EXTRA_INSTALLED_APP = 'bootstrap3'
 FLOOR_INSTALLED_APPS = ['moneta', 'moneta.repositories', 'moneta.repository', '{EXTRA_INSTALLED_APP}']
 FLOOR_INDEX = 'moneta.views.index'
-FLOOR_PROJECT_NAME = _('Moneta')
+FLOOR_PROJECT_NAME = 'Moneta'
 
 UPLOAD_ROOT = 'uploads'
 ARCHIVE_FILTERS = [
@@ -35,8 +34,6 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     'django.contrib.messages.context_processors.messages',
     'djangofloor.context_processors.context_base',
     'moneta.context_processors.context_base',
-    'allauth.account.context_processors.account',
-    'allauth.socialaccount.context_processors.socialaccount',
 ]
 
 STORAGES = {
