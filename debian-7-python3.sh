@@ -3,7 +3,7 @@
 sudo apt-get update
 sudo apt-get upgrade --yes
 sudo apt-get install --yes vim dh-make ntp rsync liblzma-dev tree
-sudo apt-get install --yes python3-all-dev virtualenvwrapper python3-tz python3-setuptools apache2 apache2-mpm-worker apache2-utils apache2.2-bin apache2.2-common libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap python-medusa python-meld3 ssl-cert supervisor
+sudo apt-get install --yes python3-all-dev virtualenvwrapper python3-tz python3-setuptools apache2 apache2-mpm-worker apache2-utils apache2.2-bin apache2.2-common libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap python-medusa python-meld3 ssl-cert supervisor python3-gnupg
 source /etc/bash_completion.d/virtualenvwrapper
 
 # create the virtual env

@@ -22,3 +22,17 @@ If everything is ok, you can copy all the .deb packages to your private mirror o
 The configuration is set in `/etc/moneta/settings.ini`.
 By default, Moneta is installed with Apache 2.2 (or 2.4) and Supervisor.
 You can switch to Nginx or Systemd by tweaking the right `stdeb-XXX.cfg` file.
+
+After installation, do not forget to create a superuser and a new GPGP key:
+
+.. code-block:: bash
+
+    sudo -u moneta -i
+    moneta-manage createsuperuser
+    chmod 0700 /var/moneta/gpg
+    moneta-manage gpg_gen generate
+    KEY_ID=`moneta-manage gpg_gen show | tail -n 1 | cut -f 4 -d ' ' | cut -f 1 -d ','`
+    cat << EOF >> /etc/moneta/settings.ini
+    [gnupg]
+    keyid = $KEY_ID
+    EOF
