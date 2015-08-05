@@ -20,3 +20,5 @@ These scripts are designed to run on basic installation and are split in five st
 
 If everything is ok, you can copy all the .deb packages to your private mirror or to the destination server.
 The configuration is set in `/etc/moneta/settings.ini`.
+By default, Moneta is installed with Apache 2.2 (or 2.4) and Supervisor.
+You can switch to Nginx or Systemd by tweaking the right `stdeb-XXX.cfg` file.
