@@ -3,7 +3,7 @@
 sudo apt-get update
 sudo apt-get upgrade --yes
 sudo apt-get install --yes vim dh-make ntp rsync liblzma-dev tree
-sudo apt-get install --yes python3-all-dev virtualenvwrapper python3-tz python3-setuptools apache2  libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap python-medusa python-meld3 ssl-cert supervisor
+sudo apt-get install --yes python3-all-dev virtualenvwrapper python3-tz python3-setuptools apache2  libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap python-medusa python-meld3 ssl-cert supervisor python3-gnupg
 source /etc/bash_completion.d/virtualenvwrapper
 
 # create the virtual env
@@ -12,13 +12,14 @@ workon djangofloor3
 pip install setuptools --upgrade
 pip install pip --upgrade
 pip install debtools djangofloor
+python setup.py install
 
 # generate packages for all dependencies
-multideb -r -v -x stdeb-ubuntu-14.04-15.04.cfg
+multideb -r -v -x stdeb-debian-8.cfg
 
 # creating package for moneta
 rm -rf `find * | grep pyc$`
-python setup.py bdist_deb_django -x stdeb-ubuntu-14.04-15.04.cfg
+python setup.py bdist_deb_django -x stdeb-debian-8.cfg
 deb-dep-tree deb_dist/*deb
 mv deb_dist/*deb deb
 
