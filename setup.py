@@ -24,7 +24,7 @@ entry_points = {'console_scripts': ['moneta-manage = djangofloor.scripts:manage'
 setup(
     name='moneta',
     version=version,
-    description='Moneta is an emulator for different kinds (Aptitude/Yum/Pypi/Maven) of package repositories on the same server.',
+    description='Moneta is an emulator for different kinds (Aptitude/Yum/Pypi/Maven/Ruby) of package repositories on the same server.',
     long_description=long_description,
     author='flanker',
     author_email='flanker@19pouces.net',
@@ -34,7 +34,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=['setuptools>=1.0', 'djangofloor', 'python-gnupg', ],
+    install_requires=['setuptools>=1.0', 'djangofloor', 'python-gnupg', 'rubymarshal', 'pyyaml'],
     setup_requires=[],
     classifiers=[],
 )

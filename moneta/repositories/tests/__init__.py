@@ -32,8 +32,7 @@ class RepositoryTestCase(TestCase):
     def add_file_to_repository(self, repo, filename, states=None, name='', archive='', version=''):
         if states is None:
             states = ['qualif', 'prod', ]
-        tmp_file = open(filename, 'rb')
-        uploaded_file = UploadedFile(name=os.path.basename(filename), file=tmp_file)
+        uploaded_file = UploadedFile(name=os.path.basename(filename), file=open(filename, 'rb'))
         request = self.get_request()
         element = generic_add_element(request, repo, uploaded_file, states, name=name, archive=archive, version=version, )
         return element

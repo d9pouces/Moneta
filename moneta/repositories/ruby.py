@@ -1,27 +1,144 @@
 # -*- coding: utf-8 -*-
-import os
+from distutils.version import LooseVersion
+import gzip
 import tarfile
-import zipfile
+import io
+import tempfile
 
 from django.conf import settings
 from django.conf.urls import url
 from django.core.files.uploadedfile import UploadedFile
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
-import requests
+from rubymarshal.classes import UsrMarshal
+from rubymarshal.writer import write
+from yaml import MappingNode
+import yaml
+from yaml.composer import Composer
+from yaml.constructor import Constructor
+from yaml.parser import Parser
+from yaml.reader import Reader
+from yaml.resolver import Resolver
+from yaml.scanner import Scanner
 
-from moneta.exceptions import InvalidRepositoryException
 from moneta.repositories.aptitude import Aptitude
 from moneta.repositories.base import RepositoryModel
-from moneta.repositories.pypi import PyArchive
 from moneta.repository.models import ArchiveState, Element, Repository, storage
 from moneta.templatetags.moneta import moneta_url
-from moneta.utils import parse_control_data
+from moneta.views import sendpath
 
 __author__ = 'flanker'
+
+
+class RubyMarshal(UsrMarshal):
+    def __init__(self, values):
+        super().__init__(self.__class__.__name__, values=values)
+
+
+class Version(RubyMarshal):
+
+    @property
+    def version(self):
+        return self.values['version']
+
+
+class Specification(RubyMarshal):
+    @property
+    def name(self):
+        return self.values['name']
+
+    @property
+    def version(self) -> Version:
+        return self.values['version']
+
+    @property
+    def platform(self):
+        return self.values['platform']
+
+    @property
+    def description(self):
+        return self.values['description']
+
+    @property
+    def rubygems_version(self):
+        return self.values['rubygems_version']
+
+    @property
+    def summary(self):
+        return self.values['summary']
+
+
+class Dependency(RubyMarshal):
+
+    @property
+    def name(self):
+        return self.values['name']
+
+    @property
+    def requirement(self):
+        return self.values['requirement']
+
+    @property
+    def type(self):
+        return self.values['type']
+
+    @property
+    def prerelease(self):
+        return self.values['prerelease']
+
+    @property
+    def version_requirements(self):
+        return self.values['version_requirements']
+
+
+class Requirement(RubyMarshal):
+
+    @property
+    def requirements(self):
+        return self.values['requirements']
+
+
+class RubyConstructor(Constructor):
+
+    def construct_version(self, node, deep=False):
+        if isinstance(node, MappingNode):
+            self.flatten_mapping(node)
+        return Version(super(RubyConstructor, self).construct_mapping(node, deep=deep))
+
+    def construct_specification(self, node, deep=False):
+        if isinstance(node, MappingNode):
+            self.flatten_mapping(node)
+        return Specification(super(RubyConstructor, self).construct_mapping(node, deep=deep))
+
+    def construct_dependency(self, node, deep=False):
+        if isinstance(node, MappingNode):
+            self.flatten_mapping(node)
+        return Dependency(super(RubyConstructor, self).construct_mapping(node, deep=deep))
+
+    def construct_requirement(self, node, deep=False):
+        if isinstance(node, MappingNode):
+            self.flatten_mapping(node)
+        return Requirement(super(RubyConstructor, self).construct_mapping(node, deep=deep))
+
+
+RubyConstructor.add_constructor('!ruby/object:Gem::Specification', RubyConstructor.construct_specification)
+RubyConstructor.add_constructor('!ruby/object:Gem::Version', RubyConstructor.construct_version)
+RubyConstructor.add_constructor('!ruby/object:Gem::Dependency', RubyConstructor.construct_dependency)
+RubyConstructor.add_constructor('!ruby/object:Gem::Requirement', RubyConstructor.construct_requirement)
+
+
+class RubyLoader(Reader, Scanner, Parser, Composer, RubyConstructor, Resolver):
+
+    def __init__(self, stream):
+        Reader.__init__(self, stream)
+        Scanner.__init__(self)
+        Parser.__init__(self)
+        Composer.__init__(self)
+        RubyConstructor.__init__(self)
+        Resolver.__init__(self)
 
 
 class RubyGem(Aptitude):
@@ -36,39 +153,21 @@ class RubyGem(Aptitude):
         :param states: list of ArchiveState
         """
         RepositoryModel.finish_element(self, element, states)
+        self.generate_indexes(element.repository)
 
     def is_file_valid(self, uploaded_file: UploadedFile):
-        return True
-
-    @staticmethod
-    def open_file(filename, archive_file):
-        """ identify compression type and return a tuple (open compressed file, compression_type, prefix).
-        If compression type is unknown, return None
-        """
-        endswith = filename.endswith
-        compressed_file = None
-        # noinspection PyBroadException
+        if not uploaded_file.name.endswith('.gem'):
+            return False
         try:
-            if endswith('.tar.gz') or endswith('.tar.xz') or endswith('.tar.bz2'):
-                compressed_file = tarfile.open(name='file.tar', mode='r:*', fileobj=archive_file)
-                prefix = os.path.commonprefix(compressed_file.getnames())
-                return PyArchive(compressed_file, 'tar', prefix)
-            if endswith('.zip'):
-                compressed_file = zipfile.ZipFile(archive_file)
-                prefix = os.path.commonprefix(compressed_file.namelist())
-                return PyArchive(compressed_file, 'zip', prefix)
-            if endswith('.egg'):
-                compressed_file = zipfile.ZipFile(archive_file)
-                prefix = os.path.commonprefix(compressed_file.namelist())
-                return PyArchive(compressed_file, 'egg', prefix)
-            if endswith('.whl'):
-                compressed_file = zipfile.ZipFile(archive_file)
-                prefix = os.path.commonprefix(compressed_file.namelist())
-                return PyArchive(compressed_file, 'whl', prefix)
-        except Exception:
-            if compressed_file:
-                compressed_file.close()
-        return None
+            fileobj = uploaded_file.file
+            fd = tarfile.open(fileobj=fileobj, mode='r|')
+            names = fd.getnames()
+            fd.close()
+        except tarfile.TarError:
+            return False
+        if 'data.tar.gz' not in names or 'metadata.gz' not in names:
+            return False
+        return True
 
     def update_element(self, element):
         """
@@ -79,25 +178,19 @@ class RubyGem(Aptitude):
         ar -x control.tar.gz
         tar -xf control.tar.gz control
         """
-        archive_file = storage(settings.STORAGE_ARCHIVE).get_file(element.archive_key)
-        py_archive = self.open_file(element.filename, archive_file)
-        if py_archive is None:
-            raise InvalidRepositoryException(_('Unable to open file'))
-        try:
-            control_data_value = py_archive.get_pkg_info()
-            if not control_data_value:
-                raise InvalidRepositoryException(_('No control data in archive'))
-            element.extra_data = control_data_value
-            control_data = parse_control_data(control_data_value, continue_line='        ', skip_after_blank=True)
-            for key, attr in (('Name', 'archive'), ('Version', 'version'), ('Home-page', 'official_link'),
-                              ('Description', 'long_description')):
-                if key in control_data:
-                    setattr(element, attr, control_data.get(key, ''))
-            element.archive = element.archive.replace('-', '').replace('_', '')
-            element.name = element.archive
-        finally:
-            py_archive.close()
-            archive_file.close()
+        archive_file = storage(settings.STORAGE_ARCHIVE).get_file(element.archive_key, '')
+        gem_fd = tarfile.open(fileobj=archive_file, mode='r')
+        metadata_fd = gem_fd.extractfile('metadata.gz')
+        metadata_gz_content = metadata_fd.read()
+        metadata_bytes = gzip.decompress(metadata_gz_content)
+        gem_fd.close()
+        data = yaml.load(io.BytesIO(metadata_bytes), Loader=RubyLoader)
+        for key, attr in (('name', 'archive'), ('homepage', 'official_link'), ('summary', 'long_description'),
+                          ('name', 'name')):
+            if key in data.values:
+                setattr(element, attr, data.values[key])
+        element.version = data.values['version'].version
+        element.extra_data = metadata_bytes.decode('utf-8')
 
     def public_url_list(self):
         """
@@ -109,14 +202,48 @@ class RubyGem(Aptitude):
 
         """
         pattern_list = [
-            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/specs.4.8.gz$",
-                self.wrap_view('simple'), name="specs"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/a/specs.4.8.gz$",
+                self.wrap_view('specs'), name="specs"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/specs.4.8.gz$",
+                self.wrap_view('specs'), name="specs"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/a/prerelease_specs.4.8.gz$",
+                self.wrap_view('prerelease_specs'), name="prerelease_specs"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/prerelease_specs.4.8.gz$",
+                self.wrap_view('prerelease_specs'), name="prerelease_specs"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/a/latest_specs.4.8.gz$",
+                self.wrap_view('latest_specs'), name="latest_specs"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/latest_specs.4.8.gz$",
+                self.wrap_view('latest_specs'), name="latest_specs"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/a/api/v1/dependencies/?$",
+                self.wrap_view('dependencies'), name="dependencies"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/api/v1/dependencies/?$",
+                self.wrap_view('dependencies'), name="dependencies"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/a/names.list$",
+                self.wrap_view('names'), name="names"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/names.list$",
+                self.wrap_view('names'), name="names"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/a/versions.list$",
+                self.wrap_view('versions'), name="versions"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/versions.list$",
+                self.wrap_view('versions'), name="versions"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/a/versions.sha512",
+                self.wrap_view('versions'), name="versions"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/versions.sha512$",
+                self.wrap_view('versions'), name="versions"),
 
-            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/simple/?$",
-                self.wrap_view('simple'), name="simple"),
-            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/simple/"
-                "(?P<search_pattern>[a-z\d_\-]*)/?$", self.wrap_view('simple'),
-                name="simple"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/a/specs/(?P<filename>.+)\.gempspec$",
+                self.wrap_view('gem_specs'), name="gem_specs"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/specs/(?P<filename>.+)\.gempspec$",
+                self.wrap_view('gem_specs'), name="gem_specs"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/a/downloads/(?P<filename>.+)\.gem$",
+                self.wrap_view('download'), name="download"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/downloads/(?P<filename>.+)\.gem$",
+                self.wrap_view('download'), name="download"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/a/deps/(?P<archive>.+)$",
+                self.wrap_view('deps'), name="deps"),
+            url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/deps/(?P<archive>.+)$",
+                self.wrap_view('deps'), name="deps"),
+
             url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/rpc/?$",
                 self.wrap_view('xmlrpc', csrf_exempt=True), name="xmlrpc"),
             url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/simple/?$", self.wrap_view('simple'), name="simple"),
@@ -128,6 +255,59 @@ class RubyGem(Aptitude):
             url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/plugin/(?P<eid>\d+)$", self.wrap_view('search_plugin'), name="search_plugin"),
         ]
         return pattern_list
+
+    def specs(self, request, rid, repo_slug, state_slug=None, index_filename='specs.4.8.gz'):
+        # noinspection PyUnusedLocal
+        repo_slug = repo_slug
+        repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
+        filename = 'specs/%(slug)s/%(filename)s' % {'slug': state_slug, 'filename': index_filename, }
+        uid = self.storage_uid % repo.pk
+        key = storage(settings.STORAGE_CACHE).uid_to_key(uid)
+        return sendpath(settings.STORAGE_CACHE, key, filename, 'application/gzip')
+
+    def prerelease_specs(self, request, rid, repo_slug, state_slug=None):
+        return self.specs(request=request, rid=rid, repo_slug=repo_slug, state_slug=state_slug, index_filename='prerelease_specs.4.8.gz')
+
+    def latest_specs(self, request, rid, repo_slug, state_slug=None):
+        return self.specs(request=request, rid=rid, repo_slug=repo_slug, state_slug=state_slug, index_filename='latest_specs.4.8.gz')
+
+    def gem_specs(self, request, rid, repo_slug, state_slug=None, filename=None):
+        name, sep, version = filename.rpartition('-')
+        if sep != '-':
+            raise Http404
+        # noinspection PyUnusedLocal
+        repo_slug = repo_slug
+        repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
+        base_query = Element.objects.filter(repository=repo)
+        if state_slug:
+            state = get_object_or_404(ArchiveState, repository=repo, name=state_slug)
+            base_query = base_query.filter(states=state)
+        element = get_object_or_404(base_query, name=name, version=version)
+        return HttpResponse(element.extra_data, content_type='text/yaml')
+
+    def dependencies(self, request, rid, repo_slug, state_slug=None):
+        pass
+
+    def names(self, request, rid, repo_slug, state_slug=None):
+        pass
+
+    def versions(self, request, rid, repo_slug, state_slug=None):
+        pass
+
+    def deps(self, request, rid, repo_slug, state_slug=None, filename=None):
+        pass
+
+    def download(self, request, rid, repo_slug, state_slug=None, filename=None):
+        # noinspection PyUnusedLocal
+        repo_slug = repo_slug
+        repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
+        base_query = Element.objects.filter(repository=repo)
+        if state_slug:
+            state = get_object_or_404(ArchiveState, repository=repo, name=state_slug)
+            base_query = base_query.filter(states=state)
+        element = get_object_or_404(base_query, filename=filename)
+        from moneta.views import get_file
+        return get_file(request, element.pk)
 
     def index(self, request, rid):
         repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
@@ -146,31 +326,59 @@ class RubyGem(Aptitude):
         template_values['tab_infos'] = tab_infos
         return render_to_response('repositories/pypi/index.html', template_values, RequestContext(request))
 
-    def search_plugin(self, request, rid, repo_slug):
-        for k, v in request.META.items():
-            if k.startswith('HTTP'):
-                print(k, v)
-        r = requests.get('https://plugins.jetbrains.com/?build=PY-141.1245')
-        print(r.text)
-        return HttpResponse(r.text)
+    def generate_indexes(self, repo: Repository, states=None, validity=365):
+        if states is None:
+            states = list(ArchiveState.objects.filter(repository=repo))
+        base_query = Element.objects.filter(repository=repo).prefetch_related('states')
+        state_infos = [(None, None)] + [(state.slug, state.pk) for state in states]
+        all_elements = {state_info[0]: [] for state_info in state_infos}
+        all_specs = {state_info[0]: [] for state_info in state_infos}
+        last_elements = {state_info[0]: {} for state_info in state_infos}
+        for element in base_query:
+            element_spec = yaml.load(io.BytesIO(element.extra_data.encode('utf-8')), Loader=RubyLoader)
+            assert isinstance(element_spec, Specification)
+            element_data = [element.archive, element_spec.version, element_spec.platform]
+            all_specs[None].append(element_spec)
+            all_elements[None].append(element_data)
+            last_elements[None].setdefault(element_spec.name, []).append((element_spec.version.version, element_spec.platform))
+            for state in element.states.all():
+                all_elements[state.slug].append(element_data)
+                all_specs[state.slug].append(element_spec)
+                last_elements[state.slug].setdefault(element_spec.name, []).append((element_spec.version.version, element_spec.platform))
 
-    @staticmethod
-    def get_filename(request, eid):
-        from moneta.views import get_file
+        for state_info in state_infos:
+            folder_name = 'specs/' if state_info[0] is None else 'specs/%(slug)s' % {'slug': state_info[0]}
 
-        return get_file(request, eid)
+            last_elements_by_state = []
+            for name, versions in last_elements[state_info[0]].items():
+                try:
+                    versions.sort(key=lambda x: LooseVersion(x[1].values[0]))
+                    last_elements_by_state.append([name, Version({'version': versions[-1][0]}), versions[-1][1]])
+                except ValueError:
+                    continue
+            names = list(last_elements[state_info[0]].keys())
+            names.sort()
 
-    # noinspection PyUnusedLocal
-    def simple(self, request, rid, repo_slug, state_slug=None, search_pattern=''):
-        search_pattern = search_pattern.replace('-', '').replace('_', '')
-        repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
-        base_query = Element.objects.filter(repository=repo)
-        if state_slug:
-            state = get_object_or_404(ArchiveState, repository=repo, name=state_slug)
-            base_query = base_query.filter(states=state)
-        if search_pattern:
-            base_query = base_query.filter(archive__iexact=search_pattern)
-        view_name = moneta_url(repo, 'get_file')
-        elements = [(x.filename, x.md5, reverse(view_name, kwargs={'eid': x.id, })) for x in base_query[0:1000]]
-        template_values = {'elements': elements, 'rid': rid, }
-        return render_to_response('repositories/pypi/simple.html', template_values, RequestContext(request))
+            def version_write_fn(file_obj):
+                write(file_obj, ['%s %s' % (y, ','.join([z[0] for z in last_elements[state_info[0]][y]])) for y in names])
+
+            self.__write_marshal_file(repo, '%s/specs.4.8' % folder_name, lambda x: write(x, all_elements))
+            self.__write_marshal_file(repo, '%s/latest_specs.4.8' % folder_name, lambda x: write(x, last_elements_by_state))
+            self.__write_marshal_file(repo, '%s/prerelease_specs.4.8' % folder_name, lambda x: write(x, []))
+            self.__write_marshal_file(repo, '%s/Marshal.4.8' % folder_name, lambda x: write(x, all_specs))
+            self.__write_marshal_file(repo, '%s/versions' % folder_name, version_write_fn)
+
+    def __write_marshal_file(self, repo, dest_filename, write_function):
+        uid = self.storage_uid % repo.pk
+        plain_file = tempfile.NamedTemporaryFile(mode='w+b', dir=settings.TEMP_ROOT, delete=True)
+        gz_plain_file = tempfile.NamedTemporaryFile(mode='w+b', dir=settings.TEMP_ROOT, delete=True)
+        gz_file = gzip.open(gz_plain_file, 'wb')
+        write_function(plain_file)
+        plain_file.flush()
+        plain_file.seek(0)
+        for block in iter(lambda: plain_file.read(8192), b''):
+            gz_file.write(block)
+        gz_file.close()
+        gz_plain_file.close()
+        storage(settings.STORAGE_CACHE).import_filename(plain_file.name, uid, dest_filename)
+        storage(settings.STORAGE_CACHE).import_filename(gz_plain_file.name, uid, dest_filename + '.gz')

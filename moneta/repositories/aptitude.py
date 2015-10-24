@@ -11,6 +11,7 @@ from moneta.templatetags.moneta import moneta_url
 try:
     import lzma
 except ImportError:
+    # noinspection PyUnresolvedReferences,PyPackageRequirements
     from backports import lzma
 import datetime
 

@@ -20,7 +20,7 @@ REPOSITORY_CLASSES = [
     'moneta.repositories.maven3.Maven3',
     'moneta.repositories.flat_files.FlatFile',
     'moneta.repositories.yum.Yum',
-    # 'moneta.repositories.ruby.RubyGem',
+    'moneta.repositories.ruby.RubyGem',
 ]
 
 TEMPLATE_CONTEXT_PROCESSORS = [
@@ -34,6 +34,30 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     'django.contrib.messages.context_processors.messages',
     'djangofloor.context_processors.context_base',
     'moneta.context_processors.context_base',
+]
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                # Already defined Django-related contexts here
+                'django.contrib.auth.context_processors.auth',
+                'django.core.context_processors.debug',
+                'django.core.context_processors.request',
+                'django.core.context_processors.i18n',
+                'django.core.context_processors.media',
+                'django.core.context_processors.static',
+                'django.core.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+                'djangofloor.context_processors.context_base',
+                'moneta.context_processors.context_base',
+                # `allauth` needs this from django
+                'django.template.context_processors.request',
+            ],
+        },
+    },
 ]
 
 STORAGES = {

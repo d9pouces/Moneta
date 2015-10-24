@@ -59,7 +59,7 @@ class BaseStorage(object):
         """
         raise NotImplementedError
 
-    def get_file(self, key, sub_path):
+    def get_file(self, key, sub_path='', mode='rb'):
         """
         Return a file descriptor in read mode of the given path
         :param key: UUID of the Element
@@ -94,6 +94,16 @@ class BaseStorage(object):
         Delete the element from its internal storage
         :param key: UUID of the Element to delete
         :raise:
+        """
+        raise NotImplementedError
+
+    def import_filename(self, filename, key, sub_path=''):
+        """import the filename to the storage. Remove the local source filename!
+
+        :param key: UUID of the Element
+        :param sub_path: relative path to read
+        :return:
+        :rtype: :class:`bool`
         """
         raise NotImplementedError
 
@@ -174,7 +184,7 @@ class FlatStorage(BaseStorage):
     def simple_generator(self, lis):
         yield lis
 
-    def get_file(self, key, sub_path=''):
+    def get_file(self, key, sub_path='', mode='rb'):
         """
         Return a file descriptor in read mode of the given path
         :param key: UUID of the Element
@@ -185,11 +195,21 @@ class FlatStorage(BaseStorage):
         components = [self.root, key]
         if sub_path:
             components.append(sub_path)
+        abs_path = os.path.join(*components)
+        makedir(os.path.dirname(abs_path))
         try:
-            fd = open(os.path.join(*components), 'rb')
+            fd = open(abs_path, mode)
         except IOError:
             fd = None
         return fd
+
+    def import_filename(self, filename, key, sub_path=''):
+        components = [self.root, key]
+        if sub_path:
+            components.append(sub_path)
+        abs_path = os.path.join(*components)
+        makedir(os.path.dirname(abs_path))
+        return os.rename(filename, abs_path)
 
     def get_path(self, key, sub_path):
         """ return an absolute path of the file, or None if does not exist (e.g., database storage).

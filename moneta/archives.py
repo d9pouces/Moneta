@@ -1,6 +1,10 @@
 # coding=utf-8
 import os
+import re
 from tarfile import InvalidHeaderError
+import struct
+import math
+import io
 
 __author__ = 'flanker'
 
@@ -157,8 +161,3 @@ class ArFile(object):
 
     def close(self):
         pass
-
-if __name__ == '__main__':
-    import doctest
-
-    doctest.testmod()
