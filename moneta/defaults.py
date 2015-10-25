@@ -84,7 +84,7 @@ STORAGE_CACHE = 'cache'
 CACHES = {'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}
 
 FLOOR_FAKE_AUTHENTICATION_USERNAME = None
-DEBUG = False
+DEBUG = True
 # TO BE CONFIGURED
 GNUPG_HOME = DirectoryPath('{LOCAL_PATH}/gpg')
 # TO BE CONFIGURED

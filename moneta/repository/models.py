@@ -280,7 +280,7 @@ def delete_element(sender, instance=None, **kwargs):
 
 
 @receiver(post_migrate)
-def create_default_group(signal, sender, app_config, verbosity, interactive, using):
+def create_default_group(signal, sender, app_config, verbosity, interactive, using, **kwargs):
     if sender.name != 'moneta.repository':
         return
     group, created = Group.objects.get_or_create(name=settings.FLOOR_DEFAULT_GROUP_NAME)
