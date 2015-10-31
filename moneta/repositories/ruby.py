@@ -214,7 +214,7 @@ class RubyGem(Aptitude):
 
         """
         src_pattern_list = [(r'(?P<filename>(specs\.4\.8|prerelease_specs\.4\.8|latest_specs\.4\.8|Marshal\.4\.8|versions\.list|names\.list)(\.gz)?)', 'specs', 'specs'),
-                            (r'downloads/(?P<filename>.+)\.gem', 'download', 'download'),
+                            (r'gems/(?P<filename>.+)', 'download', 'download'),
                             (r'specs/(?P<filename>.+)\.gemspec', 'gem_specs', 'gem_specs'),
                             (r'quick/Marshal\.4\.8/(?P<filename>.+)\.gemspec(?P<compression>(\.rz|))', 'quick_gem_specs', 'quick_gem_specs'),
                             # /quick/Marshal.4.8/m-1.4.0.gemspec.rz
@@ -293,7 +293,10 @@ class RubyGem(Aptitude):
         if state_slug:
             state = get_object_or_404(ArchiveState, repository=repo, name=state_slug)
             base_query = base_query.filter(states=state)
+        print(state_slug, '[%s]' % filename)
+        print([(x, x.filename) for x in base_query])
         element = get_object_or_404(base_query, filename=filename)
+        print(element)
         from moneta.views import get_file
         return get_file(request, element.pk)
 
