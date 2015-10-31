@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
+import base64
 from distutils.version import LooseVersion
 import gzip
+import json
+import subprocess
 import tarfile
 import io
 import tempfile
@@ -14,7 +17,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from rubymarshal.classes import UsrMarshal
-from rubymarshal.writer import write
+from rubymarshal.writer import write, writes
 from yaml import MappingNode
 import yaml
 from yaml.composer import Composer
@@ -23,6 +26,7 @@ from yaml.parser import Parser
 from yaml.reader import Reader
 from yaml.resolver import Resolver
 from yaml.scanner import Scanner
+import zlib
 
 from moneta.repositories.aptitude import Aptitude
 from moneta.repositories.base import RepositoryModel
@@ -35,7 +39,7 @@ __author__ = 'flanker'
 
 class RubyMarshal(UsrMarshal):
     def __init__(self, values):
-        super().__init__(self.__class__.__name__, values=values)
+        super().__init__('Gem::' + self.__class__.__name__, values=values)
 
 
 class Version(RubyMarshal):
@@ -185,7 +189,20 @@ class RubyGem(Aptitude):
             if key in data.values:
                 setattr(element, attr, data.values[key])
         element.version = data.values['version'].version
-        element.extra_data = metadata_bytes.decode('utf-8')
+        p = subprocess.Popen(['ruby', '-e', 'puts Marshal.dump (Gem::Specification.from_yaml(ARGF.read))'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        stdout, stderr = p.communicate(metadata_bytes)
+        extra_data = {'yaml': metadata_bytes.decode('utf-8'), 'marshal': base64.b64encode(stdout).decode('utf-8')}
+        element.extra_data = json.dumps(extra_data)
+
+    @staticmethod
+    def marshal_data(elt: Element) -> bytes:
+        marshal = json.loads(elt.extra_data)['marshal']
+        return base64.b64decode(marshal.encode('utf-8'))
+
+    @staticmethod
+    def python_data(elt: Element) -> Specification:
+        data = json.loads(elt.extra_data)['yaml']
+        return yaml.load(io.BytesIO(data.encode('utf-8')), Loader=RubyLoader)
 
     def public_url_list(self):
         """
@@ -199,6 +216,9 @@ class RubyGem(Aptitude):
         src_pattern_list = [(r'(?P<filename>(specs\.4\.8|prerelease_specs\.4\.8|latest_specs\.4\.8|Marshal\.4\.8|versions\.list|names\.list)(\.gz)?)', 'specs', 'specs'),
                             (r'downloads/(?P<filename>.+)\.gem', 'download', 'download'),
                             (r'specs/(?P<filename>.+)\.gemspec', 'gem_specs', 'gem_specs'),
+                            (r'quick/Marshal\.4\.8/(?P<filename>.+)\.gemspec(?P<compression>(\.rz|))', 'quick_gem_specs', 'quick_gem_specs'),
+                            # /quick/Marshal.4.8/m-1.4.0.gemspec.rz
+                            (r'', 'index', 'index'),
                             # (r'api/v1/?', 'dependencies', 'dependencies'),
                             # (r'deps/(?P<filename>.+)', 'deps', 'deps'),
                             ]
@@ -227,6 +247,23 @@ class RubyGem(Aptitude):
         uid = self.storage_uid % repo.pk
         key = storage(settings.STORAGE_CACHE).uid_to_key(uid)
         return sendpath(settings.STORAGE_CACHE, key, filename, 'application/gzip')
+
+    def quick_gem_specs(self, request, rid, repo_slug, state_slug=None, filename=None, compression=''):
+        name, sep, version = filename.rpartition('-')
+        if sep != '-':
+            raise Http404
+        # noinspection PyUnusedLocal
+        repo_slug = repo_slug
+        repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
+        base_query = Element.objects.filter(repository=repo)
+        if state_slug:
+            state = get_object_or_404(ArchiveState, repository=repo, name=state_slug)
+            base_query = base_query.filter(states=state)
+        element = get_object_or_404(base_query, name=name, version=version)
+        content = self.marshal_data(element)
+        if compression == '.rz':
+            content = zlib.compress(content)
+        return HttpResponse(content, content_type='application/gzip')
 
     def gem_specs(self, request, rid, repo_slug, state_slug=None, filename=None):
         name, sep, version = filename.rpartition('-')
@@ -260,12 +297,12 @@ class RubyGem(Aptitude):
         from moneta.views import get_file
         return get_file(request, element.pk)
 
-    def index(self, request, rid):
+    def index(self, request, rid, repo_slug=None, state_slug=None):
         repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
         states = list(ArchiveState.objects.filter(repository=repo).order_by('name'))
         template_values = {'repo': repo, 'states': states, 'upload_allowed': repo.upload_allowed(request),
                            'admin_allowed': repo.admin_allowed(request), }
-        view_name = moneta_url(repo, 'simple')
+        view_name = moneta_url(repo, 'index')
         tab_infos = [
             (reverse(view_name, kwargs={'rid': repo.id, 'repo_slug': repo.slug}), states,
              ArchiveState(name=_('All states'), slug='all-states')),
@@ -275,7 +312,7 @@ class RubyGem(Aptitude):
                 (reverse(view_name, kwargs={'rid': repo.id, 'repo_slug': repo.slug, 'state_slug': state.slug}), [state], state)
             )
         template_values['tab_infos'] = tab_infos
-        return render_to_response('repositories/pypi/index.html', template_values, RequestContext(request))
+        return render_to_response('repositories/ruby/index.html', template_values, RequestContext(request))
 
     def generate_indexes(self, repo: Repository, states=None, validity=365):
         if states is None:
@@ -286,7 +323,7 @@ class RubyGem(Aptitude):
         all_specs = {state_info[0]: [] for state_info in state_infos}
         last_elements = {state_info[0]: {} for state_info in state_infos}
         for element in base_query:
-            element_spec = yaml.load(io.BytesIO(element.extra_data.encode('utf-8')), Loader=RubyLoader)
+            element_spec = self.python_data(element)
             assert isinstance(element_spec, Specification)
             element_data = [element.archive, element_spec.version, element_spec.platform]
             all_specs[None].append(element_spec)
@@ -306,7 +343,7 @@ class RubyGem(Aptitude):
             for name, versions in last_elements[state_info[0]].items():
                 try:
                     versions.sort(key=lambda x: LooseVersion(x[0]))
-                    last_elements_by_state.append([name, Version({'version': versions[-1][0]}), versions[-1][1]])
+                    last_elements_by_state.append([name, Version([versions[-1][0]]), versions[-1][1].encode('utf-8')])
                 except ValueError:
                     continue
             names = list(last_elements[state_info[0]].keys())
@@ -314,21 +351,22 @@ class RubyGem(Aptitude):
 
             def versions_write_fn(file_obj):
                 for y in names:
-                    file_obj.write('%s %s\n' % (y, ','.join([z[0] for z in last_elements[state_info[0]][y]])))
+                    file_obj.write(('%s %s\n' % (y, ','.join([z[0] for z in last_elements[state_info[0]][y]]))).encode('utf-8'))
 
             def names_write_fn(file_obj):
                 for y in names:
-                    file_obj.write('%s\n' % y)
+                    file_obj.write(('%s\n' % y).encode('utf-8'))
 
-            self.__write_marshal_file(repo, '%s/specs.4.8' % folder_name, lambda x: write(x, all_elements))
-            self.__write_marshal_file(repo, '%s/latest_specs.4.8' % folder_name, lambda x: write(x, last_elements_by_state))
-            self.__write_marshal_file(repo, '%s/prerelease_specs.4.8' % folder_name, lambda x: write(x, []))
-            self.__write_marshal_file(repo, '%s/Marshal.4.8' % folder_name, lambda x: write(x, all_specs))
-            self.__write_marshal_file(repo, '%s/versions.list' % folder_name, versions_write_fn)
-            self.__write_marshal_file(repo, '%s/names.list' % folder_name, names_write_fn)
+            self.__write_file(repo, '%s/specs.4.8' % folder_name, lambda x: write(x, all_elements))
+            self.__write_file(repo, '%s/latest_specs.4.8' % folder_name, lambda x: write(x, last_elements_by_state))
+            self.__write_file(repo, '%s/prerelease_specs.4.8' % folder_name, lambda x: write(x, []))
+            self.__write_file(repo, '%s/Marshal.4.8' % folder_name, lambda x: write(x, all_specs))
+            self.__write_file(repo, '%s/versions.list' % folder_name, versions_write_fn)
+            self.__write_file(repo, '%s/names.list' % folder_name, names_write_fn)
 
-    def __write_marshal_file(self, repo, dest_filename, write_function):
+    def __write_file(self, repo, dest_filename, write_function):
         uid = self.storage_uid % repo.pk
+        key = storage(settings.STORAGE_CACHE).uid_to_key(uid)
         plain_file = tempfile.NamedTemporaryFile(mode='w+b', dir=settings.TEMP_ROOT, delete=False)
         gz_plain_file = tempfile.NamedTemporaryFile(mode='w+b', dir=settings.TEMP_ROOT, delete=False)
         gz_file = gzip.open(gz_plain_file, 'wb')
@@ -339,5 +377,5 @@ class RubyGem(Aptitude):
             gz_file.write(block)
         gz_file.close()
         gz_plain_file.close()
-        storage(settings.STORAGE_CACHE).import_filename(plain_file.name, uid, dest_filename)
-        storage(settings.STORAGE_CACHE).import_filename(gz_plain_file.name, uid, dest_filename + '.gz')
+        storage(settings.STORAGE_CACHE).import_filename(plain_file.name, key, dest_filename)
+        storage(settings.STORAGE_CACHE).import_filename(gz_plain_file.name, key, dest_filename + '.gz')

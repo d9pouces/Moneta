@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block repo_content %}
-    <h2>{% trans 'Available pip indexes' %}</h2>
+    <h2>{% trans 'Available gem indexes' %}</h2>
     {% with view=repo|moneta_url:'simple' %}
 
         <ul class="nav nav-tabs">
@@ -17,36 +17,23 @@
         <div class="tab-content">
             {% for tab_info in tab_infos %}
                 <div class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ tab_info.2.slug }}">
-                    {% trans 'Modifiy your $HOME/.pip/pip.conf file to use pip:' %}
-<pre>[global]
-extra-index-url = {{ absolute_url }}{{ tab_info.0 }}{% if use_https %}
+                    {% trans 'Modifiy your $HOME/.gemrc:' %}
+<pre>
+---
+# gem: --no-rdoc --no-ri
+# :verbose: true
+# :backtrace: false
+# :update_sources: true
+:sources:
+- {{ absolute_url }}{{ tab_info.0 }}{% if use_https %}
 cert = {% trans '/Path/to/your/ROOT/CA.pem' %}{% endif %}</pre>
-                    {% trans 'Modifiy your $HOME/.pydistutils.cfg file to use easy_install:' %}
-<pre>[easy_install]
-find_links = {{ absolute_url }}{{ tab_info.0 }}</pre>
-                {% trans 'If you already uses an extra Python mirror, update your $HOME/.pip/pip.conf in this way:' %}
-<pre>[global]
-extra-index-url = http://…/simple<strong style="color:blue">\</strong>
-    {{ absolute_url }}{{ tab_info.0 }}</pre>
-                    {% trans '… and your $HOME/.pydistutils.cfg:' %}
-<pre>[easy_install]
-find_links = http://…/simple<strong style="color:blue">\</strong>
-    {{ absolute_url }}{{ tab_info.0 }}</pre>
-
-        {% if use_https %}<p>{% trans 'Before using easy_install, you probably need to add your root certificate to the first existing file among:' %}</p>
-            <ul class="">
-                <li>/etc/pki/tls/certs/ca-bundle.crt</li>
-                <li>/etc/ssl/certs/ca-certificates.crt</li>
-                <li>/usr/share/ssl/certs/ca-bundle.crt</li>
-                <li>/usr/local/share/certs/ca-root.crt</li>
-                <li>/etc/ssl/cert.pem</li>
-                <li>/System/Library/OpenSSL/certs/cert.pem</li>
-            </ul>
-        {% endif %}
 
                 {% if upload_allowed %}<h2>{% trans 'Add a package' %}</h2>{% trans 'In order to add a new package, please run the following command:' %}
-                    <pre>FILENAME=filename-version(.tar.gz|.tar.bz2|.tar.xz|.whl|.zip|.egg)
+                    <pre>FILENAME=filename-version.gem
 {% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta.views.add_element_post' rid=repo.id %}\?filename=$FILENAME{% for state in tab_info.1 %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
+        {% trans 'Run the following command to re-index packages after an upload:' %}
+        {% with view=repo|auth_moneta_url:"force_index" %}<pre>{% curl %} {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug %}</pre>{% endwith %}
+
             </div>
             {% endfor %}
 

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import subprocess
 from django.test import TestCase
 import io
 import pkg_resources
@@ -97,16 +98,31 @@ class TestMetadata(TestCase):
         self.assertEqual('2.4.8', values.values['rubygems_version'])
 
 
+class TestRubyScript(TestCase):
+
+    def test_script(self):
+        filename = pkg_resources.resource_filename('moneta.repositories', 'ruby.rb')
+        # p = subprocess.Popen(['ruby'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        # p.communicate()
+
+
 class TestRubyGem(RepositoryTestCase):
 
     def test_add_file(self):
         repo = self.create_repository(RubyGem)
         filename = pkg_resources.resource_filename('moneta.repositories.tests', 'm-1.4.0.gem')
         self.add_file_to_repository(repo, filename)
-    #
-    # def test_generate_index(self):
-    #     repo = self.create_repository(RubyGem)
-    #     filename = pkg_resources.resource_filename('moneta.repositories.tests', 'm-1.4.0.gem')
-    #     self.add_file_to_repository(repo, filename)
-    #     aptitude = RubyGem()
-    #     aptitude.generate_indexes(repo)
+
+    def test_add_file_2(self):
+        repo = self.create_repository(RubyGem)
+        filename = pkg_resources.resource_filename('moneta.repositories.tests', 'method_source-0.8.2.gem')
+        self.add_file_to_repository(repo, filename)
+
+    def test_generate_index(self):
+        repo = self.create_repository(RubyGem)
+        filename = pkg_resources.resource_filename('moneta.repositories.tests', 'm-1.4.0.gem')
+        self.add_file_to_repository(repo, filename)
+        filename = pkg_resources.resource_filename('moneta.repositories.tests', 'method_source-0.8.2.gem')
+        self.add_file_to_repository(repo, filename)
+        ruby = RubyGem()
+        ruby.generate_indexes(repo)
