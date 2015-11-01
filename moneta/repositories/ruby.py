@@ -7,6 +7,7 @@ import subprocess
 import tarfile
 import io
 import tempfile
+import zlib
 
 from django.conf import settings
 from django.conf.urls import url
@@ -17,7 +18,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from rubymarshal.classes import UsrMarshal
-from rubymarshal.writer import write, writes
+from rubymarshal.writer import write
 from yaml import MappingNode
 import yaml
 from yaml.composer import Composer
@@ -26,7 +27,6 @@ from yaml.parser import Parser
 from yaml.reader import Reader
 from yaml.resolver import Resolver
 from yaml.scanner import Scanner
-import zlib
 
 from moneta.repositories.aptitude import Aptitude
 from moneta.repositories.base import RepositoryModel
@@ -204,6 +204,10 @@ class RubyGem(Aptitude):
         data = json.loads(elt.extra_data)['yaml']
         return yaml.load(io.BytesIO(data.encode('utf-8')), Loader=RubyLoader)
 
+    @staticmethod
+    def yaml_data(elt: Element) -> Specification:
+        return json.loads(elt.extra_data)['yaml']
+
     def public_url_list(self):
         """
         Return a list of URL patterns specific to this repository
@@ -217,12 +221,8 @@ class RubyGem(Aptitude):
                             (r'gems/(?P<filename>.+)', 'download', 'download'),
                             (r'specs/(?P<filename>.+)\.gemspec', 'gem_specs', 'gem_specs'),
                             (r'quick/Marshal\.4\.8/(?P<filename>.+)\.gemspec(?P<compression>(\.rz|))', 'quick_gem_specs', 'quick_gem_specs'),
-                            # /quick/Marshal.4.8/m-1.4.0.gemspec.rz
                             (r'', 'index', 'index'),
-                            # (r'api/v1/?', 'dependencies', 'dependencies'),
-                            # (r'deps/(?P<filename>.+)', 'deps', 'deps'),
                             ]
-
         pattern_list = []
         for pattern, view, name in src_pattern_list:
             pattern_list.append(
@@ -277,13 +277,7 @@ class RubyGem(Aptitude):
             state = get_object_or_404(ArchiveState, repository=repo, name=state_slug)
             base_query = base_query.filter(states=state)
         element = get_object_or_404(base_query, name=name, version=version)
-        return HttpResponse(element.extra_data, content_type='text/yaml')
-    #
-    # def dependencies(self, request, rid, repo_slug, state_slug=None):
-    #     pass
-    #
-    # def deps(self, request, rid, repo_slug, state_slug=None, filename=None):
-    #     pass
+        return HttpResponse(self.yaml_data(element), content_type='text/yaml')
 
     def download(self, request, rid, repo_slug, state_slug=None, filename=None):
         # noinspection PyUnusedLocal
@@ -293,10 +287,7 @@ class RubyGem(Aptitude):
         if state_slug:
             state = get_object_or_404(ArchiveState, repository=repo, name=state_slug)
             base_query = base_query.filter(states=state)
-        print(state_slug, '[%s]' % filename)
-        print([(x, x.filename) for x in base_query])
         element = get_object_or_404(base_query, filename=filename)
-        print(element)
         from moneta.views import get_file
         return get_file(request, element.pk)
 
