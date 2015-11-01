@@ -247,7 +247,6 @@ class Maven3(Aptitude):
         template_values['state_slug'] = None
         request_context = RequestContext(request)
         setting_str = render_to_string('repositories/maven3/maven_settings.xml', template_values, request_context)
-
         state_infos.append(('all-packages', str(setting_str), _('All states'), states))
         for state in states:
             template_values['state_slug'] = state.slug

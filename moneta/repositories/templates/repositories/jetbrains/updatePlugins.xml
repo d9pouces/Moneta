@@ -1,0 +1,5 @@
+<plugins>
+    {% for element in elements %}
+        <plugin id="{{ element.archive }}" url="{{ absolute_url }}{{ element.get_direct_link }}" version="{{ element.version }}"/>
+    {% endfor %}
+</plugins>

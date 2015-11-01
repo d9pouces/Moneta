@@ -13,6 +13,8 @@ Currently, you can create the following types of repositories:
     * Yum for CentOS, Fedora or Red Hat systems,
     * Maven for Java or Scala packages,
     * Pypi for Python packages,
+    * Gem for Ruby packages,
+    * Jetbrains for IntelliJ/PyCharm/PhpStorm/RubyMine/AppCode/Clion plugins,
     * any binary, versionned files.
 
 You can read more docs at http://moneta.readthedocs.org/en/latest/index.html .
@@ -20,10 +22,11 @@ You can read more docs at http://moneta.readthedocs.org/en/latest/index.html .
 
 In the future, I would like to add the following kinds of repositories:
 
-    * Jetbrains for IntelliJ/PyCharm/PhpStor/Clion plugins,
+    * Shinken packages,
+    * Jenkins plugins,
+    * packages for vim,
     * brew (packaging system for OS X),
     * CPAN for Perl,
     * LaTeX,
-    * Gem for Ruby,
     * PHP,
     * JS.

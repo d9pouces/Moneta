@@ -18,6 +18,8 @@ Currently, you can create the following types of repositories:
     * Yum for CentOS, Fedora or Red Hat systems,
     * Maven for Java or Scala packages,
     * Pypi for Python packages,
+    * Jetbrains for IntelliJ/PyCharm/PhpStorm/RubyMine/AppCode/Clion plugins,
+    * Gem for Ruby packages,
     * any binary, versionned files.
 
 

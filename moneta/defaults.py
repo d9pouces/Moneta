@@ -21,6 +21,7 @@ REPOSITORY_CLASSES = [
     'moneta.repositories.flat_files.FlatFile',
     'moneta.repositories.yum.Yum',
     'moneta.repositories.ruby.RubyGem',
+    'moneta.repositories.jetbrains.Jetbrains',
 ]
 
 TEMPLATE_CONTEXT_PROCESSORS = [

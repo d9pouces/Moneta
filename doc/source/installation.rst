@@ -23,6 +23,15 @@ PostgreSQL is often a good choice for Django sites:
    echo "ALTER ROLE moneta CREATEDB" | sudo -u postgres psql -d postgres
    echo "CREATE DATABASE moneta OWNER moneta" | sudo -u postgres psql -d postgres
 
+Ruby
+----
+
+If you want to use the Ruby mirror functionnality, Ruby is required on the server:
+
+.. code-block:: bash
+
+   sudo apt-get install ruby
+
 Apache
 ------
 
