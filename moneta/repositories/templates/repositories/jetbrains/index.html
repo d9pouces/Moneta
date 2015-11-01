@@ -11,7 +11,8 @@
 <div class="tab-content">
     {% for tab_info in tab_infos %}
         <div class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ tab_info.1.slug }}">
-            {% trans 'Go to Settings -> Plugins -> Browse repositories -> Manage Repositories:' %}
+        <p>&nbsp;</p>
+            <p>{% trans 'Go to Settings -> Plugins -> Browse repositories -> Manage Repositories and add the following line:' %}</p>
 <pre>{{ absolute_url }}{{ tab_info.0 }}</pre>
 
     {% if upload_allowed %}<h2>{% trans 'Add a plugin' %}</h2>
