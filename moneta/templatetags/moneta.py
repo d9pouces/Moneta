@@ -23,15 +23,15 @@ def moneta_url(repo, view_name='index'):
 @register.filter
 def checksum(element, value):
     if element.repository.is_private:
-        return reverse('moneta.views.get_checksum', kwargs={'eid': element.id, 'value': value})
-    return reverse('moneta.views.get_checksum_p', kwargs={'eid': element.id, 'value': value})
+        return reverse('moneta:get_checksum', kwargs={'eid': element.id, 'value': value})
+    return reverse('moneta:get_checksum_p', kwargs={'eid': element.id, 'value': value})
 
 
 @register.filter
 def direct_link(element):
     if element.repository.is_private:
-        return reverse('moneta.views.get_file', kwargs={'eid': element.id, 'name': element.filename})
-    return reverse('moneta.views.get_file_p', kwargs={'eid': element.id, 'name': element.filename})
+        return reverse('moneta:get_file', kwargs={'eid': element.id, 'name': element.filename})
+    return reverse('moneta:get_file_p', kwargs={'eid': element.id, 'name': element.filename})
 
 
 @register.filter
@@ -50,8 +50,8 @@ def signature(signature_, element=None):
     if element is None:
         element = signature_.element
     if element.repository.is_private:
-        return reverse('moneta.views.get_signature', kwargs={'eid': element.id, 'sid': signature_.id})
-    return reverse('moneta.views.get_signature_p', kwargs={'eid': element.id, 'sid': signature_.id})
+        return reverse('moneta:get_signature', kwargs={'eid': element.id, 'sid': signature_.id})
+    return reverse('moneta:get_signature_p', kwargs={'eid': element.id, 'sid': signature_.id})
 
 
 @register.filter

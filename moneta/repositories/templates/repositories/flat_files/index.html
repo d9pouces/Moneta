@@ -4,12 +4,12 @@
     <div class="btn-group">
         <a class="btn btn-sm btn-default" href="{{ repo.get_absolute_url }}">{% trans 'usage' %}</a>
         <a class="btn btn-sm btn-default"
-           href="{% url 'moneta.views.search_package' rid=repo.id %}">{% trans 'browse repository' %}</a>
+           href="{% url 'moneta:search_package' rid=repo.id %}">{% trans 'browse repository' %}</a>
         {% if admin_allowed %}
             <a class="btn btn-sm btn-default"
-               href="{% url 'moneta.views.modify_repository' rid=repo.id %}">{% trans 'modify repository' %}</a>
+               href="{% url 'moneta:modify_repository' rid=repo.id %}">{% trans 'modify repository' %}</a>
             <a class="btn btn-sm btn-danger"
-               href="{% url 'moneta.views.delete_repository' rid=repo.id %}">{% trans 'delete repository' %}</a>
+               href="{% url 'moneta:delete_repository' rid=repo.id %}">{% trans 'delete repository' %}</a>
         {% endif %}
     </div>{% endblock %}
 
@@ -32,7 +32,7 @@
                 <pre>FILENAME=filename.xxx
 IDENTIFIER=$identifier
 VERSION=$version
-{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta.views.add_element_post' rid=repo.id %}\?filename=$FILENAME\&archive=$IDENTIFIER\&version=$VERSION{% for state in state_info.3 %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
+{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta:add_element_post' rid=repo.id %}\?filename=$FILENAME\&archive=$IDENTIFIER\&version=$VERSION{% for state in state_info.3 %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
                 {% if state_info.3 %}<p>Only the last uploaded version of this identifier will be kept in state{{ state_info.3|pluralize }} {{ state_info.3|human_join }}.</p>{% endif %}
                 </div>
             {% endfor %}

@@ -136,8 +136,7 @@ STORAGE_CACHE = 'cache'
 STORAGE_UNCOMPRESSED = 'uncompressed'
 TEMPLATE_CONTEXT_PROCESSORS = ['django.contrib.auth.context_processors.auth', 'django.core.context_processors.debug', 'django.core.context_processors.request', 'django.core.context_processors.i18n',
                                'django.core.context_processors.media', 'django.core.context_processors.static', 'django.core.context_processors.tz',
-                               'django.contrib.messages.context_processors.messages', 'djangofloor.context_processors.context_base', 'moneta.context_processors.context_base',
-                               'allauth.account.context_processors.account', 'allauth.socialaccount.context_processors.socialaccount']
+                               'django.contrib.messages.context_processors.messages', 'djangofloor.context_processors.context_base', 'moneta.context_processors.context_base', ]
 TEMPLATE_DEBUG = False
 TEMPLATE_DIRS = ['django_data/templates']
 TEMPLATE_LOADERS = ['django.template.loaders.filesystem.Loader', 'django.template.loaders.app_directories.Loader']

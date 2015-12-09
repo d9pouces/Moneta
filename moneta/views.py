@@ -55,7 +55,7 @@ def index(request: HttpRequest):
             for state in set(form.cleaned_data['states'].split()):
                 ArchiveState(repository=repo, name=state, author=author).save()
             messages.info(request, _('Your new repository has been created.'))
-            return HttpResponseRedirect(reverse('moneta.views.index'))
+            return HttpResponseRedirect(reverse('moneta:index'))
     else:
         form = get_repository_form()()
     # compute repos with admin rights
@@ -77,7 +77,7 @@ def delete_repository(request: HttpRequest, rid):
                 element.delete()
             repo.delete()
             messages.warning(request, _('The repository %(repo)s has been deleted.') % {'repo': repo.name})
-            return HttpResponseRedirect(reverse('moneta.views.index'))
+            return HttpResponseRedirect(reverse('moneta:index'))
     else:
         form = DeleteRepositoryForm()
     template_values = {'form': form, 'repo': repo}
@@ -160,7 +160,7 @@ def modify_repository(request: HttpRequest, rid):
             Element.states.through.objects.filter(archivestate__in=removed_states).delete()
             removed_states.delete()
             messages.info(request, _('The repository %(repo)s has been modified.') % {'repo': repo.name})
-            return HttpResponseRedirect(reverse('moneta.views.modify_repository', kwargs={'rid': rid, }))
+            return HttpResponseRedirect(reverse('moneta:modify_repository', kwargs={'rid': rid, }))
     else:
         form = RepositoryUpdateForm(initial={'on_index': repo.on_index, 'is_private': repo.is_private,
                                              'reader_group': list(repo.reader_group.all()),
@@ -223,7 +223,7 @@ def delete_element(request: HttpRequest, rid, eid):
         if form.is_valid():
             element.delete()
             messages.warning(request, _('The package %(repo)s has been deleted.') % {'repo': element.full_name})
-            return HttpResponseRedirect(reverse('moneta.views.index'))
+            return HttpResponseRedirect(reverse('moneta:index'))
     else:
         form = DeleteRepositoryForm()
     template_values = {'form': form, 'repo': repo, 'element': element}
@@ -296,7 +296,7 @@ def add_element(request: HttpRequest, rid):
                 messages.info(request, _('The package %(n)s has been successfully uploaded.') % {'n': element.filename})
             except InvalidRepositoryException as e:
                 messages.error(request, _('Unable to add the package to this repository: %(msg)s.') % {'msg': str(e)})
-            return HttpResponseRedirect(reverse('moneta.views.add_element', kwargs={'rid': rid}))
+            return HttpResponseRedirect(reverse('moneta:add_element', kwargs={'rid': rid}))
     else:
         form = ElementForm()
     template_values = {'form': form, 'repo': repo, 'upload_allowed': repo.upload_allowed(request)}

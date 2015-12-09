@@ -8,8 +8,8 @@
             <a href="{{ element|direct_link }}" class="btn btn-success btn-xs">
                 {% with filename=element.filename %}{% blocktrans %}Download {{ filename }}
                 {% endblocktrans %}{% endwith %}</a>
-            <a href="{% url 'moneta.views.show_file' element.id %}" class="btn btn-success btn-xs">{% trans 'More infos…' %}</a>
-            <a href="{% url 'moneta.views.delete_element' rid=repo.id eid=element.id %}" class="btn btn-danger btn-xs">
+            <a href="{% url 'moneta:show_file' element.id %}" class="btn btn-success btn-xs">{% trans 'More infos…' %}</a>
+            <a href="{% url 'moneta:delete_element' rid=repo.id eid=element.id %}" class="btn btn-danger btn-xs">
                 {% with filename=element.filename %}{% blocktrans %}Delete {{ filename }}
                 {% endblocktrans %}{% endwith %}</a>
         </div>

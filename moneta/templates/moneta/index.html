@@ -18,11 +18,11 @@
                             </h3>
                             <div class="btn-group">
                                 <a class="btn btn-sm btn-default" href="{{ repo.get_absolute_url }}">{% trans 'usage' %}</a>
-                                <a class="btn btn-sm btn-default" href="{% url 'moneta.views.search_package' rid=repo.id %}">{% trans 'browse repository' %}</a>
-                                <a class="btn btn-sm btn-default" href="{% url 'moneta.views.compare_states' rid=repo.id %}">{% trans 'check' %}</a>
+                                <a class="btn btn-sm btn-default" href="{% url 'moneta:search_package' rid=repo.id %}">{% trans 'browse repository' %}</a>
+                                <a class="btn btn-sm btn-default" href="{% url 'moneta:compare_states' rid=repo.id %}">{% trans 'check' %}</a>
                                 {% if repo.id in admin_ids %}
-                                    <a class="btn btn-sm btn-default" href="{% url 'moneta.views.modify_repository' rid=repo.id %}">{% trans 'modify repository' %}</a>
-                                    <a class="btn btn-sm btn-danger" href="{% url 'moneta.views.delete_repository' rid=repo.id %}">{% trans 'delete repository' %}</a>
+                                    <a class="btn btn-sm btn-default" href="{% url 'moneta:modify_repository' rid=repo.id %}">{% trans 'modify repository' %}</a>
+                                    <a class="btn btn-sm btn-danger" href="{% url 'moneta:delete_repository' rid=repo.id %}">{% trans 'delete repository' %}</a>
                                 {% endif %}
                             </div>
                         </li>

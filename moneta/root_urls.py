@@ -8,7 +8,6 @@ from django.contrib import admin
 admin.autodiscover()
 
 urls = [
-    (r'^repo/', include('moneta.repository.urls')),
-    (r'^core/', include('moneta.urls')),
-
+    url(r'^repo/', include('moneta.repository.urls')),
+    url(r'^core/', include('moneta.urls', namespace='moneta')),
 ]

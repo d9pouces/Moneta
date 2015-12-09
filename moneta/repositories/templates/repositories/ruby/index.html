@@ -30,7 +30,7 @@ cert = {% trans '/Path/to/your/ROOT/CA.pem' %}{% endif %}</pre>
 
                 {% if upload_allowed %}<h2>{% trans 'Add a package' %}</h2>{% trans 'In order to add a new package, please run the following command:' %}
                     <pre>FILENAME=filename-version.gem
-{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta.views.add_element_post' rid=repo.id %}\?filename=$FILENAME{% for state in tab_info.1 %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
+{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta:add_element_post' rid=repo.id %}\?filename=$FILENAME{% for state in tab_info.1 %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
         {% trans 'Run the following command to re-index packages after an upload:' %}
         {% with view=repo|auth_moneta_url:"force_index" %}<pre>{% curl %} {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug %}</pre>{% endwith %}
 

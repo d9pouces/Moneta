@@ -30,7 +30,7 @@
         {% if upload_allowed %}<h2>{% trans 'Add a package' %}</h2>
             {% trans 'In order to add a new package, please run the following command:' %}
         <pre>FILENAME=filename-version.deb
-{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta.views.add_element_post' rid=repo.id %}\?filename=$FILENAME{% for state in tab_info.0 %}\&amp;states={{ state.slug }}{% endfor %}</pre>
+{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta:add_element_post' rid=repo.id %}\?filename=$FILENAME{% for state in tab_info.0 %}\&amp;states={{ state.slug }}{% endfor %}</pre>
         {% trans 'Run the following command to re-index packages after an upload:' %}
         {% with view=repo|auth_moneta_url:"force_index" %}<pre>{% curl %} {{ absolute_url }}{% url view rid=repo.id repo_slug=repo.slug %}</pre>{% endwith %}
         {% endif %}

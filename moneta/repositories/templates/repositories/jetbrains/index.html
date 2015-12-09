@@ -20,7 +20,7 @@
         <pre>FILENAME=filename-version.jar
 ARCHIVE=myPluginId
 VERSION=myPluginVersion
-{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta.views.add_element_post' rid=repo.id %}\?filename=$FILENAME\&archive=$ARCHIVE\&version=$VERSION{% for state in tab_info.2 %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
+{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta:add_element_post' rid=repo.id %}\?filename=$FILENAME\&archive=$ARCHIVE\&version=$VERSION{% for state in tab_info.2 %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
 </div>
 {% endfor %}
 

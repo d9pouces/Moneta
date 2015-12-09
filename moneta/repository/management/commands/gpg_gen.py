@@ -28,6 +28,8 @@ class Command(BaseCommand):
                              help='Comment to add to the generated key.'),
         optparse.make_option('--email', action='store', dest='email', default=default_email,
                              help='Email address for the user.'),
+        optparse.make_option('--years', action='store', dest='years', default='10y',
+                             help='Expiration date, in number of years (like "10y") or days (like "10d").'),
     )
 
     def handle(self, *args, **options):
@@ -37,7 +39,8 @@ class Command(BaseCommand):
         if command == 'generate':
             input_data = GPG.gen_key_input(key_type=options['type'], key_length=int(options['length']),
                                            name_real=options['name'], name_comment=options['comment'],
-                                           name_email=options['email'])
+                                           name_email=options['email'],
+                                           expire_date=options['years'])
             key = GPG.gen_key(input_data)
             print("Fingerprint", key)
         elif command == 'show':

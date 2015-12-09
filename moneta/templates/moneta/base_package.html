@@ -14,19 +14,19 @@
                 {% block base_repo_urls %}<div class="btn-group">
                     <a class="btn btn-sm btn-default" href="{{ repo.get_absolute_url }}">{% trans 'usage' %}</a>
                     <a class="btn btn-sm btn-default"
-                       href="{% url 'moneta.views.search_package' rid=repo.id %}">{% trans 'browse repository' %}</a>
+                       href="{% url 'moneta:search_package' rid=repo.id %}">{% trans 'browse repository' %}</a>
                     <a class="btn btn-sm btn-default"
-                       href="{% url 'moneta.views.compare_states' rid=repo.id %}">{% trans 'check' %}</a>
+                       href="{% url 'moneta:compare_states' rid=repo.id %}">{% trans 'check' %}</a>
                 {% block other_repo_urls %}{% endblock %}
                     {% if upload_allowed %}
                         <a class="btn btn-sm btn-default"
-                           href="{% url 'moneta.views.add_element' rid=repo.id %}">{% trans 'add package' %}</a>
+                           href="{% url 'moneta:add_element' rid=repo.id %}">{% trans 'add package' %}</a>
                     {% endif %}
                     {% if admin_allowed %}
                         <a class="btn btn-sm btn-default"
-                           href="{% url 'moneta.views.modify_repository' rid=repo.id %}">{% trans 'modify repository' %}</a>
+                           href="{% url 'moneta:modify_repository' rid=repo.id %}">{% trans 'modify repository' %}</a>
                         <a class="btn btn-sm btn-danger"
-                           href="{% url 'moneta.views.delete_repository' rid=repo.id %}">{% trans 'delete repository' %}</a>
+                           href="{% url 'moneta:delete_repository' rid=repo.id %}">{% trans 'delete repository' %}</a>
                     {% endif %}
                 </div>{% endblock %}
                 {% block repo_content %}{% endblock %}

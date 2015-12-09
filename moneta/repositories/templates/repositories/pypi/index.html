@@ -46,7 +46,7 @@ find_links = http://…/simple<strong style="color:blue">\</strong>
 
                 {% if upload_allowed %}<h2>{% trans 'Add a package' %}</h2>{% trans 'In order to add a new package, please run the following command:' %}
                     <pre>FILENAME=filename-version(.tar.gz|.tar.bz2|.tar.xz|.whl|.zip|.egg)
-{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta.views.add_element_post' rid=repo.id %}\?filename=$FILENAME{% for state in tab_info.1 %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
+{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta:add_element_post' rid=repo.id %}\?filename=$FILENAME{% for state in tab_info.1 %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
             </div>
             {% endfor %}
 
