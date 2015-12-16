@@ -21,6 +21,7 @@ INI_MAPPING = [
     OptionParser('X_ACCEL_REDIRECT', 'global.x_accel_converter', x_accel_converter),
     OptionParser('FLOOR_AUTHENTICATION_HEADER', 'global.remote_user_header'),
     OptionParser('EXTRA_INSTALLED_APP', 'global.extra_app'),
+    OptionParser('DEBUG', 'global.debug', bool_setting),
 
     OptionParser('GNUPG_HOME', 'gnupg.home'),
     OptionParser('GNUPG_KEYID', 'gnupg.keyid'),

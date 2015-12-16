@@ -199,8 +199,8 @@ Now, it's time to install moneta (use Python3.2 on Debian 7):
     moneta-manage collectstatic --noinput
     moneta-manage createsuperuser
     chmod 0700 /var/moneta/gpg
-    moneta-manage gpg_gen generate
-    KEY_ID=`moneta-manage gpg_gen show | tail -n 1 | cut -f 4 -d ' ' | cut -f 1 -d ','`
+    moneta-manage gpg_gen generate --no-existing-keys
+    KEY_ID=`moneta-manage gpg_gen show --only-id | tail -n 1 | cut -f 4 -d ' ' | cut -f 1 -d ','`
     cat << EOF >> $VIRTUAL_ENV/etc/moneta/settings.ini
     [gnupg]
     keyid = $KEY_ID
