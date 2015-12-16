@@ -183,6 +183,7 @@ Now, it's time to install moneta (use Python3.2 on Debian 7):
     language_code = fr-fr
     x_send_file =  true
     x_accel_converter = false
+    debug = false
     remote_user_header = HTTP_REMOTE_USER
     ; leave it blank if you do not use kerberos
 
@@ -200,12 +201,11 @@ Now, it's time to install moneta (use Python3.2 on Debian 7):
     moneta-manage createsuperuser
     chmod 0700 /var/moneta/gpg
     moneta-manage gpg_gen generate --no-existing-keys
-    KEY_ID=`moneta-manage gpg_gen show --only-id | tail -n 1 | cut -f 4 -d ' ' | cut -f 1 -d ','`
+    KEY_ID=`moneta-manage gpg_gen show --only-id | tail -n 1`
     cat << EOF >> $VIRTUAL_ENV/etc/moneta/settings.ini
     [gnupg]
     keyid = $KEY_ID
     EOF
-
 
 On VirtualBox, you may need to install rng-tools to generate enough entropy for GPG keys:
 
@@ -231,3 +231,26 @@ Supervisor is required to automatically launch moneta:
     sudo /etc/init.d/supervisor restart
 
 Now, Supervisor should start moneta after a reboot.
+
+systemd
+-------
+
+You can also use systemd to launch moneta:
+
+.. code-block:: bash
+
+    cat << EOF | sudo tee /etc/systemd/system/moneta-gunicorn.service
+    [Unit]
+    Description=Moneta Gunicorn process
+    After=network.target
+    [Service]
+    User=moneta
+    Group=moneta
+    WorkingDirectory=/var/moneta/
+    ExecStart=/home/moneta/.virtualenvs/moneta/bin/moneta-gunicorn
+    ExecReload=/bin/kill -s HUP $MAINPID
+    ExecStop=/bin/kill -s TERM $MAINPID
+    [Install]
+    WantedBy=multi-user.target
+    EOF
+    systemctl enable moneta-gunicorn.service
