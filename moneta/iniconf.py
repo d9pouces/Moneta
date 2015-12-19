@@ -22,6 +22,7 @@ INI_MAPPING = [
     OptionParser('FLOOR_AUTHENTICATION_HEADER', 'global.remote_user_header'),
     OptionParser('EXTRA_INSTALLED_APP', 'global.extra_app'),
     OptionParser('DEBUG', 'global.debug', bool_setting),
+    OptionParser('FLOOR_DEFAULT_GROUP_NAME', 'global.default_group'),
 
     OptionParser('GNUPG_HOME', 'gnupg.home'),
     OptionParser('GNUPG_KEYID', 'gnupg.keyid'),
