@@ -1,3 +1,3 @@
 # coding=utf-8
 __version__ = '1.7.3'
-__author__ = 'flanker'
+__author__ = 'Matthieu Gallet'

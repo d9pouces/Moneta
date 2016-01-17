@@ -4,10 +4,10 @@ from djangofloor.utils import DirectoryPath
 __author__ = 'flanker'
 
 FLOOR_URL_CONF = 'moneta.root_urls.urls'
-EXTRA_INSTALLED_APP = 'bootstrap3'
-FLOOR_INSTALLED_APPS = ['moneta', 'moneta.repositories', 'moneta.repository', '{EXTRA_INSTALLED_APP}']
+FLOOR_INSTALLED_APPS = ['moneta', 'moneta.repositories', 'moneta.repository', ]
 FLOOR_INDEX = 'moneta.views.index'
 FLOOR_PROJECT_NAME = 'Moneta'
+BIND_ADDRESS = '127.0.0.1:8131'
 
 UPLOAD_ROOT = 'uploads'
 ARCHIVE_FILTERS = [
@@ -85,12 +85,16 @@ STORAGE_CACHE = 'cache'
 CACHES = {'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}
 
 FLOOR_FAKE_AUTHENTICATION_USERNAME = None
-DEBUG = True
+DEBUG = False
 # TO BE CONFIGURED
 GNUPG_HOME = DirectoryPath('{LOCAL_PATH}/gpg')
+GNUPG_HOME_HELP = 'Path of the GnuPG secret data'
 # TO BE CONFIGURED
 TEMP_ROOT = DirectoryPath('{LOCAL_PATH}/tmp')
+TEMP_ROOT_HELP = 'Path used for temporary archive storage'
 # TO BE CONFIGURED
 GNUPG_KEYID = '1DA759EA7F5EF06F'
+GNUPG_KEYID_HELP = 'ID of the GnuPG key'
 # TO BE CONFIGURED
 GNUPG_PATH = 'gpg'
+GNUPG_PATH_HELP = 'Path of the gpg binary'

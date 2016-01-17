@@ -48,7 +48,6 @@ DF_WS_FACILITY = 'djangofloor'
 DJANGOFLOOR_CONFIG_PATH = 'django_data/etc/moneta/settings.ini'
 DJANGOFLOOR_MAPPING = 'moneta.iniconf:INI_MAPPING'
 EMAIL_SUBJECT_PREFIX = '[localhost] '
-EXTRA_INSTALLED_APP = 'bootstrap3'
 FILE_CHARSET = 'utf-8'
 FILE_UPLOAD_TEMP_DIR = None
 FLOOR_AUTHENTICATION_HEADER = 'HTTP_REMOTE_USER'

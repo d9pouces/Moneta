@@ -1,38 +1,22 @@
 # -*- coding: utf-8 -*-
 __author__ = 'flanker'
-from djangofloor.iniconf import OptionParser, bool_setting
+from djangofloor.iniconf import OptionParser, bool_setting, INI_MAPPING as DEFAULTS
 
 
 def x_accel_converter(value):
     if bool_setting(value):
-        return [('{LOCAL_PATH}/storage/', '{MEDIA_URL}'), ]
+        return [('{LOCAL_PATH}/storage/', '/p/get/'),
+                ('{LOCAL_PATH}/storage/', '/a/get/'), ]
     return []
 
 
-INI_MAPPING = [
-    OptionParser('SERVER_NAME', 'global.server_name'),
-    OptionParser('PROTOCOL', 'global.protocol'),
-    OptionParser('BIND_ADDRESS', 'global.bind_address'),
-    OptionParser('LOCAL_PATH', 'global.data_path'),
-    OptionParser('ADMIN_EMAIL', 'global.admin_email'),
-    OptionParser('TIME_ZONE', 'global.time_zone'),
-    OptionParser('LANGUAGE_CODE', 'global.language_code'),
-    OptionParser('USE_X_SEND_FILE', 'global.x_send_file', bool_setting),
-    OptionParser('X_ACCEL_REDIRECT', 'global.x_accel_converter', x_accel_converter),
-    OptionParser('FLOOR_AUTHENTICATION_HEADER', 'global.remote_user_header'),
-    OptionParser('EXTRA_INSTALLED_APP', 'global.extra_app'),
-    OptionParser('DEBUG', 'global.debug', bool_setting),
-    OptionParser('FLOOR_DEFAULT_GROUP_NAME', 'global.default_group'),
-
+INI_MAPPING = DEFAULTS + [
+    OptionParser('USE_X_SEND_FILE', 'global.x_send_file', bool_setting, doc_default_value=True),
+    OptionParser('X_ACCEL_REDIRECT', 'global.x_accel_converter', x_accel_converter,
+                 help_str='Nginx only. Set it to "true" or "false"', to_str=lambda x: 'True' if x else 'False'),
+    OptionParser('BIND_ADDRESS', 'global.bind_address', doc_default_value='localhost:8131'),
     OptionParser('GNUPG_HOME', 'gnupg.home'),
     OptionParser('GNUPG_KEYID', 'gnupg.keyid'),
     OptionParser('GNUPG_PATH', 'gnupg.path'),
-
-    OptionParser('DATABASE_ENGINE', 'database.engine'),
-    OptionParser('DATABASE_NAME', 'database.name'),
-    OptionParser('DATABASE_USER', 'database.user'),
-    OptionParser('DATABASE_PASSWORD', 'database.password'),
-    OptionParser('DATABASE_HOST', 'database.host'),
-    OptionParser('DATABASE_PORT', 'database.port'),
 
 ]

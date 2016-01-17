@@ -1,8 +1,6 @@
-.. Moneta documentation master file, created by
+{% extends 'djangofloor/dev/doc/source/index.rst' %}
 
-Welcome to Moneta's documentation!
-==================================
-
+{% block description %}
 Moneta is a web application emulating different kinds of package repositories.
 The goal is not to replace official mirrors like packages.debian.org or mirror.centos.org, but to have a single location
 for all your Python/Java/Debian/RedHat private packages.
@@ -19,40 +17,12 @@ Currently, you can create the following types of repositories:
     * Gem for Ruby packages,
     * any binary, versionned files.
 
+{% endblock %}
 
-:doc:`installation`
-    Instruction on how to get the distribution
-
-:doc:`configuration`
-    All configuration options
-
-:doc:`debian`
-    Packaging Moneta for Debian
-
-
+{% block screenshots %}
 .. image:: _static/index.png
 
 .. image:: _static/apt.png
 
 .. image:: _static/package.png
-
-
-
-Full table of contents
-======================
-
-.. toctree::
-   :maxdepth: 1
-
-   installation
-   configuration
-   debian
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+{% endblock %}

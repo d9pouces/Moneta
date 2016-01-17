@@ -8,7 +8,7 @@ The source code provides several Bash scripts:
 
     * `debian-7-python3.sh`,
     * `debian-8-python3.sh`,
-    * `ubuntu-14.04-15.04.sh`.
+    * `ubuntu-14.04-15.10.sh`.
 
 These scripts are designed to run on basic installation and are split in five steps:
 
