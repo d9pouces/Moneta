@@ -218,7 +218,7 @@ Now, it's time to install Moneta:
     chmod 0700 /var/moneta/gpg
     moneta-manage gpg_gen generate --no-existing-keys
     KEY_ID=`moneta-manage gpg_gen show --only-id | tail -n 1`
-    sed -i '' 's/1DA759EA7F5EF06F/$KEY_ID/' $VIRTUAL_ENV/etc/moneta/settings.ini
+    sed -i "s/1DA759EA7F5EF06F/$KEY_ID/" $VIRTUAL_ENV/etc/moneta/settings.ini
 
 On VirtualBox, you may need to install rng-tools to generate enough entropy for GPG keys:
 
