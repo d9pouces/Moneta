@@ -19,8 +19,9 @@
                 <div class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ tab_info.2.slug }}">
                     {% trans 'Modifiy your $HOME/.pip/pip.conf file to use pip:' %}
 <pre>[global]
-extra-index-url = {{ absolute_url }}{{ tab_info.0 }}{% if use_https %}
-cert = {% trans '/Path/to/your/ROOT/CA.pem' %}{% endif %}</pre>
+allow-all-external = true
+extra-index-url = {{ absolute_url }}{{ tab_info.0 }}
+{% if use_https %}cert = {% trans '/Path/to/your/ROOT/CA.pem' %}{% else %}trusted-host={{ server_name }}{% endif %}</pre>
                     {% trans 'Modifiy your $HOME/.pydistutils.cfg file to use easy_install:' %}
 <pre>[easy_install]
 find_links = {{ absolute_url }}{{ tab_info.0 }}</pre>
