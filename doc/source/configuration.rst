@@ -102,9 +102,11 @@ A complete Moneta installation is made a different kinds of files:
     * static files (as they are provided by the code, you can lost them),
     * configuration files (you can easily recreate it, or you must backup it),
     * database content (you must backup it),
-    * user-created files (you also must backup them).
+    * user-created files (you must also backup them).
 
-We use logrotate to backup database.
+Many backup stragegies exist, and you must choose one that fits your needs. We can only propose general-purpose strategies.
+
+We use logrotate to backup the database, with a new file each day.
 
 .. code-block:: bash
 
@@ -116,7 +118,8 @@ We use logrotate to backup database.
     daily
     rotate 20
     nocompress
-    create 640 root adm
+    missingok
+    create 640 moneta moneta
     postrotate
     myproject-manage dumpdb | gzip > /var/backups/moneta/backup_db.sql.gz
     endscript
@@ -124,11 +127,13 @@ We use logrotate to backup database.
   EOF
   touch /var/backups/moneta/backup_db.sql.gz
   crontab -e
+  MAILTO=admin@moneta.example.org
   0 1 * * * /home/moneta/.virtualenvs/moneta/bin/moneta-manage clearsessions
   0 2 * * * logrotate -f /home/moneta/.virtualenvs/moneta/etc/moneta/backup_db.conf
 
 
-Backup of the user-created files can be done with rsync:
+Backup of the user-created files can be done with rsync, with a full backup each month:
+If you have a lot of files to backup, beware of the available disk place!
 
 .. code-block:: bash
 
@@ -137,9 +142,10 @@ Backup of the user-created files can be done with rsync:
   cat << EOF > /home/moneta/.virtualenvs/moneta/etc/moneta/backup_media.conf
   /var/backups/moneta/backup_media.tar.gz {
     monthly
-    rotate 20
+    rotate 6
     nocompress
-    create 640 root adm
+    missingok
+    create 640 moneta moneta
     postrotate
     tar -czf /var/backups/moneta/backup_media.tar.gz /var/backups/moneta/media/
     endscript
@@ -147,6 +153,7 @@ Backup of the user-created files can be done with rsync:
   EOF
   touch /var/backups/moneta/backup_media.tar.gz
   crontab -e
+  MAILTO=admin@moneta.example.org
   0 3 * * * rsync -arltDE /var/moneta/data/media/ /var/backups/moneta/media/
   0 5 0 * * logrotate -f /home/moneta/.virtualenvs/moneta/etc/moneta/backup_media.conf
 
