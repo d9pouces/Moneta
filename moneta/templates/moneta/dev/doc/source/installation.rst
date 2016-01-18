@@ -16,17 +16,7 @@ If you want to use the Ruby mirror functionnality, Ruby is required on the serve
    sudo apt-get install ruby
 {% endblock %}
 {% block webserver_media %}{% endblock %}
-{% block webserver_xsendfilepath %}        XSendFile on
-        XSendFilePath {{ LOCAL_PATH }}/storage
-        # in older versions of XSendFile (<= 0.9), use XSendFileAllowAbove On
-{% endblock %}
-
 {% block webserver_ssl_media %}{% endblock %}
-{% block webserver_ssl_xsendfilepath %}        XSendFile on
-        XSendFilePath {{ LOCAL_PATH }}/storage
-        # in older versions of XSendFile (<= 0.9), use XSendFileAllowAbove On
-{% endblock %}
-
 
 {% block webserver_ssl_extra %}        <Location /core/p/>
             Order deny,allow

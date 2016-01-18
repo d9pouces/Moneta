@@ -54,7 +54,6 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'djangofloor.context_processors.context_base',
                 'moneta.context_processors.context_base',
-                # `allauth` needs this from django
                 'django.template.context_processors.request',
             ],
         },
@@ -64,17 +63,17 @@ TEMPLATES = [
 STORAGES = {
     'archive': {
         'ENGINE': 'moneta.repository.storages.FlatStorage',
-        'ROOT': DirectoryPath('{LOCAL_PATH}/storage/archives'),
+        'ROOT': DirectoryPath('{MEDIA_ROOT}/archives'),
         'PATH_LEN': 1,
     },
     'default': {
         'ENGINE': 'moneta.repository.storages.FlatStorage',
-        'ROOT': DirectoryPath('{LOCAL_PATH}/storage/uncompressed'),
+        'ROOT': DirectoryPath('{MEDIA_ROOT}/uncompressed'),
         'PATH_LEN': 1,
     },
     'cache': {
         'ENGINE': 'moneta.repository.storages.FlatStorage',
-        'ROOT': DirectoryPath('{LOCAL_PATH}/storage/cache'),
+        'ROOT': DirectoryPath('{MEDIA_ROOT}/cache'),
         'PATH_LEN': 1,
     }
 }

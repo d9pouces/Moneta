@@ -1,6 +1,10 @@
 Complete configuration
 ======================
 
+
+Configuration options
+---------------------
+
 You can look current settings with the following command:
 
 .. code-block:: bash
@@ -27,7 +31,7 @@ Here is the complete list of settings:
   [global]
   admin_email = admin@moneta.example.org
   # error logs are sent to this e-mail address
-  bind_address = localhost:8131
+  bind_address = 127.0.0.1:8131
   # The socket (IP address:port) to bind to.
   data_path = /var/moneta
   # Base path for all data
@@ -86,3 +90,67 @@ or try to run the server interactively:
   workon moneta
   moneta-manage runserver
   moneta-gunicorn
+
+
+
+Backup
+------
+
+A complete Moneta installation is made a different kinds of files:
+
+    * the code of your application and its dependencies (you should not have to backup them),
+    * static files (as they are provided by the code, you can lost them),
+    * configuration files (you can easily recreate it, or you must backup it),
+    * database content (you must backup it),
+    * user-created files (you also must backup them).
+
+We use logrotate to backup database.
+
+.. code-block:: bash
+
+  sudo mkdir -p /var/backups/moneta
+  sudo chown -r moneta: /var/backups/moneta
+  sudo -u moneta -i
+  cat << EOF > /home/moneta/.virtualenvs/moneta/etc/moneta/backup_db.conf
+  /var/backups/moneta/backup_db.sql.gz {
+    daily
+    rotate 20
+    nocompress
+    create 640 root adm
+    postrotate
+    myproject-manage dumpdb | gzip > /var/backups/moneta/backup_db.sql.gz
+    endscript
+  }
+  EOF
+  touch /var/backups/moneta/backup_db.sql.gz
+  crontab -e
+  0 1 * * * /home/moneta/.virtualenvs/moneta/bin/moneta-manage clearsessions
+  0 2 * * * logrotate -f /home/moneta/.virtualenvs/moneta/etc/moneta/backup_db.conf
+
+
+Backup of the user-created files can be done with rsync:
+
+.. code-block:: bash
+
+  sudo mkdir -p /var/backups/moneta/media
+  sudo chown -r moneta: /var/backups/moneta
+  cat << EOF > /home/moneta/.virtualenvs/moneta/etc/moneta/backup_media.conf
+  /var/backups/moneta/backup_media.tar.gz {
+    monthly
+    rotate 20
+    nocompress
+    create 640 root adm
+    postrotate
+    tar -czf /var/backups/moneta/backup_media.tar.gz /var/backups/moneta/media/
+    endscript
+  }
+  EOF
+  touch /var/backups/moneta/backup_media.tar.gz
+  crontab -e
+  0 3 * * * rsync -arltDE /var/moneta/data/media/ /var/backups/moneta/media/
+  0 5 0 * * logrotate -f /home/moneta/.virtualenvs/moneta/etc/moneta/backup_media.conf
+
+
+
+Monitoring
+----------

@@ -5,7 +5,7 @@ Like many Python packages, you can use several methods to install Moneta.
 The following packages are required:
 
   * setuptools >= 3.0
-  * djangofloor >= 0.17.0
+  * djangofloor >= 0.18.0
   * python-gnupg
   * rubymarshal
   * pyyaml
@@ -67,12 +67,12 @@ in the configuration, you cannot use its IP address to access the website.
             Allow from all
             Satisfy any
         </Location>
-        ProxyPass / http://localhost:8131/
-        ProxyPassReverse / http://localhost:8131/
+        ProxyPass / http://127.0.0.1:8131/
+        ProxyPassReverse / http://127.0.0.1:8131/
         DocumentRoot /var/moneta/static
         ServerSignature off
         XSendFile on
-        XSendFilePath /var/moneta/storage
+        XSendFilePath /var/moneta/data/media
         # in older versions of XSendFile (<= 0.9), use XSendFileAllowAbove On
     </VirtualHost>
     EOF
@@ -124,8 +124,8 @@ If you want to use SSL:
             Allow from all
             Satisfy any
         </Location>
-        ProxyPass / http://localhost:8131/
-        ProxyPassReverse / http://localhost:8131/
+        ProxyPass / http://127.0.0.1:8131/
+        ProxyPassReverse / http://127.0.0.1:8131/
         DocumentRoot /var/moneta/static
         ServerSignature off
         RequestHeader set X_FORWARDED_PROTO https
@@ -143,7 +143,7 @@ If you want to use SSL:
             RequestHeader set REMOTE_USER %{REMOTE_USER}s
         </Location>
         XSendFile on
-        XSendFilePath /var/moneta/storage
+        XSendFilePath /var/moneta/data/media
         # in older versions of XSendFile (<= 0.9), use XSendFileAllowAbove On
         <Location /core/p/>
             Order deny,allow
@@ -195,7 +195,7 @@ Now, it's time to install Moneta:
     user = moneta
     [global]
     admin_email = admin@moneta.example.org
-    bind_address = localhost:8131
+    bind_address = 127.0.0.1:8131
     data_path = /var/moneta
     debug = False
     default_group = Users
@@ -236,6 +236,7 @@ supervisor
 Supervisor is required to automatically launch moneta:
 
 .. code-block:: bash
+
 
     sudo apt-get install supervisor
     cat << EOF | sudo tee /etc/supervisor/conf.d/moneta.conf
