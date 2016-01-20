@@ -6,9 +6,9 @@ However, you can create pure Debian packages with `DjangoFloor <http://django-fl
 
 The source code provides several Bash scripts:
 
-    * `debian-7-python3.sh`,
-    * `debian-8-python3.sh`,
-    * `ubuntu-14.04-15.10.sh`.
+    * `deb-debian-7-python3.sh`,
+    * `deb-debian-8-python3.sh`,
+    * `deb-ubuntu-14.04-15.10.sh`.
 
 These scripts are designed to run on basic installation and are split in five steps:
 
@@ -17,6 +17,8 @@ These scripts are designed to run on basic installation and are split in five st
     * package all dependencies,
     * package Moneta,
     * install all packages and Moneta, prepare a simple configuration to test.
+
+However, they require `DebTools <https://debtools.readthedocs.org/en/latest/>`_ to build all dependency packages.
 
 If everything is ok, you can copy all the .deb packages to your private mirror or to the destination server.
 The configuration is set in `/etc/moneta/settings.ini`.

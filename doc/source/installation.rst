@@ -183,7 +183,7 @@ Now, it's time to install Moneta:
     workon moneta
     pip install setuptools --upgrade
     pip install pip --upgrade
-    pip install moneta psycopg2
+    pip install moneta psycopg2 gevent
     mkdir -p $VIRTUAL_ENV/etc/moneta
     cat << EOF > $VIRTUAL_ENV/etc/moneta/settings.ini
     [database]

@@ -75,7 +75,6 @@ Valid engines for your database are:
   - `django.db.backends.mysql`
   - `django.db.backends.oracle`
 
-Use `x_send_file` with Apache, and `x_accel_converter` with nginx.
 
 Debugging
 ---------
@@ -88,8 +87,12 @@ or try to run the server interactively:
   sudo service supervisor stop
   sudo -u moneta -i
   workon moneta
+  moneta-manage config
   moneta-manage runserver
   moneta-gunicorn
+
+
+
 
 
 
@@ -161,3 +164,29 @@ If you have a lot of files to backup, beware of the available disk place!
 
 Monitoring
 ----------
+
+You can use Nagios checks to monitor several points:
+
+  * connection to the application server (gunicorn or uwsgi),
+  * connection to the database servers (PostgreSQL),
+  * connection to the reverse-proxy server (apache or nginx),
+  * time of the last backup (database and files),
+  * the validity of the SSL certificate,
+  * living processes for gunicorn, postgresql, apache,
+  * standard checks for RAM, disk, swap…
+
+LDAP groups
+-----------
+
+There are two possibilities to use LDAP groups, with their own pros and cons:
+
+  * on each request, use an extra LDAP connection to retrieve groups instead of looking in the SQL database,
+  * regularly synchronize groups between the LDAP server and the SQL servers.
+
+The second approach can be used without any modification in your code and remove a point of failure
+in the global architecture (if you allow some delay during the synchronization process).
+A tool exists for such synchronization: `MultiSync <https://github.com/d9pouces/Multisync>`_.
+
+LDAP authentication
+-------------------
+
