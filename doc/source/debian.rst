@@ -18,8 +18,6 @@ These scripts are designed to run on basic installation and are split in five st
     * package Moneta,
     * install all packages and Moneta, prepare a simple configuration to test.
 
-However, they require `DebTools <https://debtools.readthedocs.org/en/latest/>`_ to build all dependency packages.
-
 If everything is ok, you can copy all the .deb packages to your private mirror or to the destination server.
 The configuration is set in `/etc/moneta/settings.ini`.
 By default, Moneta is installed with Apache 2.2 (or 2.4) and Supervisor.
