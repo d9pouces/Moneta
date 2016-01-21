@@ -11,7 +11,7 @@ import os.path
 
 from setuptools import setup, find_packages
 
-with codecs.open(os.path.join(os.path.dirname(__file__), 'README.rst'), encoding='utf-8') as fd:
+with codecs.open(os.path.join(os.path.dirname(__file__), 'README.md'), encoding='utf-8') as fd:
     long_description = fd.read()
 version = None
 for line in codecs.open(os.path.join('moneta', '__init__.py'), 'r', encoding='utf-8'):

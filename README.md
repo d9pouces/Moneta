@@ -17,7 +17,7 @@ Currently, you can create the following types of repositories:
   * Jetbrains for IntelliJ/PyCharm/PhpStorm/RubyMine/AppCode/Clion plugins,
   * any binary, versionned files.
 
-You can read more docs at http://moneta.readthedocs.org/en/latest/index.html .
+A more complete [documentation](http://moneta.readthedocs.org/en/latest/index.html) is available.
 
 In the future, I would like to add the following kinds of repositories:
 
