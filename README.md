@@ -14,13 +14,15 @@ Currently, you can create the following types of repositories:
   * Maven for Java or Scala packages,
   * Pypi for Python packages,
   * Gem for Ruby packages,
-  * Jetbrains for IntelliJ/PyCharm/PhpStorm/RubyMine/AppCode/Clion plugins,
+  * Jetbrains for IntelliJ/PyCharm/PhpStorm/RubyMine/AppCode/CLion plugins,
   * any binary, versionned files.
 
 A more complete [documentation](http://moneta.readthedocs.org/en/latest/index.html) is available.
 
-In the future, I would like to add the following kinds of repositories:
+Some following kinds of repositories will be added in the future:
 
+  * Vagrant boxes,
+  * Docker containers,
   * Shinken packages,
   * Jenkins plugins,
   * packages for vim,
