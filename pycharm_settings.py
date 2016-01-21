@@ -23,7 +23,6 @@ CELERY_TIMEZONE = 'Europe/Paris'
 CONN_MAX_AGE = 600
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SECURE = False
-DAB_FIELD_RENDERER = 'django_admin_bootstrapped.renderers.BootstrapFieldRenderer'
 DATABASES = {'default': {'TEST': {'CHARSET': None, 'COLLATION': None, 'NAME': None, 'MIRROR': None}, 'ENGINE': 'django.db.backends.sqlite3', 'OPTIONS': {}, 'HOST': '',
                          'NAME': 'django_data/data/database.sqlite3',
              'USER': '', 'ATOMIC_REQUESTS': False, 'PORT': '', 'TIME_ZONE': 'UTC', 'PASSWORD': '', 'CONN_MAX_AGE': 0, 'AUTOCOMMIT': True}}
@@ -63,7 +62,7 @@ GNUPG_HOME = 'django_data/gpg'
 GNUPG_KEYID = '1DA759EA7F5EF06F'
 GNUPG_PATH = '/usr/local/Cellar/gnupg/1.4.18/bin/gpg'
 INSTALLED_APPS = ['django.contrib.auth', 'django.contrib.contenttypes', 'django.contrib.sessions', 'django.contrib.messages', 'django.contrib.staticfiles', 'django.contrib.humanize',
-                  'django.contrib.sites', 'django.contrib.sitemaps', 'django_admin_bootstrapped', 'django.contrib.admin', 'bootstrap3', 'djangofloor', 'allauth', 'allauth.account',
+                  'django.contrib.sites', 'django.contrib.sitemaps', 'django.contrib.admin', 'bootstrap3', 'djangofloor', 'allauth', 'allauth.account',
                   'allauth.socialaccount', 'pipeline', 'debug_toolbar', 'moneta', 'moneta.repositories', 'moneta.repository']
 INTERNAL_IPS = ['127.0.0.1']
 LANGUAGE_CODE = 'en-us'

@@ -176,10 +176,10 @@ Now, it's time to install Moneta:
     sudo mkdir -p /var/moneta
     sudo adduser --disabled-password moneta
     sudo chown moneta:www-data /var/moneta
-    sudo apt-get install virtualenvwrapper python3.4 python3.4-dev build-essential postgresql-client libpq-dev
+    sudo apt-get install virtualenvwrapper python3.5 python3.5-dev build-essential postgresql-client libpq-dev
     # application
     sudo -u moneta -i
-    mkvirtualenv moneta -p `which python3.4`
+    mkvirtualenv moneta -p `which python3.5`
     workon moneta
     pip install setuptools --upgrade
     pip install pip --upgrade
