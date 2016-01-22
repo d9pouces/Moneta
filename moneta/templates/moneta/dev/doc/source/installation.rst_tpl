@@ -1,4 +1,4 @@
-{% extends 'djangofloor/dev/doc/source/installation.rst' %}
+{% extends 'djangofloor/dev/doc/source/installation.rst_tpl' %}
 {% block post_dependencies %}
   * python-gnupg
   * rubymarshal

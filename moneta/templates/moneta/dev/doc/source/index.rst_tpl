@@ -1,4 +1,4 @@
-{% extends 'djangofloor/dev/doc/source/index.rst' %}
+{% extends 'djangofloor/dev/doc/source/index.rst_tpl' %}
 
 {% block description %}
 Moneta is a web application emulating different kinds of package repositories.
