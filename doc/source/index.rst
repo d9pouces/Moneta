@@ -27,7 +27,7 @@ Currently, you can create the following types of repositories:
     All configuration options
 
 :doc:`debian`
-    Packaging Moneta for Debian
+    Packaging Moneta for Debian or Ubuntu servers
 
 
 .. image:: _static/index.png

@@ -199,6 +199,7 @@ Now, it's time to install Moneta:
     data_path = /var/moneta
     debug = False
     default_group = Users
+    extra_apps = 
     language_code = fr-fr
     protocol = http
     remote_user_header = HTTP_REMOTE_USER
@@ -211,6 +212,8 @@ Now, it's time to install Moneta:
     home = /var/moneta/gpg
     keyid = 1DA759EA7F5EF06F
     path = gpg
+    [sentry]
+    dsn_url = 
     EOF
     moneta-manage migrate
     moneta-manage collectstatic --noinput

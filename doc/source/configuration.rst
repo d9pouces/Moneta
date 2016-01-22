@@ -1,3 +1,4 @@
+
 Complete configuration
 ======================
 
@@ -39,6 +40,8 @@ Here is the complete list of settings:
   # A boolean that turns on/off debug mode.
   default_group = Users
   # Name of the default group for newly-created users.
+  extra_apps = 
+  # List of extra installed Django apps (separated by commas).
   language_code = fr-fr
   # A string representing the language code for this installation.
   protocol = http
@@ -62,18 +65,15 @@ Here is the complete list of settings:
   # ID of the GnuPG key
   path = gpg
   # Path of the gpg binary
+  [sentry]
+  dsn_url = 
+  # Sentry URL to send data to. https://docs.getsentry.com/
 
 
 
 If you need more complex settings, you can override default values (given in `djangofloor.defaults` and
-`moneta.defaults`) by creating a file named `[prefix]/etc/moneta/settings.py`.
+`moneta.defaults`) by creating a file named `/home/moneta/.virtualenvs/moneta/etc/moneta/settings.py`.
 
-Valid engines for your database are:
-
-  - `django.db.backends.sqlite3` (use the `name` option for its filepath)
-  - `django.db.backends.postgresql_psycopg2`
-  - `django.db.backends.mysql`
-  - `django.db.backends.oracle`
 
 
 Debugging
@@ -94,8 +94,6 @@ or try to run the server interactively:
 
 
 
-
-
 Backup
 ------
 
@@ -107,7 +105,7 @@ A complete Moneta installation is made a different kinds of files:
     * database content (you must backup it),
     * user-created files (you must also backup them).
 
-Many backup stragegies exist, and you must choose one that fits your needs. We can only propose general-purpose strategies.
+Many backup strategies exist, and you must choose one that fits your needs. We can only propose general-purpose strategies.
 
 We use logrotate to backup the database, with a new file each day.
 
@@ -150,7 +148,7 @@ If you have a lot of files to backup, beware of the available disk place!
     missingok
     create 640 moneta moneta
     postrotate
-    tar -czf /var/backups/moneta/backup_media.tar.gz /var/backups/moneta/media/
+    tar -C /var/backups/moneta/media/ -czf /var/backups/moneta/backup_media.tar.gz .
     endscript
   }
   EOF
@@ -160,20 +158,67 @@ If you have a lot of files to backup, beware of the available disk place!
   0 3 * * * rsync -arltDE /var/moneta/data/media/ /var/backups/moneta/media/
   0 5 0 * * logrotate -f /home/moneta/.virtualenvs/moneta/etc/moneta/backup_media.conf
 
+Restoring a backup
+~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+  cat /var/backups/moneta/backup_db.sql.gz | gunzip | /home/moneta/.virtualenvs/moneta/bin/moneta-manage dbshell
+  tar -C /var/moneta/data/media/ -xf /var/backups/moneta/backup_media.tar.gz
+
+
+
 
 
 Monitoring
 ----------
 
+
 You can use Nagios checks to monitor several points:
 
-  * connection to the application server (gunicorn or uwsgi),
+  * connection to the application server (gunicorn or uwsgi):
   * connection to the database servers (PostgreSQL),
   * connection to the reverse-proxy server (apache or nginx),
-  * time of the last backup (database and files),
-  * the validity of the SSL certificate,
+  * the validity of the SSL certificate (can be combined with the previous check),
+  * creation date of the last backup (database and files),
   * living processes for gunicorn, postgresql, apache,
   * standard checks for RAM, disk, swap…
+
+Here is a sample NRPE configuration file:
+
+.. code-block:: bash
+
+  cat << EOF | sudo tee /etc/nagios/nrpe.d/moneta.cfg
+  command[moneta_wsgi]=/usr/lib/nagios/plugins/check_http -H 127.0.0.1 -p 8131
+  command[moneta_database]=/usr/lib/nagios/plugins/check_tcp -H localhost -p 5432
+  command[moneta_reverse_proxy]=/usr/lib/nagios/plugins/check_http -H moneta.example.org -p 80 -e 401
+  command[moneta_backup_db]=/usr/lib/nagios/plugins/check_file_age -w 172800 -c 432000 /var/backups/moneta/backup_db.sql.gz
+  command[moneta_backup_media]=/usr/lib/nagios/plugins/check_file_age -w 3024000 -c 6048000 /var/backups/moneta/backup_media.sql.gz
+  command[moneta_gunicorn]=/usr/lib/nagios/plugins/check_procs -C python -a '/home/moneta/.virtualenvs/moneta/bin/moneta-gunicorn'
+  EOF
+
+Sentry
+~~~~~~
+
+For using Sentry to log errors, you must add `raven.contrib.django.raven_compat` to the installed apps.
+
+.. code-block:: ini
+
+  [global]
+  extra_apps = raven.contrib.django.raven_compat
+  [sentry]
+  dsn_url = https://[key]:[secret]@app.getsentry.com/[project]
+
+Of course, the Sentry client (Raven) must be separately installed, before testing the installation:
+
+.. code-block:: bash
+
+  sudo -u moneta -i
+  moneta-manage raven test
+
+
+
+
 
 LDAP groups
 -----------
@@ -186,7 +231,3 @@ There are two possibilities to use LDAP groups, with their own pros and cons:
 The second approach can be used without any modification in your code and remove a point of failure
 in the global architecture (if you allow some delay during the synchronization process).
 A tool exists for such synchronization: `MultiSync <https://github.com/d9pouces/Multisync>`_.
-
-LDAP authentication
--------------------
-
