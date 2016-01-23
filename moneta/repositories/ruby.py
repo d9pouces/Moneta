@@ -189,7 +189,8 @@ class RubyGem(Aptitude):
             if key in data.values:
                 setattr(element, attr, data.values[key])
         element.version = data.values['version'].version
-        p = subprocess.Popen(['ruby', '-e', 'puts Marshal.dump (Gem::Specification.from_yaml(ARGF.read))'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        p = subprocess.Popen(['ruby', '-e', 'puts Marshal.dump (Gem::Specification.from_yaml(ARGF.read))'],
+                             stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         stdout, stderr = p.communicate(metadata_bytes)
         extra_data = {'yaml': metadata_bytes.decode('utf-8'), 'marshal': base64.b64encode(stdout).decode('utf-8')}
         element.extra_data = json.dumps(extra_data)
@@ -217,10 +218,12 @@ class RubyGem(Aptitude):
         :return: a patterns as expected by django
 
         """
-        src_pattern_list = [(r'(?P<filename>(specs\.4\.8|prerelease_specs\.4\.8|latest_specs\.4\.8|Marshal\.4\.8|versions\.list|names\.list)(\.gz)?)', 'specs', 'specs'),
+        src_pattern_list = [(r'(?P<filename>(specs\.4\.8|prerelease_specs\.4\.8|latest_specs\.4\.8|Marshal\.4\.8|'
+                             r'versions\.list|names\.list)(\.gz)?)', 'specs', 'specs'),
                             (r'gems/(?P<filename>.+)', 'download', 'download'),
                             (r'specs/(?P<filename>.+)\.gemspec', 'gem_specs', 'gem_specs'),
-                            (r'quick/Marshal\.4\.8/(?P<filename>.+)\.gemspec(?P<compression>(\.rz|))', 'quick_gem_specs', 'quick_gem_specs'),
+                            (r'quick/Marshal\.4\.8/(?P<filename>.+)\.gemspec(?P<compression>(\.rz|))',
+                             'quick_gem_specs', 'quick_gem_specs'),
                             (r'', 'index', 'index'),
                             ]
         pattern_list = []
@@ -229,7 +232,8 @@ class RubyGem(Aptitude):
                 url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/a/%s$" % pattern, self.wrap_view(view), name=name)
             )
             pattern_list.append(
-                url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/%s$" % pattern, self.wrap_view(view), name=name)
+                url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/%s$" % pattern,
+                    self.wrap_view(view), name=name)
             )
         pattern_list += [
             url(r"^(?P<rid>\d+)/$", self.wrap_view('index'), name="index"),
@@ -303,7 +307,8 @@ class RubyGem(Aptitude):
         ]
         for state in states:
             tab_infos.append(
-                (reverse(view_name, kwargs={'rid': repo.id, 'repo_slug': repo.slug, 'state_slug': state.slug}), [state], state)
+                (reverse(view_name, kwargs={'rid': repo.id, 'repo_slug': repo.slug, 'state_slug': state.slug}),
+                 [state], state)
             )
         template_values['tab_infos'] = tab_infos
         return render_to_response('repositories/ruby/index.html', template_values, RequestContext(request))
@@ -324,11 +329,13 @@ class RubyGem(Aptitude):
             if 'date' in element_spec.values:
                 del element_spec.values['date']
             all_elements[None].append(element_data)
-            last_elements[None].setdefault(element_spec.name, []).append((element_spec.version.version, element_spec.platform))
+            last_elements[None].setdefault(element_spec.name, []).append((element_spec.version.version,
+                                                                          element_spec.platform))
             for state in element.states.all():
                 all_elements[state.slug].append(element_data)
                 all_specs[state.slug].append(element_spec)
-                last_elements[state.slug].setdefault(element_spec.name, []).append((element_spec.version.version, element_spec.platform))
+                last_elements[state.slug].setdefault(element_spec.name, []).append((element_spec.version.version,
+                                                                                    element_spec.platform))
 
         for state_info in state_infos:
             folder_name = 'specs/' if state_info[0] is None else 'specs/%(slug)s' % {'slug': state_info[0]}
@@ -345,7 +352,8 @@ class RubyGem(Aptitude):
 
             def versions_write_fn(file_obj):
                 for y in names:
-                    file_obj.write(('%s %s\n' % (y, ','.join([z[0] for z in last_elements[state_info[0]][y]]))).encode('utf-8'))
+                    version_txt = ('%s %s\n' % (y, ','.join([z[0] for z in last_elements[state_info[0]][y]])))
+                    file_obj.write(version_txt.encode('utf-8'))
 
             def names_write_fn(file_obj):
                 for y in names:

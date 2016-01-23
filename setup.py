@@ -34,7 +34,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=['setuptools>=1.0', 'djangofloor>=0.17', 'python-gnupg', 'rubymarshal==1.0.3', 'pyyaml'],
+    install_requires=['setuptools>=1.0', 'djangofloor>=0.17', 'python-gnupg', 'rubymarshal', 'pyyaml'],
     setup_requires=[],
     classifiers=[],
 )
