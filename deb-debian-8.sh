@@ -12,7 +12,9 @@ source /etc/bash_completion.d/virtualenvwrapper
 
 
 # create the virtual env
+set +e
 mkvirtualenv -p `which python3` djangofloor3
+set -e
 workon djangofloor3
 pip install setuptools --upgrade
 pip install pip --upgrade
