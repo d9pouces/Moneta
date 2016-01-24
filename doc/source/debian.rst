@@ -6,7 +6,6 @@ However, you can create pure Debian packages with `DjangoFloor <http://django-fl
 
 The source code provides several Bash scripts:
 
-    * `deb-debian-7-python3.sh`,
     * `deb-debian-8-python3.sh`,
     * `deb-ubuntu-14.04-15.10.sh`.
 
@@ -19,9 +18,22 @@ These scripts are designed to run on basic installation and are split in five st
     * install all packages and Moneta, prepare a simple configuration to test.
 
 If everything is ok, you can copy all the .deb packages to your private mirror or to the destination server.
-The configuration is set in `/etc/moneta/settings.ini`.
-By default, Moneta is installed with Apache 2.2 (or 2.4) and Supervisor.
+By default, Moneta is installed with Apache 2.4 and systemd.
 You can switch to Nginx or Systemd by tweaking the right `stdeb-XXX.cfg` file.
+
+
+Configuration
+-------------
+
+Default configuration file is `/etc/moneta/settings.ini`.
+If you need more complex settings, you can override default values (given in `djangofloor.defaults` and
+`moneta.defaults`) by creating a file named `/etc/moneta/settings.py`.
+After any change in the database configuration or any upgrade, you must migrate the database to create the required tables.
+
+.. code-block:: bash
+
+    sudo -u moneta moneta-manage migrate
+
 
 After installation and configuration, do not forget to create a superuser:
 
@@ -29,13 +41,25 @@ After installation and configuration, do not forget to create a superuser:
 
     sudo -u moneta moneta-manage createsuperuser
 
-Default configuration file is `/etc/moneta/settings.ini`.
-If you need more complex settings, you can override default values (given in `djangofloor.defaults` and
-`moneta.defaults`) by creating a file named `/etc/moneta/settings.py`.
+
+
+
+
+Launch the service
+------------------
+
+The service
 
 .. code-block:: bash
 
     sudo service moneta-gunicorn start
+
+
+If you want Moneta to be started at startup, you have to enable it in systemd:
+
+.. code-block:: bash
+
+    systemctl enable moneta-gunicorn.service
 
 
 
