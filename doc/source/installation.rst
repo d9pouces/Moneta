@@ -2,13 +2,18 @@ Installation
 ============
 
 Like many Python packages, you can use several methods to install Moneta.
-The following packages are required:
+Moneta designed to run with python3.4.x+.
+The following packages are also required:
 
   * setuptools >= 3.0
   * djangofloor >= 0.18.0
   * python-gnupg
   * rubymarshal
   * pyyaml
+
+
+
+Of course you can install it from the source, but the preferred way is to install it as a standard Python package, via pip.
 
 
 Installing or Upgrading
@@ -176,10 +181,10 @@ Now, it's time to install Moneta:
     sudo mkdir -p /var/moneta
     sudo adduser --disabled-password moneta
     sudo chown moneta:www-data /var/moneta
-    sudo apt-get install virtualenvwrapper python3.5 python3.5-dev build-essential postgresql-client libpq-dev
+    sudo apt-get install virtualenvwrapper python3.4 python3.4-dev build-essential postgresql-client libpq-dev
     # application
     sudo -u moneta -i
-    mkvirtualenv moneta -p `which python3.5`
+    mkvirtualenv moneta -p `which python3.4`
     workon moneta
     pip install setuptools --upgrade
     pip install pip --upgrade
@@ -215,6 +220,8 @@ Now, it's time to install Moneta:
     [sentry]
     dsn_url = 
     EOF
+    chmod 0400 $VIRTUAL_ENV/etc/moneta/settings.ini
+    # required since there are password in this file
     moneta-manage migrate
     moneta-manage collectstatic --noinput
     moneta-manage createsuperuser
@@ -275,6 +282,7 @@ You can also use systemd to launch moneta:
     WantedBy=multi-user.target
     EOF
     systemctl enable moneta-gunicorn.service
+    sudo service moneta-gunicorn start
 
 
 

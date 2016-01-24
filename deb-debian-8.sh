@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # base packages
 sudo apt-get update
@@ -44,3 +45,4 @@ sudo -u moneta moneta-manage migrate
 sudo service supervisor restart
 sudo service apache2 restart
 
+set -e

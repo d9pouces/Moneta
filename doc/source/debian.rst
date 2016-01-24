@@ -29,10 +29,13 @@ After installation and configuration, do not forget to create a superuser:
 
     sudo -u moneta moneta-manage createsuperuser
 
-
 Default configuration file is `/etc/moneta/settings.ini`.
 If you need more complex settings, you can override default values (given in `djangofloor.defaults` and
 `moneta.defaults`) by creating a file named `/etc/moneta/settings.py`.
+
+.. code-block:: bash
+
+    sudo service moneta-gunicorn start
 
 
 
@@ -116,6 +119,9 @@ Restoring a backup
 Monitoring
 ----------
 
+
+Nagios or Shinken
+~~~~~~~~~~~~~~~~~
 
 You can use Nagios checks to monitor several points:
 

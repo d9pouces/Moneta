@@ -174,6 +174,9 @@ Monitoring
 ----------
 
 
+Nagios or Shinken
+~~~~~~~~~~~~~~~~~
+
 You can use Nagios checks to monitor several points:
 
   * connection to the application server (gunicorn or uwsgi):
