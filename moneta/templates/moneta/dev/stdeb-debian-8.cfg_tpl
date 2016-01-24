@@ -1,4 +1,5 @@
 {% extends "djangofloor/dev/stdeb-debian-8.cfg_tpl" %}
 
 {% block multideb_extra_exclude %}    python-gnupg
+    PyYAML
 {% endblock %}
