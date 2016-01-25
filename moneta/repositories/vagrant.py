@@ -47,6 +47,8 @@ class Vagrant(RepositoryModel):
             archive_file = storage(settings.STORAGE_ARCHIVE).get_file(element.archive_key)
 
             compressed_file = zipfile.ZipFile(archive_file)
+            metadata_file = compressed_file.extract('metadata.json')
+
             prefix = os.path.commonprefix(compressed_file.namelist())
             control_data_file = compressed_file.open(os.path.join(prefix, 'META-INF', 'MANIFEST.MF'))
 
