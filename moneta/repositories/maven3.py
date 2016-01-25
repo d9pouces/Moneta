@@ -75,9 +75,6 @@ class Maven3(Aptitude):
         Extract some informations from element to prepare the repository
         :param element: Element to add to the repository
         :return: Unicode string containing meta-data
-
-        ar -x control.tar.gz
-        tar -xf control.tar.gz control
         """
         if element.archive:
             element.name = element.archive.rpartition('.')[2]
@@ -230,10 +227,14 @@ class Maven3(Aptitude):
 
         # http://mvnrepository.com/artifact/org.requs/requs-exec/1.11
         pattern_list = [
-            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/browse/(?P<query_string>.*)$', self.wrap_view('browse_repository'), name='browse'),
-            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/s/(?P<state_slug>[\w\-\._]+)/browse/(?P<query_string>.*)$', self.wrap_view('browse_repository'), name='browse'),
-            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/browse/$', self.wrap_view('browse_repository'), name='browse'),
-            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/s/(?P<state_slug>[\w\-\._]+)/browse/$', self.wrap_view('browse_repository'), name='browse'),
+            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/browse/(?P<query_string>.*)$',
+                self.wrap_view('browse_repository'), name='browse'),
+            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/s/(?P<state_slug>[\w\-\._]+)/browse/(?P<query_string>.*)$',
+                self.wrap_view('browse_repository'), name='browse'),
+            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/browse/$', self.wrap_view('browse_repository'),
+                name='browse'),
+            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/s/(?P<state_slug>[\w\-\._]+)/browse/$',
+                self.wrap_view('browse_repository'), name='browse'),
             url(r"^(?P<rid>\d+)/$", self.wrap_view('index'), name="index"),
         ]
         return pattern_list

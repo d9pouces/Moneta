@@ -1,0 +1,30 @@
+{% extends "moneta/base_package.html" %}{% load staticfiles i18n moneta %}
+
+{% block repo_content %}
+<h2>{% trans 'Settings for IntelliJ IDEA, PhpStorm, PyCharm, RubyMine, WebStorm, AppCode or CLion' %}</h2>
+
+<ul class="nav nav-tabs">
+    {% for tab_info in tab_infos %}
+        <li {% if forloop.first %}class="active"{% endif %}><a href="#{{ tab_info.1.slug }}" data-toggle="tab">{{ tab_info.1.name }}</a></li>
+    {% endfor %}
+</ul>
+<div class="tab-content">
+    {% for tab_info in tab_infos %}
+        <div class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ tab_info.1.slug }}">
+        <p>&nbsp;</p>
+            <p>{% trans 'Go to Settings -> Plugins -> Browse repositories -> Manage Repositories and add the following line:' %}</p>
+<pre>{{ absolute_url }}{{ tab_info.0 }}</pre>
+
+    {% if upload_allowed %}<h2>{% trans 'Add a plugin' %}</h2>
+        {% trans 'In order to add a new plugin, please run the following command:' %}
+        <pre>FILENAME=filename-version.jar
+ARCHIVE=myPluginId
+VERSION=myPluginVersion
+{% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta:add_element_post' rid=repo.id %}\?filename=$FILENAME\&archive=$ARCHIVE\&version=$VERSION{% for state in tab_info.2 %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
+</div>
+{% endfor %}
+
+</div>
+
+{% include 'moneta/add_signature.html' %}
+{% endblock %}
