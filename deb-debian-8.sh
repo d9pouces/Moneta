@@ -42,7 +42,7 @@ mv deb_dist/*deb deb
 sudo dpkg -i deb/python3-*.deb
 
 # package configuration
-IP=`/sbin/ifconfig | grep -Eo 'inet (addr:|adr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'`
+IP=`/sbin/ifconfig | grep -Eo 'inet (addr:|adr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' | head -n 1`
 sudo sed -i "s/localhost/$IP/g" /etc/apache2/sites-available/moneta.conf
 sudo sed -i "s/localhost/$IP/g" /etc/moneta/settings.ini
 sudo a2ensite moneta.conf
