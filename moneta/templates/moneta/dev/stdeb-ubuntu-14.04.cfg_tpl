@@ -1,4 +1,4 @@
-{% extends "djangofloor/dev/stdeb-ubuntu-14.04-15.10.cfg_tpl" %}
+{% extends "djangofloor/dev/stdeb-ubuntu-14.04.cfg_tpl" %}
 
 {% block multideb_extra_exclude %}    python-gnupg
     PyYAML

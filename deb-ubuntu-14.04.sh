@@ -8,7 +8,7 @@ sudo apt-get install --yes vim dh-make ntp rsync liblzma-dev tree
 sudo apt-get install --yes python3-all-dev virtualenvwrapper \
     python3-tz python3-setuptools \
     python3-oauthlib \
-    apache2 libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap \
+    apache2 libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap supervisor \
     python-medusa python-meld3 ssl-cert python3-msgpack
 sudo apt-get install --yes python3-gnupg libyaml-dev python3-yaml
 source /etc/bash_completion.d/virtualenvwrapper
@@ -28,11 +28,11 @@ python setup.py install
 
 
 # generate packages for all dependencies
-multideb -r -v -x stdeb-debian-8.cfg
+multideb -r -v -x stdeb-ubuntu-14.04-15.10.cfg
 
 # creating package for moneta
 rm -rf `find * | grep pyc$`
-python setup.py bdist_deb_django -x stdeb-debian-8.cfg
+python setup.py bdist_deb_django -x stdeb-ubuntu-14.04-15.10.cfg
 deb-dep-tree deb_dist/*deb
 mv deb_dist/*deb deb
 
