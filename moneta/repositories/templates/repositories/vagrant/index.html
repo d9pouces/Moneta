@@ -30,7 +30,7 @@ end
 EOF</pre>
 
 {% endfor %}
-{% if not use_https %}If you server certificate is not recognized by the Mozilla CA cert bundle, you should add one of these lines to your Vagrantfile.
+{% if not use_https %}If you server certificate is not recognized by the Mozilla CA cert bundle, you should add one of these lines to your Vagrantfile:
     <pre>  config.vm.box_download_insecure = true
   config.vm.box_download_ca_cert = "/Path/to/your/ROOT/CA.pem"</pre>
 {% endif %}

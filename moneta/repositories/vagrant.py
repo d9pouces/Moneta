@@ -120,13 +120,14 @@ class Vagrant(RepositoryModel):
                  element.sha1)
             )
         states = [state for state in ArchiveState.objects.filter(repository=repo).order_by('name')]
-        tab_infos = [(reverse('vagrant:index', kwargs={'rid': repo.id, 'state_slug': ''}),
-                      ArchiveState(name=_('All states'), slug='all-states'), states, ''), ]
+        tab_infos = []
+        # list of (relative URL, name, list of states, state_slug)
         tab_infos += [(reverse('vagrant:index',
                                kwargs={'rid': repo.id, 'state_slug': state.slug}),
                        state, [state], state.slug)
                       for state in states]
-        # list of (relative URL, name, list of states, state_slug)
+        tab_infos += [(reverse('vagrant:index', kwargs={'rid': repo.id, 'state_slug': ''}),
+                      ArchiveState(name=_('All boxes'), slug='all-states'), states, ''), ]
 
         template_values = {'repo': repo, 'states': states, 'upload_allowed': repo.upload_allowed(request),
                            'state_slug': state_slug, 'elements': element_infos,

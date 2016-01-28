@@ -24,7 +24,6 @@ Some following kinds of repositories will be added in the future:
 
   * Docker containers,
   * Shinken packages,
-  * Jenkins plugins,
   * packages for vim,
   * nuget for Windows packages,
   * brew (packaging system for OS X),
