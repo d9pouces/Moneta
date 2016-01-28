@@ -17,6 +17,7 @@ Currently, you can create the following types of repositories:
     * Pypi for Python packages,
     * Jetbrains for IntelliJ/PyCharm/PhpStorm/RubyMine/AppCode/Clion plugins,
     * Gem for Ruby packages,
+    * Vagrant for boxes,
     * any binary, versionned files.
 
 
