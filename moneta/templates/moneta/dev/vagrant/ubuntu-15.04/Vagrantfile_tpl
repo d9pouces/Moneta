@@ -1,0 +1,10 @@
+{% extends 'djangofloor/dev/vagrant/ubuntu-15.04/Vagrantfile_tpl' %}
+{% block vm_provision %}  config.vm.provision "shell", inline: <<-SHELL
+    sudo apt-get update
+    sudo apt-get install -y rng-tools git
+    echo "HRNGDEVICE=/dev/urandom" | sudo tee -a /etc/default/rng-tools
+    sudo /etc/init.d/rng-tools restart
+    git clone https://github.com/d9pouces/Moneta.git
+    chown -R vagrant:vagrant Moneta
+  SHELL
+{% endblock %}

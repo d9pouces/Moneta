@@ -18,21 +18,21 @@ source /etc/bash_completion.d/virtualenvwrapper
 # create the virtual env
 set +e
 mkvirtualenv -p `which python3` djangofloor3
-set -e
 workon djangofloor3
 pip install setuptools --upgrade
 pip install pip --upgrade
 pip install debtools djangofloor
+set -e
 python setup.py install
 
 
 
 # generate packages for all dependencies
-multideb -r -v -x stdeb-debian-8.cfg
+multideb -r -v -x stdeb-ubuntu-14.04-15.10.cfg
 
 # creating package for moneta
 rm -rf `find * | grep pyc$`
-python setup.py bdist_deb_django -x stdeb-debian-8.cfg
+python setup.py bdist_deb_django -x stdeb-ubuntu-14.04-15.10.cfg
 deb-dep-tree deb_dist/*deb
 mv deb_dist/*deb deb
 
@@ -42,7 +42,7 @@ mv deb_dist/*deb deb
 sudo dpkg -i deb/python3-*.deb
 
 # package configuration
-IP=`/sbin/ifconfig | grep -Eo 'inet (addr:|adr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'`
+IP=`/sbin/ifconfig | grep -Eo 'inet (addr:|adr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' | head -n 1`
 sudo sed -i "s/localhost/$IP/g" /etc/apache2/sites-available/moneta.conf
 sudo sed -i "s/localhost/$IP/g" /etc/moneta/settings.ini
 sudo a2ensite moneta.conf
