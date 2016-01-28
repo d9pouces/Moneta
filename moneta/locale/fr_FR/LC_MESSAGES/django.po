@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -28,8 +27,6 @@ msgstr "Index des paquets"
 #: moneta/repositories/aptitude.py:276 moneta/repositories/flat_files.py:96
 #: moneta/repositories/jetbrains.py:47 moneta/repositories/maven3.py:251
 #: moneta/repositories/pypi.py:174 moneta/repositories/ruby.py:306
-#, fuzzy
-#| msgid "Archive states"
 msgid "All states"
 msgstr "États possibles"
 
@@ -43,16 +40,12 @@ msgid "Repository"
 msgstr "Dépôt"
 
 #: moneta/repositories/flat_files.py:56
-#, fuzzy
-#| msgid "Maven repository for Java packages"
 msgid "Simple repository for flat files"
-msgstr "Dépôt Maven pour paquets Java"
+msgstr "Dépôt simple pour fichiers versionnés"
 
 #: moneta/repositories/jetbrains.py:20
-#, fuzzy
-#| msgid "browse repository"
 msgid "Jetbrains repository for IDEs"
-msgstr "parcourir"
+msgstr "Dépôt pour IDE Jetbrains"
 
 #: moneta/repositories/maven3.py:66
 msgid "Maven repository for Java packages"
@@ -848,20 +841,16 @@ msgid "%(repotype)s created by %(author)s"
 msgstr "%(repotype)s créé par %(author)s"
 
 #: moneta/templates/moneta/index.html:30
-#, fuzzy
-#| msgid "Available repositories"
 msgid "No available repositories"
-msgstr "Dépôts existants"
+msgstr "Aucun dépôt n'est défini"
 
 #: moneta/templates/moneta/index.html:35
 msgid "New repository"
 msgstr "Nouveau dépôt"
 
 #: moneta/templates/moneta/index.html:40
-#, fuzzy
-#| msgid "New repository"
 msgid "Create a new repository"
-msgstr "Nouveau dépôt"
+msgstr "Créer un nouveau dépôt"
 
 #: moneta/templates/moneta/modify_repo.html:2
 #: moneta/templates/moneta/modify_repo.html:5
@@ -993,10 +982,9 @@ msgid "The package %(n)s has been successfully uploaded."
 msgstr "Le paquet %(n)s a été ajouté correctement."
 
 #: moneta/views.py:295
-#, fuzzy, python-format
-#| msgid "Unable to create directory %(path)s."
+#, python-format
 msgid "Unable to add the package to this repository: %(msg)s."
-msgstr "Impossible de créer le dossier %(path)s."
+msgstr "Impossible d'ajouter le package au dépôt : %(msg)s."
 
 #: moneta/views.py:318
 #, python-format
@@ -1012,16 +1000,13 @@ msgid "Method not allowed"
 msgstr ""
 
 #: moneta/views.py:352
-#, fuzzy
-#| msgid "Empty file. You must POST a valid file."
 msgid "Empty file. You must POST a valid file.\n"
-msgstr "Fichier vide. Vous devez POSTer un fichier valide."
+msgstr "Fichier vide. Vous devez POSTer un fichier valide.\n"
 
 #: moneta/views.py:363
-#, fuzzy, python-format
-#| msgid "Package %(element)s successfully added to repository %(repo)s."
+#, python-format
 msgid "Package %(element)s successfully added to repository %(repo)s.\n"
-msgstr "Le paquet %(element)s a été ajouté au dépôt %(repo)s."
+msgstr "Le paquet %(element)s a été ajouté au dépôt %(repo)s.\n"
 
 #: moneta/views.py:507
 msgid "Left state"
