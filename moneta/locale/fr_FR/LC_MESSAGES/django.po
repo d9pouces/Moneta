@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-26 09:43+0200\n"
+"POT-Creation-Date: 2016-01-28 22:46+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,265 +17,702 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: core/signing.py:80
-msgid "unable to import gnugpg module."
-msgstr "Impossible d'importer le module Python gnugpg."
+#: moneta/repositories/aptitude.py:43
+msgid "APT repository for Linux .deb packages"
+msgstr "Dépôt APT pour paquets .deb pour Linux"
 
-#: core/utils.py:95
+#: moneta/repositories/aptitude.py:206
+msgid "Index packages"
+msgstr "Index des paquets"
+
+#: moneta/repositories/aptitude.py:276 moneta/repositories/flat_files.py:96
+#: moneta/repositories/jetbrains.py:47 moneta/repositories/maven3.py:251
+#: moneta/repositories/pypi.py:174 moneta/repositories/ruby.py:306
+#, fuzzy
+#| msgid "Archive states"
+msgid "All states"
+msgstr "États possibles"
+
+#: moneta/repositories/aptitude.py:288
+msgid "Indexes have been successfully rebuilt."
+msgstr "Les index ont été regénérés correctement."
+
+#: moneta/repositories/base.py:34 moneta/repository/models.py:135
+#: moneta/repository/models.py:143
+msgid "Repository"
+msgstr "Dépôt"
+
+#: moneta/repositories/flat_files.py:56
+#, fuzzy
+#| msgid "Maven repository for Java packages"
+msgid "Simple repository for flat files"
+msgstr "Dépôt Maven pour paquets Java"
+
+#: moneta/repositories/jetbrains.py:20
+#, fuzzy
+#| msgid "browse repository"
+msgid "Jetbrains repository for IDEs"
+msgstr "parcourir"
+
+#: moneta/repositories/maven3.py:66
+msgid "Maven repository for Java packages"
+msgstr "Dépôt Maven pour paquets Java"
+
+#: moneta/repositories/maven3.py:185
+msgid "Root"
+msgstr "Racine"
+
+#: moneta/repositories/pypi.py:66
+msgid "Pypi repository for Python packages"
+msgstr "Dépôt Pypi pour paquets Python"
+
+#: moneta/repositories/pypi.py:123
+msgid "Unable to open file"
+msgstr "Impossible d'ouvrir le fichier"
+
+#: moneta/repositories/pypi.py:127
+msgid "No control data in archive"
+msgstr "Aucune donnée de contrôle dans l'archive"
+
+#: moneta/repositories/ruby.py:144
+msgid "Gem repository for Ruby packages"
+msgstr "Dépôt Gem pour paquets Ruby"
+
+#: moneta/repositories/templates/repositories/aptitude/folder_index.html:2
+#: moneta/repositories/templates/repositories/aptitude/folder_index.html:4
+#: moneta/repositories/templates/repositories/maven3/folder_index.html:5
 #, python-format
-msgid "Unable to remove %(path)s."
-msgstr "Impossible de supprimer %(path)s."
+msgid "Repository %(repo)s/%(state)s"
+msgstr "Dépôt %(repo)s/%(state)s"
 
-#: core/utils.py:114
+#: moneta/repositories/templates/repositories/aptitude/folder_index.html:5
+#: moneta/repositories/templates/repositories/maven3/folder_index.html:6
 #, python-format
-msgid "Unable to rename %(src)s to %(dst)s."
-msgstr "Impossible de renommer %(src)s en %(dst)s."
+msgid "Available packages in <strong>%(repo)s/%(state)s/%(folder)s</strong> "
+msgstr ""
+"Paquets disponibles dans <strong>%(repo)s/%(state)s/%(folder)s</strong> "
 
-#: core/utils.py:126
+#: moneta/repositories/templates/repositories/aptitude/index.html:4
+msgid "Available APT sources"
+msgstr "Sources APT disponibles"
+
+#: moneta/repositories/templates/repositories/aptitude/index.html:14
+msgid "Modify your APT sources:"
+msgstr "Modifiez vos sources APT"
+
+#: moneta/repositories/templates/repositories/aptitude/index.html:20
+msgid "Do not forget to install apt-transport-https first."
+msgstr "N'oubliez pas d'installer d'abord apt-transport-https."
+
+#: moneta/repositories/templates/repositories/aptitude/index.html:24
+msgid ""
+"As far we know, the only method to authenticate APT clients is to use client "
+"SSL certificates."
+msgstr ""
+"La seule méthode connue pour les clients APT est d'utiliser des certificats "
+"SSL clients"
+
+#: moneta/repositories/templates/repositories/aptitude/index.html:26
+msgid ""
+"Please run the following command to register the GPG key of this repository:"
+msgstr ""
+"Utilisez la commande suivante pour enregistrer la clef GPG de ce dépôt :"
+
+#: moneta/repositories/templates/repositories/aptitude/index.html:28
+msgid "The Release file can be downloaded using cURL:"
+msgstr "Le fichier de Release peut être téléchargé avec cURL :"
+
+#: moneta/repositories/templates/repositories/aptitude/index.html:30
+#: moneta/repositories/templates/repositories/maven3/index.html:30
+#: moneta/repositories/templates/repositories/pypi/index.html:48
+#: moneta/repositories/templates/repositories/ruby/index.html:31
+#: moneta/repositories/templates/repositories/yum/index.html:22
+msgid "Add a package"
+msgstr "Ajouter un paquet"
+
+#: moneta/repositories/templates/repositories/aptitude/index.html:31
+#: moneta/repositories/templates/repositories/pypi/index.html:48
+#: moneta/repositories/templates/repositories/ruby/index.html:31
+#: moneta/repositories/templates/repositories/yum/index.html:23
+msgid "In order to add a new package, please run the following command:"
+msgstr "Pour ajouter un nouveau paquet, utilisez la commande suivante :"
+
+#: moneta/repositories/templates/repositories/aptitude/index.html:34
+#: moneta/repositories/templates/repositories/ruby/index.html:34
+#: moneta/repositories/templates/repositories/yum/index.html:26
+msgid "Run the following command to re-index packages after an upload:"
+msgstr ""
+"Utilisez la commande suivante pour indexer à nouveau le dépôt après un "
+"ajout :"
+
+#: moneta/repositories/templates/repositories/flat_files/index.html:5
+#: moneta/repositories/templates/repositories/maven3/index.html:4
+#: moneta/templates/moneta/base_package.html:15
+#: moneta/templates/moneta/index.html:20
+msgid "usage"
+msgstr "utilisation"
+
+#: moneta/repositories/templates/repositories/flat_files/index.html:7
+#: moneta/repositories/templates/repositories/maven3/index.html:6
+#: moneta/templates/moneta/base_package.html:17
+#: moneta/templates/moneta/index.html:21
+msgid "browse repository"
+msgstr "parcourir"
+
+#: moneta/repositories/templates/repositories/flat_files/index.html:10
+#: moneta/repositories/templates/repositories/maven3/index.html:11
+#: moneta/templates/moneta/base_package.html:27
+#: moneta/templates/moneta/index.html:24
+msgid "modify repository"
+msgstr "modifier"
+
+#: moneta/repositories/templates/repositories/flat_files/index.html:12
+#: moneta/repositories/templates/repositories/maven3/index.html:13
+#: moneta/templates/moneta/base_package.html:29
+#: moneta/templates/moneta/index.html:25
+msgid "delete repository"
+msgstr "Supprimer le dépôt"
+
+#: moneta/repositories/templates/repositories/flat_files/index.html:24
+msgid "Show files"
+msgstr "Afficher les fichiers"
+
+#: moneta/repositories/templates/repositories/flat_files/index.html:30
+msgid "Add a file"
+msgstr "Ajouter un fichier"
+
+#: moneta/repositories/templates/repositories/flat_files/index.html:31
+msgid "In order to add a new archive, please run the following command:"
+msgstr "Pour ajouter une nouvelle archive, utilisez la commande suivante :"
+
+#: moneta/repositories/templates/repositories/jetbrains/index.html:4
+msgid ""
+"Settings for IntelliJ IDEA, PhpStorm, PyCharm, RubyMine, WebStorm, AppCode "
+"or CLion"
+msgstr ""
+"Paramètres pour IntelliJ IDEA, PhpStorm, PyCharm, RubyMine, WebStorm, "
+"AppCode ou CLion"
+
+#: moneta/repositories/templates/repositories/jetbrains/index.html:15
+msgid ""
+"Go to Settings -> Plugins -> Browse repositories -> Manage Repositories and "
+"add the following line:"
+msgstr ""
+"Aller dans Settings -> Plugins -> Browse repositories -> Manage Repositories "
+"et ajouter la ligne suivante :"
+
+#: moneta/repositories/templates/repositories/jetbrains/index.html:18
+msgid "Add a plugin"
+msgstr "Ajouter un plugin"
+
+#: moneta/repositories/templates/repositories/jetbrains/index.html:19
+msgid "In order to add a new plugin, please run the following command:"
+msgstr "Pour ajouter un nouveau plugin, utilisez la commande suivante :"
+
+#: moneta/repositories/templates/repositories/maven3/browse.html:2
+#: moneta/repositories/templates/repositories/maven3/browse.html:5
+#: moneta/repositories/templates/repositories/maven3/folder_index.html:2
 #, python-format
-msgid "Unable to create directory %(path)s."
-msgstr "Impossible de créer le dossier %(path)s."
+msgid "Repository %(repo)s"
+msgstr "Dépôt %(repo)s"
 
-#: core/views.py:56 repository/views.py:9
-msgid "You can access to this page."
-msgstr "Vous pouvez accéder à cette page."
+#: moneta/repositories/templates/repositories/maven3/browse.html:11
+#, python-format
+msgid "Available files in <strong>%(repo)s/%(request_path)s</strong>: "
+msgstr ""
+"Fichiers disponibles dans <strong>%(repo)s/%(request_path)s</strong> : "
 
-#: core/views.py:62 repository/views.py:15
-msgid "You are not authenticated."
-msgstr "Vous n'êtes pas authentifiés."
+#: moneta/repositories/templates/repositories/maven3/browse.html:16
+#: moneta/templates/moneta/element.html:11
+msgid "More infos…"
+msgstr "Plus d'infos…"
 
-#: core/views.py:64 repository/views.py:17
-msgid "You can access to this page and you are authenticated."
-msgstr "Vous pouvez accéder à cette page et vous êtes authentifiés."
+#: moneta/repositories/templates/repositories/maven3/browse.html:20
+msgid "No available package"
+msgstr "Aucun fichier disponible actuellement"
 
-#: core/views.py:115
-msgid "Your new repository has been created."
-msgstr "Votre nouveau dépôt a été créé."
+#: moneta/repositories/templates/repositories/maven3/index.html:8
+#: moneta/templates/moneta/base_package.html:19
+#: moneta/templates/moneta/index.html:22
+msgid "check"
+msgstr "vérifier"
 
-#: core/views.py:133 repository/forms.py:15
+#: moneta/repositories/templates/repositories/maven3/index.html:18
+msgid "Maven settings"
+msgstr "Paramètres Maven"
+
+#: moneta/repositories/templates/repositories/maven3/index.html:27
+msgid ""
+"Add the following repositories to your pom.xml in the repositories section:"
+msgstr ""
+"Ajoutez l'un des repositories suivants à votre pom.xml dans la section "
+"repositories :"
+
+#: moneta/repositories/templates/repositories/maven3/index.html:31
+msgid ""
+"You can add packages by specifying archive (groupId.artifactId, name of the "
+"package) and version:"
+msgstr ""
+"Vous pouvez également ajouter une archive générique en spécifiant archive "
+"(groupId), name (artifactId, le nom du paquet) et version :"
+
+#: moneta/repositories/templates/repositories/pypi/index.html:8
+msgid "Available pip indexes"
+msgstr "Index pip existants"
+
+#: moneta/repositories/templates/repositories/pypi/index.html:20
+msgid "Modifiy your $HOME/.pip/pip.conf file to use pip:"
+msgstr "Modifier $HOME/.pip/pip.conf pour utiliser pip :"
+
+#: moneta/repositories/templates/repositories/pypi/index.html:24
+#: moneta/repositories/templates/repositories/ruby/index.html:29
+#: moneta/repositories/templates/repositories/vagrant/index.html:35
+msgid "/Path/to/your/ROOT/CA.pem"
+msgstr "/chemin/vers/votre/CA/racine.pem"
+
+#: moneta/repositories/templates/repositories/pypi/index.html:25
+msgid "Modifiy your $HOME/.pydistutils.cfg file to use easy_install:"
+msgstr "Modifier $HOME/.pydistutils.cfg pour utiliser easy_install :"
+
+#: moneta/repositories/templates/repositories/pypi/index.html:28
+msgid ""
+"If you already uses an extra Python mirror, update your $HOME/.pip/pip.conf "
+"in this way:"
+msgstr "S'il y a déjà un miroir Python supplémentaire, modifier $HOME/.pip/pip.conf de cette façon :"
+
+#: moneta/repositories/templates/repositories/pypi/index.html:32
+msgid "… and your $HOME/.pydistutils.cfg:"
+msgstr "… et $HOME/.pydistutils.cfg :"
+
+#: moneta/repositories/templates/repositories/pypi/index.html:37
+msgid ""
+"Before using easy_install, you probably need to add your root certificate to "
+"the first existing file among:"
+msgstr "Avant d'utiliser easy_install, il sera probablement nécessaire d'ajouter le certificat racine au premier fichier existant parmi : "
+
+#: moneta/repositories/templates/repositories/ruby/index.html:8
+msgid "Available gem indexes"
+msgstr "Index GEM existants"
+
+#: moneta/repositories/templates/repositories/ruby/index.html:20
+msgid "Modifiy your $HOME/.gemrc:"
+msgstr "Modifier $HOME/.gemrc"
+
+#: moneta/repositories/templates/repositories/vagrant/index.html:4
+msgid "Catalog of existing Vagrant boxes"
+msgstr "Catalogue des boxes Vagrant existantes"
+
+#: moneta/repositories/templates/repositories/vagrant/index.html:18
+msgid "Copy-paste one of the following commands in a terminal"
+msgstr "Copier-coller l'une des commandes suivantes dans un terminal"
+
+#: moneta/repositories/templates/repositories/vagrant/index.html:33
+msgid ""
+"If you server certificate is not recognized by the Mozilla CA cert bundle, "
+"you should add one of these lines to your Vagrantfile: "
+msgstr "Si le certificat du serveur n'est pas reconnu par les certificats Mozilla CA cert, "
+"l'une des lignes suivantes est nécessaire"
+
+#: moneta/repositories/templates/repositories/vagrant/index.html:40
+msgid "Non box has been uploaded yet."
+msgstr "Aucune box n'a été ajoutée pour l'instant."
+
+#: moneta/repositories/templates/repositories/vagrant/index.html:43
+msgid "Upload a box to this catalog"
+msgstr "Ajouter une box à ce catalogue"
+
+#: moneta/repositories/templates/repositories/vagrant/index.html:44
+msgid "In order to add a new box, please run the following command:"
+msgstr "Pour ajouter une nouvelle box, utilisez la commande suivante :"
+
+#: moneta/repositories/templates/repositories/yum/index.html:4
+msgid "Available YUM sources"
+msgstr "Sources YUM disponibles"
+
+#: moneta/repositories/vagrant.py:29
+msgid "Vagrant custom box catalog"
+msgstr "Catalogue de box Vagrant"
+
+#: moneta/repositories/vagrant.py:130
+msgid "All boxes"
+msgstr "Toutes les box"
+
+#: moneta/repositories/vagrant.py:153
+#, python-format
+msgid "This box contains %(name)s"
+msgstr "Cette box contient %(name)s"
+
+#: moneta/repositories/yum.py:24
+msgid "YUM repository for Linux .rpm packages"
+msgstr "Dépôt YUM pour paquets .rpm Linux"
+
+#: moneta/repositories/yum.py:103 moneta/repositories/yum.py:105
+msgid "File not found"
+msgstr "Fichier absent"
+
+#: moneta/repository/forms.py:16
 msgid "This repository already exists."
 msgstr "Ce dépôt existe déjà."
 
-#: core/views.py:136 repository/forms.py:19
+#: moneta/repository/forms.py:24
 msgid "Repository name"
 msgstr "Nom du dépôt"
 
-#: core/views.py:137 repository/forms.py:21
-msgid "Display on index for everybody?"
-msgstr "Afficher sur l'index de toute le monde ?"
+#: moneta/repository/forms.py:25
+msgid "Type of archives"
+msgstr "Type des archives"
 
-#: core/views.py:138 repository/forms.py:22
-msgid "Can these packages be replicated?"
-msgstr "Ces paquets sont-ils publics ?"
+#: moneta/repository/forms.py:26
+msgid "Add on public index?"
+msgstr "Ajouter à l'index public ?"
 
-#: core/views.py:139 repository/forms.py:23
-msgid "Must downloads be authenticated?"
-msgstr "Authentification requise pour les téléchargements ?"
+#: moneta/repository/forms.py:27
+msgid "Authentication required?"
+msgstr "Authentification requise ?"
 
-#: core/views.py:140 repository/forms.py:24
-msgid "Possible states"
-msgstr "États possibles"
+#: moneta/repository/forms.py:28
+msgid "Possible states for archives"
+msgstr "États possibles pour les archives"
 
-#: core/views.py:141 repository/forms.py:25
+#: moneta/repository/forms.py:29 moneta/repository/forms.py:58
 msgid "Please separate values by spaces"
 msgstr "Merci de séparer les valeurs par des espaces"
 
-#: core/views.py:143 repository/forms.py:27
-msgid "Groups allowed to upload"
-msgstr "Groupes autorisés à ajouter des paquets"
+#: moneta/repository/forms.py:31
+msgid "Groups allowed to upload packages"
+msgstr "Groupes autorisés à ajouter"
 
-#: core/views.py:146 repository/forms.py:30
-msgid "Only if downloads are authenticated"
-msgstr "Seulement si l'authentification est requise pour le téléchargement."
-
-#: core/views.py:147 repository/forms.py:29
+#: moneta/repository/forms.py:34
 msgid "Groups allowed to download packages"
 msgstr "Groupes autorisés à télécharger"
 
-#: core/views.py:170
+#: moneta/repository/forms.py:35
+msgid "Only if downloads require authentication"
+msgstr "Seulement si l'authentification est requise pour le téléchargement."
+
+#: moneta/repository/forms.py:40
+msgid "yes, I want to delete this element."
+msgstr "oui, je veux supprimer cet élément."
+
+#: moneta/repository/forms.py:45
+msgid "You must confirm the deletion."
+msgstr "Vous devez confirmer cette suppression."
+
+#: moneta/repository/forms.py:50
 #, python-format
-msgid "The repository %(repo)s has been modified."
-msgstr "Le dépôt %(repo)s a été modifié."
+msgid "Please enter “%(confirm)s”"
+msgstr "Merci de taper « %(confirm)s »"
 
-#: core/views.py:186 core/templates/core/search_repo.html:8
-msgid "Search"
-msgstr "Recherche"
+#: moneta/repository/forms.py:55
+msgid "Display on index for everybody?"
+msgstr "Afficher sur l'index de toute le monde ?"
 
-#: core/views.py:186
-msgid "Type your search"
-msgstr "Entrez votre recherche"
+#: moneta/repository/forms.py:56
+msgid "Must downloads be authenticated?"
+msgstr "Authentification requise pour les téléchargements ?"
 
-#: core/views.py:187
-msgid "Selected states"
-msgstr "États sélectionnés"
+#: moneta/repository/forms.py:57
+msgid "Possible states"
+msgstr "États possibles"
 
-#: core/views.py:229
-#, python-format
-msgid "The repository %(repo)s has been deleted."
-msgstr "Le dépôt %(repo)s a été supprimé."
+#: moneta/repository/forms.py:60
+msgid "Groups allowed to upload"
+msgstr "Groupes autorisés à ajouter des paquets"
 
-#: core/views.py:244
-#, python-format
-msgid "The package %(repo)s has been deleted."
-msgstr "Le paquet %(repo)s a été supprimé."
+#: moneta/repository/forms.py:68
+msgid "SHA256"
+msgstr "somme SHA256"
 
-#: core/views.py:294 core/views.py:344 core/templates/core/show_package.html:2
-msgid "Package"
-msgstr "Paquet"
+#: moneta/repository/forms.py:69
+msgid "Method"
+msgstr "Méthode"
 
-#: core/views.py:295 core/views.py:345
-msgid "States"
-msgstr "États"
-
-#: core/views.py:301
-msgid "This repository is unable to handle this file."
-msgstr "Ce dépôt n'est pas capable de prendre ce fichier en compte."
-
-#: core/views.py:310
-#, python-format
-msgid "The package %(n)s has been successfully uploaded."
-msgstr "Le paquet %(n)s a été ajouté correctement."
-
-#: core/views.py:333
-#, python-format
-msgid "This signature has been added to %(filename)s"
-msgstr "La signature a été ajoutée à %(filename)s."
-
-#: core/views.py:346 repository/models.py:62
+#: moneta/repository/models.py:52 moneta/views.py:334
 msgid "Name"
 msgstr "Nom"
 
-#: core/views.py:347 repository/models.py:172
+#: moneta/repository/models.py:53
+msgid "Slug"
+msgstr "Nom raccourci"
+
+#: moneta/repository/models.py:54 moneta/repository/models.py:264
+msgid "Creation date"
+msgstr "Date de création"
+
+#: moneta/repository/models.py:55
+msgid "Modification date"
+msgstr "Date de modification"
+
+#: moneta/repository/models.py:56
+msgid "Author"
+msgstr "Auteur"
+
+#: moneta/repository/models.py:71
+msgid "Repository type"
+msgstr "Type de dépôt"
+
+#: moneta/repository/models.py:72
+msgid "Display on public index?"
+msgstr "Afficher sur l'index public ?"
+
+#: moneta/repository/models.py:73
+msgid "Should readers be authenticated?"
+msgstr "Authentification requise en lecture ?"
+
+#: moneta/repository/models.py:74
+msgid "Admin groups"
+msgstr "Groupes d'administration"
+
+#: moneta/repository/models.py:76
+msgid "Readers groups"
+msgstr "Groupes ayant accès en lecture"
+
+#: moneta/repository/models.py:139
+msgid "URL to the web page"
+msgstr "URL pour la page web"
+
+#: moneta/repository/models.py:140
+msgid "Short description"
+msgstr "Description courte"
+
+#: moneta/repository/models.py:141
+msgid "Long description"
+msgstr "Description longue"
+
+#: moneta/repository/models.py:142
+msgid "Archive states"
+msgstr "États possibles"
+
+#: moneta/repository/models.py:144
+msgid "Complete name"
+msgstr "Nom complet"
+
+#: moneta/repository/models.py:145
+msgid "Normalized complete name"
+msgstr "Nom complet normalisé"
+
+#: moneta/repository/models.py:146
+msgid "Complete name without special chars nor accents"
+msgstr "Nom complet, sans caractères spéciaux"
+
+#: moneta/repository/models.py:147 moneta/views.py:335
 msgid "Archive"
 msgstr "Archive"
 
-#: core/views.py:348 repository/models.py:173
+#: moneta/repository/models.py:148 moneta/views.py:336
 msgid "Version"
 msgstr "Version"
 
-#: core/views.py:364
-msgid "Empty file. You must POST a valid file."
-msgstr "Fichier vide. Vous devez POSTer un fichier valide."
+#: moneta/repository/models.py:149
+msgid "filename"
+msgstr "nom de fichier"
 
-#: core/views.py:375
+#: moneta/repository/models.py:150 moneta/repository/models.py:154
+#: moneta/repository/models.py:156 moneta/repository/models.py:158
+#: moneta/repository/models.py:160 moneta/repository/models.py:162
+msgid "Automatically generated on creation"
+msgstr "généré automatiquement à la création"
+
+#: moneta/repository/models.py:151
+msgid "UUID"
+msgstr "UUID"
+
+#: moneta/repository/models.py:152
+msgid "Unique identifier, automatically generated on first save"
+msgstr ""
+
+#: moneta/repository/models.py:153
+msgid "MD5 sum"
+msgstr "somme MD5"
+
+#: moneta/repository/models.py:155
+msgid "SHA1 sum"
+msgstr "somme SHA1"
+
+#: moneta/repository/models.py:157
+msgid "SHA256 sum"
+msgstr "somme SHA256"
+
+#: moneta/repository/models.py:159
+msgid "File size"
+msgstr "taille"
+
+#: moneta/repository/models.py:161
+msgid "File extension"
+msgstr "extension"
+
+#: moneta/repository/models.py:163
+msgid "MIME type"
+msgstr ""
+
+#: moneta/repository/models.py:164
+msgid "Guessed on creation"
+msgstr ""
+
+#: moneta/repository/models.py:165
+msgid "Archive file"
+msgstr ""
+
+#: moneta/repository/models.py:166
+msgid "Any text, binary or archive file."
+msgstr ""
+
+#: moneta/repository/models.py:167
+msgid "Original file"
+msgstr ""
+
+#: moneta/repository/models.py:168
+msgid "Stored path"
+msgstr ""
+
+#: moneta/repository/models.py:169
+msgid "Extra repo data"
+msgstr ""
+
+#: moneta/repository/models.py:172
+msgid "file"
+msgstr ""
+
+#: moneta/repository/models.py:173
+msgid "files"
+msgstr ""
+
+#: moneta/repository/models.py:208 moneta/repository/models.py:241
+msgid "Unable to add the archive file"
+msgstr "Impossible d'ajouter le fichier"
+
+#: moneta/repository/models.py:217
 #, python-format
-msgid "Package %(element)s successfully added to repository %(repo)s."
-msgstr "Le paquet %(element)s a été ajouté au dépôt %(repo)s."
+msgid "Repository %(repo)s is unable to handle this file."
+msgstr ""
 
-#: core/views.py:495
-msgid "Left state"
-msgstr "État à gauche"
+#: moneta/repository/models.py:220
+#, python-format
+msgid "Repositories %(repo)s are unable to handle this file."
+msgstr ""
 
-#: core/views.py:496
-msgid "Assert operator"
-msgstr "Comparateur"
+#: moneta/repository/models.py:220 moneta/templatetags/moneta.py:43
+msgid ", "
+msgstr ", "
 
-#: core/views.py:497
-msgid "Right state"
-msgstr "État à droite"
+#: moneta/repository/models.py:260
+msgid "GnuPG"
+msgstr "GnuPG"
 
-#: core/templates/core/add_package.html:3
+#: moneta/repository/models.py:260
+msgid "OpenSSL/x509"
+msgstr "OpenSSL/x509"
+
+#: moneta/repository/models.py:261
+msgid "Element"
+msgstr "Élément"
+
+#: moneta/repository/models.py:262
+msgid "signature"
+msgstr "signature"
+
+#: moneta/repository/models.py:263
+msgid "signature method"
+msgstr "méthode de signature"
+
+#: moneta/repository/signing.py:82
+msgid "unable to import gnugpg module."
+msgstr "Impossible d'importer le module Python gnugpg."
+
+#: moneta/repository/views.py:9 moneta/views.py:89
+msgid "You can access to this page."
+msgstr "Vous pouvez accéder à cette page."
+
+#: moneta/repository/views.py:15 moneta/views.py:96
+msgid "You are not authenticated."
+msgstr "Vous n'êtes pas authentifiés."
+
+#: moneta/repository/views.py:17 moneta/views.py:98
+msgid "You can access to this page and you are authenticated."
+msgstr "Vous pouvez accéder à cette page et vous êtes authentifiés."
+
+#: moneta/templates/moneta/add_package.html:3
 msgid "Add package"
 msgstr "ajouter un paquet"
 
-#: core/templates/core/add_package.html:7
+#: moneta/templates/moneta/add_package.html:7
 #, python-format
 msgid "Add a package to %(repo)s"
 msgstr "Ajouter un paquet au dépôt %(repo)s"
 
-#: core/templates/core/add_package.html:12
+#: moneta/templates/moneta/add_package.html:12
 msgid "Add package!"
 msgstr "Ajouter le paquet !"
 
-#: core/templates/core/add_signature.html:2
+#: moneta/templates/moneta/add_signature.html:2
 msgid "You should also add a GPG signature:"
 msgstr "Vous pouvez également ajouter une signature GPG :"
 
-#: core/templates/core/add_signature.html:6
+#: moneta/templates/moneta/add_signature.html:6
 msgid "Or a OpenSSL/x509 signature:"
 msgstr "Ou une signature OpenSSL/x509 :"
 
-#: core/templates/core/add_signature.html:8
+#: moneta/templates/moneta/add_signature.html:8
 msgid "privatekey.pem"
 msgstr "clefprivee.pem"
 
-#: core/templates/core/base_package.html:15 core/templates/core/index.html:27
-msgid "usage"
-msgstr "utilisation"
-
-#: core/templates/core/base_package.html:17 core/templates/core/index.html:28
-msgid "browse repository"
-msgstr "parcourir"
-
-#: core/templates/core/base_package.html:19 core/templates/core/index.html:29
-msgid "check"
-msgstr "vérifier"
-
-#: core/templates/core/base_package.html:22 core/templates/core/index.html:31
-msgid "add package"
-msgstr "ajouter un paquet"
-
-#: core/templates/core/base_package.html:24 core/templates/core/index.html:32
-msgid "modify repository"
-msgstr "modifier"
-
-#: core/templates/core/base_package.html:26 core/templates/core/index.html:33
-msgid "delete repository"
-msgstr "Supprimer le dépôt"
-
-#: core/templates/core/compare_states.html:2
-#: core/templates/core/compare_states.html:7
+#: moneta/templates/moneta/compare_states.html:2
+#: moneta/templates/moneta/compare_states.html:7
 msgid "Compare states"
 msgstr "Comparer les états"
 
-#: core/templates/core/compare_states.html:12
+#: moneta/templates/moneta/compare_states.html:12
 msgid "Compare!"
 msgstr "Comparer !"
 
-#: core/templates/core/compare_states.html:18
+#: moneta/templates/moneta/compare_states.html:18
 msgid "All packages are valid."
 msgstr "Tous les paquets sont valides."
 
-#: core/templates/core/compare_states.html:24
+#: moneta/templates/moneta/compare_states.html:24
 msgid "Invalid packages"
 msgstr "Paquets invalides"
 
-#: core/templates/core/compare_states.html:38
+#: moneta/templates/moneta/compare_states.html:38
 msgid "Files only in the left state"
 msgstr "Fichiers présents uniquement à gauche"
 
-#: core/templates/core/compare_states.html:51
+#: moneta/templates/moneta/compare_states.html:51
 msgid "Files only in the right state"
 msgstr "Fichiers présents uniquement à droite"
 
-#: core/templates/core/delete_element.html:2
-#: core/templates/core/delete_element.html:9
+#: moneta/templates/moneta/delete_element.html:2
+#: moneta/templates/moneta/delete_element.html:9
 msgid "Delete package"
 msgstr "Supprimer le paquet"
 
-#: core/templates/core/delete_element.html:13
-#: core/templates/core/delete_repo.html:13
+#: moneta/templates/moneta/delete_element.html:13
+#: moneta/templates/moneta/delete_repo.html:13
 msgid "Delete"
 msgstr "Supprimer"
 
-#: core/templates/core/delete_repo.html:2
-#: core/templates/core/delete_repo.html:9
+#: moneta/templates/moneta/delete_repo.html:2
+#: moneta/templates/moneta/delete_repo.html:9
 msgid "Delete repository"
 msgstr "Supprimer le dépôt"
 
-#: core/templates/core/element.html:4 core/templates/core/show_package.html:8
+#: moneta/templates/moneta/element.html:4
+#: moneta/templates/moneta/show_package.html:8
 msgid "Filesize: "
 msgstr "Taille de fichier : "
 
-#: core/templates/core/element.html:5 core/templates/core/show_package.html:14
+#: moneta/templates/moneta/element.html:5
+#: moneta/templates/moneta/show_package.html:14
 msgid "States: "
 msgstr "États : "
 
-#: core/templates/core/element.html:5 core/templates/core/show_package.html:14
+#: moneta/templates/moneta/element.html:5
+#: moneta/templates/moneta/show_package.html:14
 msgid "No state"
 msgstr "Aucun état"
 
-#: core/templates/core/element.html:9 core/templates/core/show_package.html:39
+#: moneta/templates/moneta/element.html:9
+#: moneta/templates/moneta/show_package.html:39
 #, python-format
 msgid ""
 "Download %(filename)s\n"
@@ -284,12 +721,8 @@ msgstr ""
 "Télécharger %(filename)s\n"
 "                "
 
-#: core/templates/core/element.html:12
-msgid "More infos…"
-msgstr "Plus d'infos…"
-
-#: core/templates/core/element.html:14
-#: core/templates/core/show_package.html:42
+#: moneta/templates/moneta/element.html:13
+#: moneta/templates/moneta/show_package.html:42
 #, python-format
 msgid ""
 "Delete %(filename)s\n"
@@ -298,16 +731,16 @@ msgstr ""
 "Supprimer %(filename)s\n"
 "                "
 
-#: core/templates/core/empty.html:2 core/templates/core/help.html:2
-#: core/templates/core/help.html.py:9
+#: moneta/templates/moneta/empty.html:2 moneta/templates/moneta/help.html:2
+#: moneta/templates/moneta/help.html:9
 msgid "Configuration help"
 msgstr "Aide à la configuration"
 
-#: core/templates/core/help.html:11
+#: moneta/templates/moneta/help.html:11
 msgid "Proxy configuration"
 msgstr "Configuration du proxy"
 
-#: core/templates/core/help.html:13
+#: moneta/templates/moneta/help.html:13
 #, python-format
 msgid ""
 "Map <a href=\"%(static_url)s\">%(static_url)s</a> to <code>%(static_root)s</"
@@ -317,15 +750,15 @@ msgid ""
 "                    ."
 msgstr ""
 
-#: core/templates/core/help.html:17
+#: moneta/templates/moneta/help.html:17
 msgid "You should deactivate debug mode."
 msgstr ""
 
-#: core/templates/core/help.html:20
+#: moneta/templates/moneta/help.html:20
 msgid "Secure proxy SSL header is correctly set."
 msgstr ""
 
-#: core/templates/core/help.html:22
+#: moneta/templates/moneta/help.html:22
 #, python-format
 msgid ""
 "Configure your proxy to set the\n"
@@ -334,27 +767,27 @@ msgid ""
 "                        <code>%(secure_proxy_ssl_header_value)s</code>."
 msgstr ""
 
-#: core/templates/core/help.html:27
+#: moneta/templates/moneta/help.html:27
 msgid "Authentication SSL header is correctly set."
 msgstr ""
 
-#: core/templates/core/help.html:29
+#: moneta/templates/moneta/help.html:29
 #, python-format
 msgid ""
 "Configure your proxy to set the username in the\n"
 "                        <code>%(authentication_header)s</code> header."
 msgstr ""
 
-#: core/templates/core/help.html:33
+#: moneta/templates/moneta/help.html:33
 msgid "Moneta configuration"
 msgstr "Configuration Moneta"
 
-#: core/templates/core/help.html:35
+#: moneta/templates/moneta/help.html:35
 #, python-format
 msgid "Configuration file is <code>%(conf_path)s</code>."
 msgstr "Le fichier de configuration est <code>%(conf_path)s</code>."
 
-#: core/templates/core/help.html:37
+#: moneta/templates/moneta/help.html:37
 #, python-format
 msgid ""
 "Configuration file is <code>%(conf_path)s</code>.\n"
@@ -362,459 +795,273 @@ msgid ""
 "%(default_conf_path)s</code>."
 msgstr ""
 
-#: core/templates/core/help.html:44
+#: moneta/templates/moneta/help.html:44
 msgid "HTTP host is correctly allowed in <code>ALLOWED_HOSTS</code>."
 msgstr ""
 
-#: core/templates/core/help.html:46
+#: moneta/templates/moneta/help.html:46
 #, python-format
 msgid ""
 "Add <code>%(host)s</code> to your\n"
 "                        <code>ALLOWED_HOSTS</code>."
 msgstr ""
 
-#: core/templates/core/help.html:50
+#: moneta/templates/moneta/help.html:50
 msgid "<code>GNUPG_KEYID</code> is valid."
 msgstr ""
 
-#: core/templates/core/help.html:52
+#: moneta/templates/moneta/help.html:52
 msgid "<code>GNUPG_KEYID</code> is not valid. Available values are:"
 msgstr ""
 
-#: core/templates/core/help.html:55
+#: moneta/templates/moneta/help.html:55
 msgid "size: "
 msgstr "taille de fichier : "
 
-#: core/templates/core/help.html:55
+#: moneta/templates/moneta/help.html:55
 msgid ", fingerprint: "
 msgstr ", empreinte : "
 
-#: core/templates/core/help.html:64
+#: moneta/templates/moneta/help.html:64
 msgid "Authentication"
 msgstr "Authentification"
 
-#: core/templates/core/help.html:66
+#: moneta/templates/moneta/help.html:66
 msgid "Configure your proxy to ensure authentication for the following roots:"
 msgstr ""
 
-#: core/templates/core/help.html:75
+#: moneta/templates/moneta/help.html:75
 msgid "The following roots should not be authenticated:"
 msgstr ""
 
-#: core/templates/core/index.html:3
+#: moneta/templates/moneta/index.html:3
 msgid "Index"
 msgstr "Accueil"
 
-#: core/templates/core/index.html:17
+#: moneta/templates/moneta/index.html:9
 msgid "Available repositories"
 msgstr "Dépôts existants"
 
-#: core/templates/core/index.html:23
+#: moneta/templates/moneta/index.html:16
 #, python-format
 msgid "%(repotype)s created by %(author)s"
 msgstr "%(repotype)s créé par %(author)s"
 
-#: core/templates/core/index.html:38
-msgid "No available repository yet."
-msgstr "Aucun dépôt disponible actuellement"
+#: moneta/templates/moneta/index.html:30
+#, fuzzy
+#| msgid "Available repositories"
+msgid "No available repositories"
+msgstr "Dépôts existants"
 
-#: core/templates/core/index.html:43
+#: moneta/templates/moneta/index.html:35
 msgid "New repository"
 msgstr "Nouveau dépôt"
 
-#: core/templates/core/index.html:48
-msgid "Create"
-msgstr "Créer"
+#: moneta/templates/moneta/index.html:40
+#, fuzzy
+#| msgid "New repository"
+msgid "Create a new repository"
+msgstr "Nouveau dépôt"
 
-#: core/templates/core/modify_repo.html:2
-#: core/templates/core/modify_repo.html:5
+#: moneta/templates/moneta/modify_repo.html:2
+#: moneta/templates/moneta/modify_repo.html:5
 msgid "Modify repository"
 msgstr "Modifier le dépôt"
 
-#: core/templates/core/modify_repo.html:9
+#: moneta/templates/moneta/modify_repo.html:9
 msgid "Modify the repository"
 msgstr "Modifier le dépôt"
 
-#: core/templates/core/search_repo.html:2
+#: moneta/templates/moneta/search_repo.html:2
 msgid "Search repository"
 msgstr "Recherche dans le dépôt"
 
-#: core/templates/core/search_repo.html:15
+#: moneta/templates/moneta/search_repo.html:8 moneta/views.py:176
+msgid "Search"
+msgstr "Recherche"
+
+#: moneta/templates/moneta/search_repo.html:15
 msgid "No package was found."
 msgstr "Aucun paquet trouvé"
 
-#: core/templates/core/show_package.html:5
+#: moneta/templates/moneta/show_package.html:2 moneta/views.py:277
+#: moneta/views.py:332
+msgid "Package"
+msgstr "Paquet"
+
+#: moneta/templates/moneta/show_package.html:5
 msgid "Package: "
 msgstr "Paquet : "
 
-#: core/templates/core/show_package.html:7
+#: moneta/templates/moneta/show_package.html:7
 msgid "Upload date: "
 msgstr "Date d'ajout : "
 
-#: core/templates/core/show_package.html:9
+#: moneta/templates/moneta/show_package.html:9
 msgid "Author: "
 msgstr "Auteur: "
 
-#: core/templates/core/show_package.html:11
+#: moneta/templates/moneta/show_package.html:11
 msgid "MD5 sum: "
 msgstr "Somme de contrôle MD5 : "
 
-#: core/templates/core/show_package.html:12
+#: moneta/templates/moneta/show_package.html:12
 msgid "SHA1 sum: "
 msgstr "Somme de contrôle SHA1 : "
 
-#: core/templates/core/show_package.html:13
+#: moneta/templates/moneta/show_package.html:13
 msgid "SHA256 sum: "
 msgstr "Somme de contrôle SHA256 : "
 
-#: core/templates/core/show_package.html:17
+#: moneta/templates/moneta/show_package.html:17
 msgid "You can download this file and check if it is not corrupted: "
-msgstr "Vous pouvez télécharger ce fichier et vérifier qu'il n'est pas corrompu :"
+msgstr ""
+"Vous pouvez télécharger ce fichier et vérifier qu'il n'est pas corrompu :"
 
-#: core/templates/core/show_package.html:26
+#: moneta/templates/moneta/show_package.html:26
 #, python-format
 msgid "This element has a GPG signature from %(author)s that you can check: "
-msgstr "Ce fichier possède une signature GPG de %(author)s que vous pouvez vérifier :"
+msgstr ""
+"Ce fichier possède une signature GPG de %(author)s que vous pouvez vérifier :"
 
-#: core/templates/core/show_package.html:29
+#: moneta/templates/moneta/show_package.html:29
 msgid "This element has a OpenSSL/x509 signature that you should check:"
-msgstr "Ce fichier possède une signature OpenSSL/x509 que vous pouvez vérifier :"
+msgstr ""
+"Ce fichier possède une signature OpenSSL/x509 que vous pouvez vérifier :"
 
-#: core/templates/core/show_package.html:31
+#: moneta/templates/moneta/show_package.html:31
 msgid "certificate.pem"
 msgstr "certificat.pem"
 
-#: repositories/aptitude.py:34
-msgid "APT repository for Linux .deb packages"
-msgstr "Dépôt APT pour paquets .deb pour Linux"
+#: moneta/templatetags/moneta.py:44
+msgid " and "
+msgstr ""
 
-#: repositories/aptitude.py:166
-msgid "Index packages"
-msgstr "Index des paquets"
-
-#: repositories/aptitude.py:251
-msgid "Indexes have been successfully rebuilt."
-msgstr "Les index ont été regénérés correctement."
-
-#: repositories/base.py:9 repository/models.py:160 repository/models.py:168
-msgid "Repository"
-msgstr "Dépôt"
-
-#: repositories/maven3.py:30
-msgid "Maven repository for Java packages"
-msgstr "Dépôt Maven pour paquets Java"
-
-#: repositories/pypi.py:67
-msgid "Pypi repository for Python packages"
-msgstr "Dépôt Pypi pour paquets Python"
-
-#: repositories/pypi.py:116
-msgid "Unable to open file."
-msgstr "Impossible d'ouvrir le fichier."
-
-#: repositories/templates/repositories/aptitude/folder_index.html:2
-#: repositories/templates/repositories/aptitude/folder_index.html:4
-#: repositories/templates/repositories/maven3/folder_index.html:2
-#: repositories/templates/repositories/maven3/folder_index.html:5
+#: moneta/utils.py:61
 #, python-format
-msgid "Repository %(repo)s/%(state)s"
-msgstr "Dépôt %(repo)s/%(state)s"
+msgid "Unable to remove %(path)s."
+msgstr "Impossible de supprimer %(path)s."
 
-#: repositories/templates/repositories/aptitude/folder_index.html:5
-#: repositories/templates/repositories/maven3/folder_index.html:6
+#: moneta/utils.py:80
 #, python-format
-msgid "Available packages in <strong>%(repo)s/%(state)s/%(folder)s</strong> "
-msgstr ""
-"Paquets disponibles dans <strong>%(repo)s/%(state)s/%(folder)s</strong> "
+msgid "Unable to rename %(src)s to %(dst)s."
+msgstr "Impossible de renommer %(src)s en %(dst)s."
 
-#: repositories/templates/repositories/aptitude/index.html:4
-msgid "Available APT sources"
-msgstr "Sources APT disponibles"
-
-#: repositories/templates/repositories/aptitude/index.html:5
+#: moneta/utils.py:92
 #, python-format
-msgid ""
-"Add one of these lines to your /etc/apt/sources.list.d/%(slug)s.list file: "
-msgstr ""
-"Ajoutez l'une des lignes suivantes dans le fichier /etc/apt/sources.list.d/"
-"%(slug)s.list : "
+msgid "Unable to create directory %(path)s."
+msgstr "Impossible de créer le dossier %(path)s."
 
-#: repositories/templates/repositories/aptitude/index.html:12
-msgid "No package found"
-msgstr "Aucun paquet trouvé"
+#: moneta/views.py:57
+msgid "Your new repository has been created."
+msgstr "Votre nouveau dépôt a été créé."
 
-#: repositories/templates/repositories/aptitude/index.html:16
-msgid "Do not forget to install apt-transport-https first."
-msgstr "N'oubliez pas d'installer d'abord apt-transport-https."
-
-#: repositories/templates/repositories/aptitude/index.html:19
-msgid ""
-"Please run the following command to register the GPG key of this repository:"
-msgstr ""
-"Utilisez la commande suivante pour enregistrer la clef GPG de ce dépôt :"
-
-#: repositories/templates/repositories/aptitude/index.html:21
-#: repositories/templates/repositories/pypi/index.html:24
-msgid "In order to add a new package, please run the following command:"
-msgstr "Pour ajouter un nouveau paquet, utilisez la commande suivante :"
-
-#: repositories/templates/repositories/aptitude/index.html:24
-msgid "Run the following command to re-index packages after an upload:"
-msgstr ""
-"Utilisez la commande suivante pour indexer à nouveau le dépôt après un "
-"ajout :"
-
-#: repositories/templates/repositories/maven3/index.html:4
-msgid "Maven settings"
-msgstr "Paramètres Maven"
-
-#: repositories/templates/repositories/maven3/index.html:6
-msgid ""
-"Add one of the following repositories to your $HOME/.m2/settings.xml in the "
-"repository section:"
-msgstr ""
-"Ajoutez l'un des <em>repositories</em> suivants à votre $HOME/.m2/settings."
-"xml dans la section repository :"
-
-#: repositories/templates/repositories/maven3/index.html:13
-msgid "No state found"
-msgstr "Aucun paquet trouvé"
-
-#: repositories/templates/repositories/maven3/index.html:15
-msgid "In order to add a new Java archive, please run the following command:"
-msgstr ""
-"Pour ajouter une nouvelle archive Java, utilisez la commande suivante :"
-
-#: repositories/templates/repositories/maven3/index.html:18
-msgid ""
-"You can also add generic packages by specifying archive (groupId), name "
-"(artifactId, name of the package) and version:"
-msgstr ""
-"Vous pouvez également ajouter une archive générique en spécifiant archive "
-"(groupId), name (artifactId, le nom du paquet) et version :"
-
-#: repositories/templates/repositories/pypi/index.html:8
-msgid "Available pip indexes"
-msgstr "Index pip existants"
-
-#: repositories/templates/repositories/pypi/index.html:9
-msgid "Add one of these lines to your $HOME/.pip/pip.conf file:"
-msgstr ""
-"Ajoutez l'une des lignes suivantes à votre fichier $HOME/.pip/pip.conf :"
-
-#: repositories/templates/repositories/pypi/index.html:14
-#: repositories/templates/repositories/pypi/index.html:20
-msgid "/Path/to/your/ROOT/CA.pem"
-msgstr "/chemin/vers/votre/CA/racine.pem"
-
-#: repository/forms.py:20
-msgid "Type of archives"
-msgstr "Type des archives"
-
-#: repository/forms.py:33
-msgid "yes, I want to delete this element."
-msgstr "oui, je veux supprimer cet élément."
-
-#: repository/forms.py:38
-msgid "You must confirm the deletion."
-msgstr "Vous devez confirmer cette suppression."
-
-#: repository/forms.py:43
+#: moneta/views.py:79
 #, python-format
-msgid "Please enter “%(confirm)s”"
-msgstr "Merci de taper « %(confirm)s »"
+msgid "The repository %(repo)s has been deleted."
+msgstr "Le dépôt %(repo)s a été supprimé."
 
-#: repository/forms.py:48
-msgid "SHA256"
-msgstr "somme SHA256"
-
-#: repository/forms.py:49
-msgid "Method"
-msgstr "Méthode"
-
-#: repository/models.py:63
-msgid "Slug"
-msgstr "Nom raccourci"
-
-#: repository/models.py:64 repository/models.py:289
-msgid "Creation date"
-msgstr "Date de création"
-
-#: repository/models.py:65
-msgid "Modification date"
-msgstr "Date de modification"
-
-#: repository/models.py:66
-msgid "Author"
-msgstr "Auteur"
-
-#: repository/models.py:105
-msgid "Repository type"
-msgstr "Type de dépôt"
-
-#: repository/models.py:107
-msgid "Is public?"
-msgstr "Dépôt accessible publiquement ?"
-
-#: repository/models.py:108
-msgid "Display on index?"
-msgstr "Afficher sur l'accueil ?"
-
-#: repository/models.py:109
-msgid "Should readers be authenticated?"
-msgstr "Authentification requise en lecture ?"
-
-#: repository/models.py:110
-msgid "Admin groups"
-msgstr "Groupes d'administration"
-
-#: repository/models.py:112
-msgid "Readers groups"
-msgstr "Groupes ayant accès en lecture"
-
-#: repository/models.py:164
-msgid "URL to the web page"
-msgstr "URL pour la page web"
-
-#: repository/models.py:165
-msgid "Short description"
-msgstr "Description courte"
-
-#: repository/models.py:166
-msgid "Long description"
-msgstr "Description longue"
-
-#: repository/models.py:167
-msgid "Archive states"
-msgstr "États possibles"
-
-#: repository/models.py:169
-msgid "Complete name"
-msgstr "Nom complet"
-
-#: repository/models.py:170
-msgid "Normalized complete name"
-msgstr "Nom complet normalisé"
-
-#: repository/models.py:171
-msgid "Complete name without special chars nor accents"
-msgstr "Nom complet, sans caractères spéciaux"
-
-#: repository/models.py:174
-msgid "filename"
-msgstr "nom de fichier"
-
-#: repository/models.py:175 repository/models.py:179 repository/models.py:181
-#: repository/models.py:183 repository/models.py:185 repository/models.py:187
-msgid "Automatically generated on creation"
-msgstr "généré automatiquement à la création"
-
-#: repository/models.py:176
-msgid "UUID"
-msgstr "UUID"
-
-#: repository/models.py:177
-msgid "Unique identifier, automatically generated on first save"
-msgstr ""
-
-#: repository/models.py:178
-msgid "MD5 sum"
-msgstr "somme MD5"
-
-#: repository/models.py:180
-msgid "SHA1 sum"
-msgstr "somme SHA1"
-
-#: repository/models.py:182
-msgid "SHA256 sum"
-msgstr "somme SHA256"
-
-#: repository/models.py:184
-msgid "File size"
-msgstr "taille"
-
-#: repository/models.py:186
-msgid "File extension"
-msgstr "extension"
-
-#: repository/models.py:188
-msgid "MIME type"
-msgstr ""
-
-#: repository/models.py:189
-msgid "Guessed on creation"
-msgstr ""
-
-#: repository/models.py:190
-msgid "Archive file"
-msgstr ""
-
-#: repository/models.py:191
-msgid "Any text, binary or archive file."
-msgstr ""
-
-#: repository/models.py:192
-msgid "Original file"
-msgstr ""
-
-#: repository/models.py:193
-msgid "Stored path"
-msgstr ""
-
-#: repository/models.py:194
-msgid "Extra repo data"
-msgstr ""
-
-#: repository/models.py:197
-msgid "file"
-msgstr ""
-
-#: repository/models.py:198
-msgid "files"
-msgstr ""
-
-#: repository/models.py:233 repository/models.py:267
-msgid "Unable to add the archive file"
-msgstr "Impossible d'ajouter le fichier"
-
-#: repository/models.py:242
+#: moneta/views.py:159
 #, python-format
-msgid "Repository %(repo)s is unable to handle this file."
+msgid "The repository %(repo)s has been modified."
+msgstr "Le dépôt %(repo)s a été modifié."
+
+#: moneta/views.py:176
+msgid "Type your search"
+msgstr "Entrez votre recherche"
+
+#: moneta/views.py:177
+msgid "Selected states"
+msgstr "États sélectionnés"
+
+#: moneta/views.py:222
+#, python-format
+msgid "The package %(repo)s has been deleted."
+msgstr "Le paquet %(repo)s a été supprimé."
+
+#: moneta/views.py:278 moneta/views.py:333
+msgid "States"
+msgstr "États"
+
+#: moneta/views.py:284
+msgid "This repository is unable to handle this file."
+msgstr "Ce dépôt n'est pas capable de prendre ce fichier en compte."
+
+#: moneta/views.py:293
+#, python-format
+msgid "The package %(n)s has been successfully uploaded."
+msgstr "Le paquet %(n)s a été ajouté correctement."
+
+#: moneta/views.py:295
+#, fuzzy, python-format
+#| msgid "Unable to create directory %(path)s."
+msgid "Unable to add the package to this repository: %(msg)s."
+msgstr "Impossible de créer le dossier %(path)s."
+
+#: moneta/views.py:318
+#, python-format
+msgid "This signature has been added to %(filename)s"
+msgstr "La signature a été ajoutée à %(filename)s."
+
+#: moneta/views.py:326
+msgid "You cannot upload new packages to this repository"
 msgstr ""
 
-#: repository/models.py:245
-#, python-format
-msgid "Repositories %(repo)s are unable to handle this file."
+#: moneta/views.py:328
+msgid "Method not allowed"
 msgstr ""
 
-#: repository/models.py:245
-msgid ", "
-msgstr ", "
+#: moneta/views.py:352
+#, fuzzy
+#| msgid "Empty file. You must POST a valid file."
+msgid "Empty file. You must POST a valid file.\n"
+msgstr "Fichier vide. Vous devez POSTer un fichier valide."
 
-#: repository/models.py:247
-#, python-format
-msgid "%(archive)s-%(version)s %(file)s"
-msgstr "%(archive)s-%(version)s %(file)s"
+#: moneta/views.py:363
+#, fuzzy, python-format
+#| msgid "Package %(element)s successfully added to repository %(repo)s."
+msgid "Package %(element)s successfully added to repository %(repo)s.\n"
+msgstr "Le paquet %(element)s a été ajouté au dépôt %(repo)s."
 
-#: repository/models.py:285
-msgid "GnuPG"
-msgstr "GnuPG"
+#: moneta/views.py:507
+msgid "Left state"
+msgstr "État à gauche"
 
-#: repository/models.py:285
-msgid "OpenSSL/x509"
-msgstr "OpenSSL/x509"
+#: moneta/views.py:508
+msgid "Assert operator"
+msgstr "Comparateur"
 
-#: repository/models.py:286
-msgid "Element"
-msgstr "Élément"
+#: moneta/views.py:509
+msgid "Right state"
+msgstr "État à droite"
 
-#: repository/models.py:287
-msgid "signature"
-msgstr "signature"
+#~ msgid "Can these packages be replicated?"
+#~ msgstr "Ces paquets sont-ils publics ?"
 
-#: repository/models.py:288
-msgid "signature method"
-msgstr "méthode de signature"
+#~ msgid "add package"
+#~ msgstr "ajouter un paquet"
+
+#~ msgid "Create"
+#~ msgstr "Créer"
+
+#~ msgid ""
+#~ "Add one of these lines to your /etc/apt/sources.list.d/%(slug)s.list "
+#~ "file: "
+#~ msgstr ""
+#~ "Ajoutez l'une des lignes suivantes dans le fichier /etc/apt/sources.list."
+#~ "d/%(slug)s.list : "
+
+#~ msgid "No package found"
+#~ msgstr "Aucun paquet trouvé"
+
+#~ msgid "No state found"
+#~ msgstr "Aucun paquet trouvé"
+
+#~ msgid "Is public?"
+#~ msgstr "Dépôt accessible publiquement ?"
+
+#~ msgid "%(archive)s-%(version)s %(file)s"
+#~ msgstr "%(archive)s-%(version)s %(file)s"
 
 #~ msgid "Should this repository be public?"
 #~ msgstr "Dépôt public ?"
