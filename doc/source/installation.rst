@@ -202,7 +202,7 @@ Now, it's time to install Moneta:
     admin_email = admin@moneta.example.org
     bind_address = 127.0.0.1:8131
     data_path = /var/moneta
-    debug = False
+    debug = True
     default_group = Users
     extra_apps = 
     language_code = fr-fr
