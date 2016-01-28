@@ -22,6 +22,7 @@ REPOSITORY_CLASSES = [
     'moneta.repositories.yum.Yum',
     'moneta.repositories.ruby.RubyGem',
     'moneta.repositories.jetbrains.Jetbrains',
+    'moneta.repositories.vagrant.Vagrant',
 ]
 
 TEMPLATE_CONTEXT_PROCESSORS = [
@@ -97,3 +98,4 @@ GNUPG_KEYID_HELP = 'ID of the GnuPG key'
 # TO BE CONFIGURED
 GNUPG_PATH = 'gpg'
 GNUPG_PATH_HELP = 'Path of the gpg binary'
+DEBUG = True

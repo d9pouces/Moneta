@@ -1,0 +1,4 @@
+Vagrant.configure(2) do |config|
+  config.vm.box = "{$relativePathInfo|escape}"
+  config.vm.box_url = '<a href="{$CATALOG_URI|escape}{$pathInfo|escape}">{$CATALOG_URI|escape}{$pathInfo|escape}</a>'
+end

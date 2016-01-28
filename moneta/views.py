@@ -102,16 +102,15 @@ def private_check(request: HttpRequest):
 @never_cache
 def check(request: HttpRequest):
     s_h = settings.SECURE_PROXY_SSL_HEADER
-    a_h = settings.AUTHENTICATION_HEADER
+    a_h = settings.FLOOR_AUTHENTICATION_HEADER
     # noinspection PyArgumentList
     gpg_valid = False
     for key in GPG.list_keys(False):
         if key['keyid'] == settings.GNUPG_KEYID:
             gpg_valid = True
-    import moneta.core.defaults
-    import moneta.core.settings as real_settings
+    import moneta.defaults
 
-    default_conf_path = moneta.core.defaults.__file__
+    default_conf_path = moneta.defaults.__file__
     if default_conf_path.endswith('.pyc'):
         default_conf_path = default_conf_path[:-1]
 
@@ -127,8 +126,6 @@ def check(request: HttpRequest):
         'host': request.get_host().rpartition(':')[0],
         'has_allowed_host': request.get_host() in settings.ALLOWED_HOSTS,
         'gpg_valid': gpg_valid, 'gpg_available': GPG.list_keys(False),
-        'conf_path': getattr(settings, 'CONF_PATH', None), 'conf_is_set': settings.CONF_IS_SET,
-        'default_conf_path': default_conf_path, 'settings': real_settings.SETTINGS_VARIABLE
     }
 
     return render_to_response('moneta/help.html', template_values, RequestContext(request))
@@ -404,7 +401,8 @@ def get_signature_p(request: HttpRequest, eid, sid):
     return get_signature(request, eid, sid)
 
 
-def get_file(request: HttpRequest, eid: int, compression: str=None, path: str='', element: Element=None, name: str=None):
+def get_file(request: HttpRequest, eid: int, compression: str=None, path: str='', element: Element=None,
+             name: str=None):
     """
     Send file to the client as a HttpResponse
     Multiple combinations:

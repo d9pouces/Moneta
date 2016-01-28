@@ -43,7 +43,11 @@ class RepositoryModel(object):
 
     def is_file_valid(self, uploaded_file):
         """ Evaluate if the uploaded file is valid for this repository model
+
+        The main attributes of `uploaded_file` are `name` and `file`
+
         :param uploaded_file:
+        :type uploaded_file: :class:`dango.core.uploadedfile.UploadedFile`
         :return: True if this element is acceptable for this model, else False
         :raise:
         """

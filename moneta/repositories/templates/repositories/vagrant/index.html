@@ -1,30 +1,49 @@
 {% extends "moneta/base_package.html" %}{% load staticfiles i18n moneta %}
 
 {% block repo_content %}
-<h2>{% trans 'Settings for IntelliJ IDEA, PhpStorm, PyCharm, RubyMine, WebStorm, AppCode or CLion' %}</h2>
+    <h2>{% trans 'Catalog of existing Vagrant boxes' %}</h2>
 
-<ul class="nav nav-tabs">
-    {% for tab_info in tab_infos %}
-        <li {% if forloop.first %}class="active"{% endif %}><a href="#{{ tab_info.1.slug }}" data-toggle="tab">{{ tab_info.1.name }}</a></li>
-    {% endfor %}
-</ul>
-<div class="tab-content">
-    {% for tab_info in tab_infos %}
-        <div class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ tab_info.1.slug }}">
-        <p>&nbsp;</p>
-            <p>{% trans 'Go to Settings -> Plugins -> Browse repositories -> Manage Repositories and add the following line:' %}</p>
-<pre>{{ absolute_url }}{{ tab_info.0 }}</pre>
+    <ul class="nav nav-tabs">
+        {% for tab_info in tab_infos %}
+            <li {% if tab_info.3 == state_slug %}class="active"{% endif %}><a
+                    href="{% url 'vagrant:index' rid=repo.id state_slug=tab_info.3 %}">{{ tab_info.1.name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+    <div class="tab-content">
+        {% for tab_info in tab_infos %}
+            <div class="tab-pane {% if tab_info.3 == state_slug %}active{% endif %}" id="{{ tab_info.1.slug }}">
+                <p>&nbsp;</p>
+{% if elements %}
+                <p>{% trans 'Copy-paste one of the following commands in a terminal' %}</p>
+{% if tab_info.3 == state_slug %}
+                            {% for element in elements %}
+                    <h4>Box: {{ element.0 }}</h4>
+                    <pre>cat &lt;&lt; EOF &gt; Vagrantfile
+Vagrant.configure(2) do |config|
+  config.vm.box = "{{ element.0 }}"
+  config.vm.box_url = '{{ absolute_url }}{{ element.1 }}'
+  config.vm.box_download_checksum = '{{ element.2 }}'
+  config.vm.box_download_checksum_type = 'sha1'
+  config.vm.box_check_update = false
+end
+EOF</pre>
 
-    {% if upload_allowed %}<h2>{% trans 'Add a plugin' %}</h2>
-        {% trans 'In order to add a new plugin, please run the following command:' %}
-        <pre>FILENAME=filename-version.jar
-ARCHIVE=myPluginId
-VERSION=myPluginVersion
+{% endfor %}{% endif %}
+{% else %}
+<p>{% trans 'Non box has been uploaded yet.' %}</p>
+{% endif %}
+
+                {% if upload_allowed %}<h2>{% trans 'Upload a box to this catalog' %}</h2>
+                    {% trans 'In order to add a new box, please run the following command:' %}
+                    <pre>FILENAME=boxname-version.box
+ARCHIVE=boxname
+VERSION=version
 {% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta:add_element_post' rid=repo.id %}\?filename=$FILENAME\&archive=$ARCHIVE\&version=$VERSION{% for state in tab_info.2 %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
-</div>
-{% endfor %}
+            </div>
+        {% endfor %}
 
-</div>
+    </div>
 
-{% include 'moneta/add_signature.html' %}
+    {% include 'moneta/add_signature.html' %}
 {% endblock %}
