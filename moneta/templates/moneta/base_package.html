@@ -18,10 +18,10 @@
                     <a class="btn btn-sm btn-default"
                        href="{% url 'moneta:compare_states' rid=repo.id %}">{% trans 'check' %}</a>
                 {% block other_repo_urls %}{% endblock %}
-                    {% if upload_allowed %}
-                        <a class="btn btn-sm btn-default"
-                           href="{% url 'moneta:add_element' rid=repo.id %}">{% trans 'add package' %}</a>
-                    {% endif %}
+{#                    {% if upload_allowed %}#}
+{#                        <a class="btn btn-sm btn-default"#}
+{#                           href="{% url 'moneta:add_element' rid=repo.id %}">{% trans 'add package' %}</a>#}
+{#                    {% endif %}#}
                     {% if admin_allowed %}
                         <a class="btn btn-sm btn-default"
                            href="{% url 'moneta:modify_repository' rid=repo.id %}">{% trans 'modify repository' %}</a>
