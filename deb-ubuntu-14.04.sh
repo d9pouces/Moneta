@@ -29,6 +29,7 @@ python setup.py install
 
 # generate packages for all dependencies
 multideb -r -v -x stdeb-ubuntu-14.04.cfg
+multideb -r -v -x stdeb-ubuntu-14.04.cfg --only django-allauth
 
 # creating package for moneta
 rm -rf `find * | grep pyc$`
