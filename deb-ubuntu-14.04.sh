@@ -48,7 +48,7 @@ sudo sed -i "s/localhost/$IP/g" /etc/moneta/settings.ini
 sudo a2ensite moneta.conf
 sudo a2dissite 000-default.conf
 sudo -u moneta moneta-manage migrate
-sudo service moneta-gunicorn start
+sudo service supervisor restart
 sudo service apache2 restart
-
+wget http://$IP/
 set -e
