@@ -50,5 +50,6 @@ sudo a2dissite 000-default.conf
 sudo -u moneta moneta-manage migrate
 sudo service supervisor restart
 sudo service apache2 restart
+
 wget http://$IP/
 set -e

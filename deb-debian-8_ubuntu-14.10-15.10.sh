@@ -51,4 +51,5 @@ sudo -u moneta moneta-manage migrate
 sudo service moneta-gunicorn start
 sudo service apache2 restart
 
+wget http://$IP/
 set -e
