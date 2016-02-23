@@ -28,11 +28,11 @@ python setup.py install
 
 
 # generate packages for all dependencies
-multideb -r -v -x stdeb-ubuntu-14.04-15.10.cfg
+multideb -r -v -x stdeb-debian-8_ubuntu-14.10-15.10.cfg
 
 # creating package for moneta
 rm -rf `find * | grep pyc$`
-python setup.py bdist_deb_django -x stdeb-ubuntu-14.04-15.10.cfg
+python setup.py bdist_deb_django -x stdeb-debian-8_ubuntu-14.10-15.10.cfg
 deb-dep-tree deb_dist/*deb
 mv deb_dist/*deb deb
 
