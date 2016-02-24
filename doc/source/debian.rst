@@ -4,12 +4,9 @@ Debian Installation
 By default, Moneta is only packaged as a standard Python project, downloadable from `Pypi <https://pypi.python.org>`_.
 However, you can create pure Debian packages with `DjangoFloor <http://django-floor.readthedocs.org/en/latest/packaging.html#debian-ubuntu>`_.
 
-The source code provides several Bash scripts:
+The source code provides one Bash scripts,  `deb-debian-8_ubuntu-14.10-150.10.sh`.
 
-    * `deb-debian-8-python3.sh`,
-    * `deb-debian-8_ubuntu-14.10-15.10.sh`.
-
-These scripts are designed to run on basic installation and are split in five steps:
+This script is designed to run on basic installation and are split in five steps:
 
     * update system and install missing packages,
     * create a virtualenv and install all dependencies,
