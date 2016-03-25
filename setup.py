@@ -1,15 +1,13 @@
 # coding=utf-8
+"""Setup file for the Moneta project.
+"""
 import re
+import codecs
+import os.path
+from setuptools import setup, find_packages
 
 __author__ = 'flanker'
 
-"""Setup file for the Moneta project.
-"""
-
-import codecs
-import os.path
-
-from setuptools import setup, find_packages
 
 with codecs.open(os.path.join(os.path.dirname(__file__), 'README.md'), encoding='utf-8') as fd:
     long_description = fd.read()
