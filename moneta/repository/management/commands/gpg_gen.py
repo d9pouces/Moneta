@@ -21,7 +21,8 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         assert isinstance(parser, ArgumentParser)
-        parser.add_argument('command', action='store', dest='command', default=None, help='generate|show|export'),
+        parser.add_argument('gpg_command', action='store', dest='gpg_command',
+                            default=None, help='generate|show|export'),
         parser.add_argument('--type', action='store', dest='type', default='RSA', help='Key type (RSA or DSA).'),
         parser.add_argument('--length', action='store', dest='length', default='2048',
                             help='Key length (default 2048).'),
@@ -38,9 +39,9 @@ class Command(BaseCommand):
                             help='Generate keys only when no key already exists.'),
 
     def handle(self, *args, **options):
-        command = options['command']
+        command = options['gpg_command']
         if command not in ('generate', 'show', 'export'):
-            raise CommandError('Usage: gpg_gen <command>')
+            raise CommandError('Usage: gpg_gen <generate|show|export>')
         if command == 'generate':
             if options['nokeys'] and len(GPG.list_keys(False)) > 0:
                 return
