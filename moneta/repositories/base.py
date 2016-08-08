@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.http import HttpResponseBadRequest
 from django.utils.translation import ugettext_lazy as _
-from django.conf.urls import patterns
+
 from moneta.repository.models import Element
 from moneta.utils import import_path
 
