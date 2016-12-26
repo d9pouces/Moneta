@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.http import HttpResponseBadRequest
 from django.utils.translation import ugettext_lazy as _
-from django.conf.urls import patterns
 from moneta.repository.models import Element
 from moneta.utils import import_path
 
@@ -110,12 +109,8 @@ class RepositoryModel(object):
         Provides URLconf details for the ``Api`` and all registered
         ``Resources`` beneath it.
         """
-        pattern_list = self.url_list()
-        urlpatterns = patterns('', *pattern_list)
-        return urlpatterns
+        return self.url_list()
 
     @property
     def public_urls(self):
-        pattern_list = self.public_url_list()
-        urlpatterns = patterns('', *pattern_list)
-        return urlpatterns
+        return self.public_url_list()

@@ -184,11 +184,6 @@ class Element(BaseModel):
             storage(settings.STORAGE_UNCOMPRESSED).delete(self.uncompressed_key)
             self.uncompressed_key = None
 
-    def delete(self, using=None):
-        self.remove_file()
-        result = super().delete(using=using)
-        return result
-
     def save(self, *args, **kwargs):
         """
         :param args:
@@ -279,6 +274,7 @@ def delete_element(sender, instance=None, **kwargs):
         instance.remove_file()
 
 
+# noinspection PyUnusedLocal
 @receiver(post_migrate)
 def create_default_group(signal, sender, app_config, verbosity, interactive, using, **kwargs):
     if sender.name != 'moneta.repository':

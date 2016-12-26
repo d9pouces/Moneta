@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+from djangofloor.conf.fields import bool_setting, CharConfigField, ConfigField
+from djangofloor.conf.mapping import NOREDIS_MAPPING
+
 __author__ = 'flanker'
-from djangofloor.iniconf import OptionParser, bool_setting, INI_MAPPING as DEFAULTS
 
 
 def x_accel_converter(value):
@@ -10,12 +12,13 @@ def x_accel_converter(value):
     return []
 
 
-INI_MAPPING = DEFAULTS + [
-    OptionParser('USE_X_SEND_FILE', 'global.x_send_file', bool_setting, doc_default_value=True),
-    OptionParser('X_ACCEL_REDIRECT', 'global.x_accel_converter', x_accel_converter,
-                 help_str='Nginx only. Set it to "true" or "false"', to_str=lambda x: 'True' if x else 'False'),
-    OptionParser('GNUPG_HOME', 'gnupg.home'),
-    OptionParser('GNUPG_KEYID', 'gnupg.keyid'),
-    OptionParser('GNUPG_PATH', 'gnupg.path'),
+INI_MAPPING = NOREDIS_MAPPING + [
+    ConfigField('global.use_apache', 'USE_X_SEND_FILE', from_str=bool_setting,
+                help_str='Apache only. Set it to "true" or "false"'),
+    ConfigField('global.use_nginx', 'X_ACCEL_REDIRECT', from_str=x_accel_converter,
+                help_str='Nginx only. Set it to "true" or "false"', to_str=lambda x: str(bool(x))),
+    CharConfigField('gnupg.home', 'GNUPG_HOME', help_str='Path of the GnuPG secret data'),
+    CharConfigField('gnupg.keyid', 'GNUPG_KEYID', help_str='ID of the GnuPG key'),
+    CharConfigField('gnupg.path', 'GNUPG_PATH', help_str='Path of the gpg binary'),
 
 ]

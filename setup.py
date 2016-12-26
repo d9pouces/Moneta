@@ -1,15 +1,14 @@
 # coding=utf-8
+"""Setup file for the Moneta project.
+"""
+import codecs
+import os.path
 import re
+
+from setuptools import setup, find_packages
 
 __author__ = 'flanker'
 
-"""Setup file for the Moneta project.
-"""
-
-import codecs
-import os.path
-
-from setuptools import setup, find_packages
 
 with codecs.open(os.path.join(os.path.dirname(__file__), 'README.md'), encoding='utf-8') as fd:
     long_description = fd.read()
@@ -18,7 +17,7 @@ for line in codecs.open(os.path.join('moneta', '__init__.py'), 'r', encoding='ut
     matcher = re.match(r"""^__version__\s*=\s*['"](.*)['"]\s*$""", line)
     version = version or matcher and matcher.group(1)
 
-entry_points = {'console_scripts': ['moneta-manage = djangofloor.scripts:manage',
+entry_points = {'console_scripts': ['moneta-manage = djangofloor.scripts:django',
                                     'moneta-gunicorn = djangofloor.scripts:gunicorn']}
 
 setup(
@@ -34,7 +33,8 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=['setuptools>=1.0', 'djangofloor>=0.17', 'python-gnupg', 'rubymarshal', 'pyyaml'],
+    install_requires=['setuptools>=1.0', 'djangofloor>=0.17', 'python-gnupg', 'rubymarshal', 'pyyaml',
+                      'django-allauth'],
     setup_requires=[],
     classifiers=[],
 )
