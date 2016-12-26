@@ -23,6 +23,7 @@ A more complete [documentation](http://moneta.readthedocs.org/en/latest/index.ht
 Some following kinds of repositories will be added in the future:
 
   * Docker containers,
+  * Dash & Zeal docsets,
   * Shinken packages,
   * packages for vim,
   * nuget for Windows packages,

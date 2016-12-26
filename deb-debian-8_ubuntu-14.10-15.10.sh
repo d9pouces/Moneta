@@ -7,9 +7,9 @@ sudo apt-get upgrade --yes
 sudo apt-get install --yes vim dh-make ntp rsync liblzma-dev tree
 sudo apt-get install --yes python3-all-dev virtualenvwrapper \
     python3-tz python3-setuptools \
-    python3-oauthlib \
-    apache2 libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap \
-    python-medusa python-meld3 ssl-cert python3-msgpack
+    python3-oauthlib python3-sqlparse \
+    apache2 libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap gunicorn python3-celery \
+    python-medusa python-meld3 ssl-cert python3-msgpack python3-gunicorn
 sudo apt-get install --yes python3-gnupg libyaml-dev python3-yaml
 source /etc/bash_completion.d/virtualenvwrapper
 
@@ -28,11 +28,11 @@ python setup.py install
 
 
 # generate packages for all dependencies
-multideb -r -v -x stdeb-ubuntu-14.04-15.10.cfg
+multideb -r -v -x stdeb-debian-8_ubuntu-14.10-15.10.cfg
 
 # creating package for moneta
 rm -rf `find * | grep pyc$`
-python setup.py bdist_deb_django -x stdeb-ubuntu-14.04-15.10.cfg
+python setup.py bdist_deb_django -x stdeb-debian-8_ubuntu-14.10-15.10.cfg
 deb-dep-tree deb_dist/*deb
 mv deb_dist/*deb deb
 
@@ -51,4 +51,5 @@ sudo -u moneta moneta-manage migrate
 sudo service moneta-gunicorn start
 sudo service apache2 restart
 
+wget http://$IP/
 set -e

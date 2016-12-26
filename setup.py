@@ -1,10 +1,9 @@
 # coding=utf-8
 """Setup file for the Moneta project.
 """
+import re
 import codecs
 import os.path
-import re
-
 from setuptools import setup, find_packages
 
 __author__ = 'flanker'
