@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from djangofloor.conf.config_values import AutocreateDirectory
+from djangofloor.conf.config_values import AutocreateDirectory, CallableSetting
+from moneta.log import moneta_log_configuration
 
 __author__ = 'flanker'
 
@@ -29,7 +30,6 @@ REPOSITORY_CLASSES = [
     'moneta.repositories.jetbrains.Jetbrains',
     'moneta.repositories.vagrant.Vagrant',
 ]
-
 
 STORAGES = {
     'archive': {
@@ -66,3 +66,9 @@ GNUPG_KEYID_HELP = 'ID of the GnuPG key'
 # TO BE CONFIGURED
 GNUPG_PATH = 'gpg'
 GNUPG_PATH_HELP = 'Path of the gpg binary'
+
+LOGGING = CallableSetting(lambda x:
+                          moneta_log_configuration(log_directory=x['LOG_DIRECTORY'], project_name=x['PROJECT_NAME'],
+                                                   script_name=x['SCRIPT_NAME'], debug=x['DEBUG'],
+                                                   log_remote_url=x['LOG_REMOTE_URL']),
+                          'DEBUG', 'PROJECT_NAME', 'SCRIPT_NAME', 'LOG_DIRECTORY', 'LOG_REMOTE_URL')
