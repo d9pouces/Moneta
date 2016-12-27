@@ -153,7 +153,7 @@ class Vagrant(RepositoryModel):
             metadata = json.loads(element.extra_data)
             versions.setdefault(element.version, []).append({
                 'name': metadata['provider'],
-                'url': '%s%s' % (settings.SERVER_NAME, element.get_direct_link()),
+                'url': '%s%s' % (settings.SERVER_BASE_URL[:-1], element.get_direct_link()),
                 'checksum_type': 'sha1',
 
                 'checksum': element.sha1})

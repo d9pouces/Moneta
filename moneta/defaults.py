@@ -6,9 +6,9 @@ __author__ = 'flanker'
 DF_AUTHENTICATION_BACKENDS = ['allauth.account.auth_backends.AuthenticationBackend']
 DF_TEMPLATE_CONTEXT_PROCESSORS = ['moneta.context_processors.context_base']
 DF_INDEX_VIEW = 'moneta.views.index'
-DF_INSTALLED_APPS = ['allauth', 'allauth.account', 'allauth.socialaccount',
-                     'moneta', 'moneta.repositories', 'moneta.repository', ]
-DF_PROJECT_NAME = 'Moneta'
+DF_INSTALLED_APPS = ['moneta', 'allauth', 'allauth.account', 'allauth.socialaccount',
+                     'moneta.repositories', 'moneta.repository', ]
+PROJECT_NAME = 'Moneta'
 DF_SITE_SEARCH_VIEW = None
 DF_URL_CONF = 'moneta.root_urls.urls'
 LISTEN_ADDRESS = '127.0.0.1:8131'
