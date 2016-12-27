@@ -1,11 +1,14 @@
+# coding=utf-8
+import bz2
 import gzip
 import hashlib
+import io
 import os.path
 import tarfile
 import tempfile
-import io
-# noinspection PyCompatibility
-import bz2
+
+from django.template.response import TemplateResponse
+
 from moneta.templatetags.moneta import moneta_url
 
 try:
@@ -19,8 +22,7 @@ from django.conf import settings
 from django.conf.urls import url
 from django.core.urlresolvers import reverse
 from django.http.response import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, render_to_response
-from django.template import RequestContext
+from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.timezone import get_current_timezone
 from django.utils.translation import ugettext as _
@@ -154,7 +156,8 @@ class Aptitude(RepositoryModel):
 
         """
         pattern_list = [
-            url(r'^(?P<rid>\d+)/force_index/(?P<repo_slug>[\w\-\._]+)/$', self.wrap_view('force_index'), name='force_index'),
+            url(r'^(?P<rid>\d+)/force_index/(?P<repo_slug>[\w\-\._]+)/$', self.wrap_view('force_index'),
+                name='force_index'),
         ]
         return pattern_list
 
@@ -241,6 +244,10 @@ class Aptitude(RepositoryModel):
     def folder_index(self, request, rid, repo_slug, state_slug, folder):
         """
         Return a HttpResponse
+        :param rid:
+        :param repo_slug:
+        :param state_slug:
+        :param folder:
         :param request: HttpRequest
         :raise:
         """
@@ -252,13 +259,17 @@ class Aptitude(RepositoryModel):
         template_values = {'repo': repo, 'state': state_slug, 'element_count': element_count,
                            'elements': element_query, 'folder': folder,
                            'upload_allowed': repo.upload_allowed(request), }
-        return render_to_response('repositories/aptitude/folder_index.html', template_values,
-                                  RequestContext(request))
+        return TemplateResponse(request, 'repositories/aptitude/folder_index.html', template_values)
 
     # noinspection PyUnusedLocal
     def get_file(self, request, rid, repo_slug, state_slug, folder, filename):
         """
         Return a HttpResponse
+        :param rid:
+        :param repo_slug:
+        :param state_slug:
+        :param folder:
+        :param filename:
         :param request: HttpRequest
         :raise:
         """
@@ -279,7 +290,7 @@ class Aptitude(RepositoryModel):
         template_values = {'repo': repo, 'states': states, 'upload_allowed': repo.upload_allowed(request),
                            'index_url': reverse(moneta_url(repo, 'index'), kwargs={'rid': repo.id, }),
                            'tab_infos': tab_infos, 'admin_allowed': repo.admin_allowed(request), }
-        return render_to_response(self.index_html, template_values, RequestContext(request))
+        return TemplateResponse(request, self.index_html, template_values)
 
     # noinspection PyUnusedLocal
     def force_index(self, request, rid, repo_slug):
@@ -323,7 +334,7 @@ class Aptitude(RepositoryModel):
             all_files = [(package_file, filename), (gz_file, gz_filename), (bz2_file, bz2_filename), ]
             if lzma is not None:
                 all_files.append((xz_file, xz_filename))
-            for obj, filename in all_files:
+            for obj, filename_ in all_files:
                 obj.flush()
                 obj.seek(0)
                 data = obj.read(32768)
@@ -334,10 +345,10 @@ class Aptitude(RepositoryModel):
                     sha256.update(data)
                     size += len(data)
                     data = obj.read(32768)
-                hash_controls.append((os.path.relpath(filename, root), md5.hexdigest(), sha1.hexdigest(),
+                hash_controls.append((os.path.relpath(filename_, root), md5.hexdigest(), sha1.hexdigest(),
                                       sha256.hexdigest(), size))
                 obj.seek(0)
-                storage(settings.STORAGE_CACHE).store_descriptor(uid, filename, obj)
+                storage(settings.STORAGE_CACHE).store_descriptor(uid, filename_, obj)
                 obj.close()
                 # build the following files:
         return hash_controls

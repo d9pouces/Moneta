@@ -30,7 +30,8 @@ Moneta mapping:
     * element.full_name = element.filename
 
 Command for uploading files:
-curl --data-binary @$FILENAME http://[...]/\?filename=$FILENAME\&states=prod\&states=qualif\&archive=$groupId.$artifactId\&version=$version
+curl --data-binary @$FILENAME http://[...]/\?filename=$FILENAME\&states=prod\&states=qualif\&archive=
+    $groupId.$artifactId\&version=$version
 
 URLs to emulate:
     /$groupId[0]/../$groupId[n]/$artifactId/$version/(filename)$
@@ -46,17 +47,17 @@ from django.conf.urls import url
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.template.loader import render_to_string
-
+from django.template.response import TemplateResponse
 from django.utils.translation import ugettext as _
-from moneta.repositories.base import RepositoryModel
-from moneta.templatetags.moneta import moneta_url
 
-from moneta.utils import parse_control_data
 from moneta.repositories.aptitude import Aptitude
+from moneta.repositories.base import RepositoryModel
 from moneta.repository.models import storage, Repository, Element, ArchiveState
+from moneta.templatetags.moneta import moneta_url
+from moneta.utils import parse_control_data
 from moneta.views import get_file
 
 __author__ = 'flanker'
@@ -110,6 +111,7 @@ class Maven3(Aptitude):
     def browse_repo_inner(rid: int, query_string: str, state_slug: str=None):
         """should only called from browse_repository()
 
+        :param state_slug:
         :param rid:
         :param query_string: a single str corresponding to $groupId/$artifactId/$version/$filename.$extension
         :return:
@@ -172,7 +174,7 @@ class Maven3(Aptitude):
             parents_results.setdefault(elt.version, set()).add(elt)
         return results
 
-    def browse_repository(self, request: HttpRequest, rid: int, repo_slug: str, query_string: str='', state_slug: str=None) -> HttpResponse:
+    def browse_repository(self, request: HttpRequest, rid, repo_slug, query_string='', state_slug=None) -> HttpResponse:
         repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
         result = self.browse_repo_inner(rid, query_string, state_slug=state_slug)
         if isinstance(result, str):  # sha1/sha256/md5
@@ -199,20 +201,23 @@ class Maven3(Aptitude):
                              ]
         else:
             assert isinstance(result, dict)
-            url_list = [(new_query_string + key, self.get_browse_url(repo, new_query_string + key, state_slug=state_slug), None)
+            url_list = [(new_query_string + key,
+                         self.get_browse_url(repo, new_query_string + key, state_slug=state_slug), None)
                         for key in result]
-        template_values = {'repo': repo, 'upload_allowed': repo.upload_allowed(request), 'repo_slug': repo_slug, 'admin': True,
-                           'paths': url_list, 'request_path': new_query_string, 'state_slug': state_slug,
+        template_values = {'repo': repo, 'upload_allowed': repo.upload_allowed(request), 'repo_slug': repo_slug,
+                           'admin': True, 'paths': url_list, 'request_path': new_query_string, 'state_slug': state_slug,
                            'bread_crumbs': bread_crumbs, }
         status_code = 200 if url_list else 404
-        return render_to_response('repositories/maven3/browse.html', template_values, RequestContext(request), status=status_code)
+        return TemplateResponse(request, 'repositories/maven3/browse.html', template_values, status=status_code)
 
     @staticmethod
     def get_browse_url(repo, new_query_string, state_slug=None):
         browse_view_name = moneta_url(repo, 'browse')
         if state_slug is None:
-            return reverse(browse_view_name, kwargs={'rid': repo.id, 'repo_slug': repo.slug, 'query_string': new_query_string})
-        return reverse(browse_view_name, kwargs={'rid': repo.id, 'repo_slug': repo.slug, 'query_string': new_query_string, 'state_slug': state_slug, })
+            kwargs = {'rid': repo.id, 'repo_slug': repo.slug, 'query_string': new_query_string}
+            return reverse(browse_view_name, kwargs=kwargs)
+        kwargs = {'rid': repo.id, 'repo_slug': repo.slug, 'query_string': new_query_string, 'state_slug': state_slug, }
+        return reverse(browse_view_name, kwargs=kwargs)
 
     def public_url_list(self):
         """
@@ -254,4 +259,4 @@ class Maven3(Aptitude):
             setting_str = render_to_string('repositories/maven3/maven_settings.xml', template_values, request_context)
             state_infos.append((state.slug, str(setting_str), state.name, [state]))
         template_values['state_infos'] = state_infos
-        return render_to_response('repositories/maven3/index.html', template_values, request_context)
+        return TemplateResponse(request, 'repositories/maven3/index.html', template_values)

@@ -1,7 +1,8 @@
-from distutils.version import LooseVersion
+# coding=utf-8
 import os.path
 import tarfile
 import zipfile
+from distutils.version import LooseVersion
 
 from django.conf import settings
 from django.conf.urls import url
@@ -9,18 +10,18 @@ from django.core.exceptions import PermissionDenied
 from django.core.files.uploadedfile import UploadedFile
 from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, render_to_response
-from django.template import RequestContext
+from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
 from django.utils.timezone import get_current_timezone
 from django.utils.translation import ugettext as _
 
 from moneta.exceptions import InvalidRepositoryException
-from moneta.repositories.base import RepositoryModel
-from moneta.templatetags.moneta import moneta_url
-from moneta.utils import parse_control_data
 from moneta.repositories.aptitude import Aptitude
+from moneta.repositories.base import RepositoryModel
 from moneta.repositories.xmlrpc import XMLRPCSite, register_rpc_method
 from moneta.repository.models import storage, Repository, Element, ArchiveState
+from moneta.templatetags.moneta import moneta_url
+from moneta.utils import parse_control_data
 
 __author__ = 'flanker'
 
@@ -171,14 +172,15 @@ class Pypi(Aptitude):
                            'admin_allowed': repo.admin_allowed(request), }
         view_name = moneta_url(repo, 'simple')
         tab_infos = [
-            (reverse(view_name, kwargs={'rid': repo.id, 'repo_slug': repo.slug}), states, ArchiveState(name=_('All states'), slug='all-states')),
+            (reverse(view_name, kwargs={'rid': repo.id, 'repo_slug': repo.slug}), states,
+             ArchiveState(name=_('All states'), slug='all-states')),
         ]
         for state in states:
-            tab_infos.append(
-                (reverse(view_name, kwargs={'rid': repo.id, 'repo_slug': repo.slug, 'state_slug': state.slug}), [state], state)
-            )
+            tab_infos.append((reverse(view_name,
+                                      kwargs={'rid': repo.id, 'repo_slug': repo.slug, 'state_slug': state.slug}),
+                              [state], state))
         template_values['tab_infos'] = tab_infos
-        return render_to_response('repositories/pypi/index.html', template_values, RequestContext(request))
+        return TemplateResponse(request, 'repositories/pypi/index.html', template_values)
 
     @staticmethod
     def get_filename(request, eid):
@@ -199,7 +201,7 @@ class Pypi(Aptitude):
         view_name = moneta_url(repo, 'get_file')
         elements = [(x.filename, x.md5, reverse(view_name, kwargs={'eid': x.id, })) for x in base_query[0:1000]]
         template_values = {'elements': elements, 'rid': rid, }
-        return render_to_response('repositories/pypi/simple.html', template_values, RequestContext(request))
+        return TemplateResponse(request, 'repositories/pypi/simple.html', template_values)
 
     def xmlrpc(self, request, rid, repo_slug, state_slug):
         return XML_RPC_SITE.dispatch(request, self, rid, repo_slug, state_slug)

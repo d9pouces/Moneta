@@ -1,31 +1,39 @@
 # -*- coding: utf-8 -*-
 import base64
-from distutils.version import LooseVersion
 import gzip
+import io
 import json
 import subprocess
 import tarfile
-import io
 import tempfile
 import zlib
+from distutils.version import LooseVersion
 
+# noinspection PyPackageRequirements
+import yaml
 from django.conf import settings
 from django.conf.urls import url
 from django.core.files.uploadedfile import UploadedFile
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404
-from django.shortcuts import render_to_response, get_object_or_404
-from django.template import RequestContext
+from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
 from django.utils.translation import ugettext as _
 from rubymarshal.classes import UsrMarshal
 from rubymarshal.writer import write
+# noinspection PyPackageRequirements
 from yaml import MappingNode
-import yaml
+# noinspection PyPackageRequirements
 from yaml.composer import Composer
+# noinspection PyPackageRequirements
 from yaml.constructor import Constructor
+# noinspection PyPackageRequirements
 from yaml.parser import Parser
+# noinspection PyPackageRequirements
 from yaml.reader import Reader
+# noinspection PyPackageRequirements
 from yaml.resolver import Resolver
+# noinspection PyPackageRequirements
 from yaml.scanner import Scanner
 
 from moneta.repositories.aptitude import Aptitude
@@ -311,7 +319,7 @@ class RubyGem(Aptitude):
                  [state], state)
             )
         template_values['tab_infos'] = tab_infos
-        return render_to_response('repositories/ruby/index.html', template_values, RequestContext(request))
+        return TemplateResponse(request, 'repositories/ruby/index.html', template_values)
 
     def generate_indexes(self, repo: Repository, states=None, validity=365):
         if states is None:

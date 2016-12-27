@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
 # https://www.nopsec.com/news-and-resources/blog/2015/3/27/private-vagrant-box-hosting-easy-versioning/
 import json
-import zipfile
 import tarfile
 
 from django.conf import settings
-
 from django.conf.urls import url
 from django.core.files.uploadedfile import UploadedFile
 from django.core.urlresolvers import reverse
 from django.http import HttpRequest
 from django.http.response import JsonResponse
-from django.shortcuts import render_to_response, get_object_or_404
-from django.template import RequestContext
+from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
 from django.utils.translation import ugettext as _
 
 from moneta.repositories.base import RepositoryModel
@@ -20,7 +18,6 @@ from moneta.repository.models import ArchiveState, Element, storage
 from moneta.repository.models import Repository
 from moneta.templatetags.moneta import moneta_url
 from moneta.views import get_file
-
 
 __author__ = 'Matthieu Gallet'
 
@@ -89,6 +86,14 @@ class Vagrant(RepositoryModel):
         ]
 
     def get_box(self, request: HttpRequest, rid, repo_slug, eid, archive, version, provider):
+        # noinspection PyUnusedLocal
+        repo_slug = repo_slug
+        # noinspection PyUnusedLocal
+        archive = archive
+        # noinspection PyUnusedLocal
+        provider = provider
+        # noinspection PyUnusedLocal
+        version = version
         repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
         elements = list(Element.objects.filter(repository=repo, pk=eid)[0:1])
         if not elements:
@@ -96,6 +101,8 @@ class Vagrant(RepositoryModel):
         return get_file(request, eid, element=elements[0])
 
     def archive_json(self, request: HttpRequest, rid, repo_slug, state_slug=None, archive=None):
+        # noinspection PyUnusedLocal
+        repo_slug = repo_slug
         result = self.get_providers_by_version(request, rid, state_slug, archive)
         return JsonResponse(result)
 
@@ -133,7 +140,7 @@ class Vagrant(RepositoryModel):
                            'state_slug': state_slug, 'elements': element_infos,
                            'index_url': reverse(moneta_url(repo, 'index'), kwargs={'rid': repo.id, }),
                            'tab_infos': tab_infos, 'admin_allowed': repo.admin_allowed(request), }
-        return render_to_response(self.index_html, template_values, RequestContext(request))
+        return TemplateResponse(request, self.index_html, template_values)
 
     def get_providers_by_version(self, request, rid, state_slug, archive):
         repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)

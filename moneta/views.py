@@ -1,13 +1,13 @@
 # coding=utf-8
 import base64
-from distutils.version import LooseVersion
 import hashlib
 import mimetypes
 import os
 import tarfile
 import tempfile
-import zipfile
 import time
+import zipfile
+from distutils.version import LooseVersion
 
 from django import forms
 from django.conf import settings
@@ -19,33 +19,33 @@ from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db.models import Count
 from django.http import HttpResponseRedirect, Http404, StreamingHttpResponse, HttpResponse, HttpRequest
+from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
+from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import never_cache
-
 from django.views.decorators.csrf import csrf_exempt
-from djangofloor.views import send_file
 
-from moneta.repository.signing import GPG
+from djangofloor.views import send_file
 from moneta.exceptions import InvalidRepositoryException
 from moneta.repository.forms import get_repository_form, RepositoryUpdateForm
-from moneta.utils import read_file_in_chunks
 from moneta.repository.models import Repository, ArchiveState, Element, storage, ElementSignature
+from moneta.repository.signing import GPG
+from moneta.utils import read_file_in_chunks
 
 __author__ = 'flanker'
-
-from django.shortcuts import render_to_response, get_object_or_404
-from django.template import RequestContext
-from django.utils.translation import ugettext_lazy as _
 
 
 @never_cache
 def index(request: HttpRequest):
     repositories = Repository.index_queryset(request).annotate(package_count=Count('element'))
-    if not request.user.has_perm('repository.add_repository'):
+    # noinspection PyUnresolvedReferences
+    user = request.user
+    if not user.has_perm('repository.add_repository'):
         form = None
     elif request.method == 'POST':
         form = get_repository_form()(request.POST)
         if form.is_valid():
-            author = None if request.user.is_anonymous() else request.user
+            author = None if user.is_anonymous() else user
             repo = Repository(author=author, name=form.cleaned_data['name'], on_index=form.cleaned_data['on_index'],
                               archive_type=form.cleaned_data['archive_type'],
                               is_private=form.cleaned_data['is_private'])
@@ -63,7 +63,7 @@ def index(request: HttpRequest):
     admin_ids = {x.id for x in Repository.admin_queryset(request)}
     template_values = {'repositories': repositories, 'form': form, 'request': request,
                        'upload_ids': upload_ids, 'admin_ids': admin_ids, }
-    return render_to_response('moneta/index.html', template_values, RequestContext(request))
+    return TemplateResponse(request, 'moneta/index.html', template_values)
 
 
 def delete_repository(request: HttpRequest, rid):
@@ -81,24 +81,26 @@ def delete_repository(request: HttpRequest, rid):
     else:
         form = DeleteRepositoryForm()
     template_values = {'form': form, 'repo': repo}
-    return render_to_response('moneta/delete_repo.html', template_values, RequestContext(request))
+    return TemplateResponse(request, 'moneta/delete_repo.html', template_values)
 
 
 @never_cache
 def public_check(request: HttpRequest):
     messages.success(request, _('You can access to this page.'))
-    return render_to_response('moneta/empty.html', RequestContext(request))
+    return TemplateResponse(request, 'moneta/empty.html', {})
 
 
 @never_cache
 def private_check(request: HttpRequest):
+    # noinspection PyUnresolvedReferences
     if request.user.is_anonymous():
         messages.error(request, _('You are not authenticated.'))
     else:
         messages.success(request, _('You can access to this page and you are authenticated.'))
-    return render_to_response('moneta/empty.html', RequestContext(request))
+    return TemplateResponse(request, 'moneta/empty.html', {})
 
 
+# noinspection PyUnresolvedReferences
 @never_cache
 def check(request: HttpRequest):
     s_h = settings.SECURE_PROXY_SSL_HEADER
@@ -108,12 +110,8 @@ def check(request: HttpRequest):
     for key in GPG.list_keys(False):
         if key['keyid'] == settings.GNUPG_KEYID:
             gpg_valid = True
-    import moneta.defaults
 
-    default_conf_path = moneta.defaults.__file__
-    if default_conf_path.endswith('.pyc'):
-        default_conf_path = default_conf_path[:-1]
-
+    user = request.user
     template_values = {
         'media_root': settings.MEDIA_ROOT, 'media_url': settings.MEDIA_URL,
         'static_root': settings.STATIC_ROOT, 'static_url': settings.STATIC_URL,
@@ -121,19 +119,20 @@ def check(request: HttpRequest):
         'secure_proxy_ssl_header_name': s_h[0][5:],
         'secure_proxy_ssl_header_value': s_h[1],
         'authentication_header': a_h,
-        'has_authentication_header': request.META.get(a_h, '') == request.user.username,
+        'has_authentication_header': request.META.get(a_h, '') == user.username,
         'has_secure_proxy_ssl_header': request.META.get(s_h[0], '') == s_h[1],
         'host': request.get_host().rpartition(':')[0],
         'has_allowed_host': request.get_host() in settings.ALLOWED_HOSTS,
         'gpg_valid': gpg_valid, 'gpg_available': GPG.list_keys(False),
     }
 
-    return render_to_response('moneta/help.html', template_values, RequestContext(request))
+    return TemplateResponse(request, 'moneta/help.html', template_values)
 
 
 @never_cache
 def modify_repository(request: HttpRequest, rid):
     repo = get_object_or_404(Repository.upload_queryset(request), id=rid)
+    # noinspection PyUnresolvedReferences
     author = None if request.user.is_anonymous() else request.user
 
     if request.method == 'POST':
@@ -164,7 +163,7 @@ def modify_repository(request: HttpRequest, rid):
                                              'states': ' '.join([x.name for x in repo.archivestate_set.all()]),
                                              'admin_group': list(repo.admin_group.all())})
     template_values = {'form': form, 'repo': repo, 'upload_allowed': repo.upload_allowed(request)}
-    return render_to_response('moneta/modify_repo.html', template_values, RequestContext(request))
+    return TemplateResponse(request, 'moneta/modify_repo.html', template_values)
 
 
 @never_cache
@@ -207,7 +206,7 @@ def search_package(request: HttpRequest, rid):
         elements = paginator.page(paginator.num_pages)
     template_values = {'elements': elements, 'repo': repo, 'pattern': search_pattern, 'form': form,
                        'upload_allowed': repo.upload_allowed(request)}
-    return render_to_response('moneta/search_repo.html', template_values, RequestContext(request))
+    return TemplateResponse(request, 'moneta/search_repo.html', template_values)
 
 
 def delete_element(request: HttpRequest, rid, eid):
@@ -224,11 +223,15 @@ def delete_element(request: HttpRequest, rid, eid):
     else:
         form = DeleteRepositoryForm()
     template_values = {'form': form, 'repo': repo, 'element': element}
-    return render_to_response('moneta/delete_element.html', template_values, RequestContext(request))
+    return TemplateResponse(request, 'moneta/delete_element.html', template_values)
 
 
 def generic_add_element(request: HttpRequest, repo, uploaded_file, state_names, archive=None, name=None, version=None):
     """ Generic upload (both form-based and raw POST-based methods)
+    :param archive:
+    :param name:
+    :param version:
+    :param request:
     :param repo: Repository
     :param uploaded_file: UploadedFile
     :param state_names: iterable of ArchiveState.name
@@ -252,6 +255,7 @@ def generic_add_element(request: HttpRequest, repo, uploaded_file, state_names, 
     if elements:
         element = elements[0]
     else:
+        # noinspection PyUnresolvedReferences
         user = None if request.user.is_anonymous() else request.user
         element = Element(repository=repo, author=user)
     if archive:
@@ -297,7 +301,7 @@ def add_element(request: HttpRequest, rid):
     else:
         form = ElementForm()
     template_values = {'form': form, 'repo': repo, 'upload_allowed': repo.upload_allowed(request)}
-    return render_to_response('moneta/add_package.html', template_values, RequestContext(request))
+    return TemplateResponse(request, 'moneta/add_package.html', template_values)
 
 
 @csrf_exempt
@@ -305,13 +309,14 @@ def add_element_signature(request: HttpRequest, rid):
     from moneta.repository.forms import SignatureForm
 
     if request.method != 'POST':
-        return render_to_response('moneta/not_allowed.html', status=405)
+        return TemplateResponse(request, 'moneta/not_allowed.html', {}, status=405)
     form = SignatureForm(request.GET)
     if not form.is_valid():
-        return render_to_response('moneta/not_allowed.html', status=405)
+        return TemplateResponse(request, 'moneta/not_allowed.html', {}, status=405)
     signature = base64.b64encode(request.read(16384))
     sha256 = form.cleaned_data['sha256']
     method = form.cleaned_data['method']
+    # noinspection PyUnresolvedReferences
     user = None if request.user.is_anonymous() else request.user
     element = get_object_or_404(Element.reader_queryset(request), repository__id=rid, sha256=sha256, author=user)
     ElementSignature(element=element, signature=signature, method=method).save()
@@ -337,7 +342,7 @@ def add_element_post(request: HttpRequest, rid):
 
     form = ElementForm(request.GET)
     if not form.is_valid():
-        return render_to_response('moneta/not_allowed.html', status=405)
+        return TemplateResponse(request, 'moneta/not_allowed.html', {}, status=405)
 
     tmp_file = tempfile.TemporaryFile(mode='w+b', dir=settings.TEMP_ROOT)
     c = False
@@ -372,7 +377,7 @@ def show_file(request: HttpRequest, eid):
     element = elements[0]
     template_values = {'element': element, 'repo': element.repository,
                        'upload_allowed': element.repository.upload_allowed(request)}
-    return render_to_response('moneta/show_package.html', template_values, RequestContext(request))
+    return TemplateResponse(request, 'moneta/show_package.html', template_values)
 
 
 def get_checksum(request: HttpRequest, eid, value):
@@ -540,7 +545,7 @@ def compare_states(request: HttpRequest, rid):
     else:
         form = CompareForm()
     template_values['form'] = form
-    return render_to_response('moneta/compare_states.html', template_values, RequestContext(request))
+    return TemplateResponse(request, 'moneta/compare_states.html', template_values)
 
 
 @csrf_exempt

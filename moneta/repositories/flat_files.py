@@ -30,7 +30,8 @@ Moneta mapping:
     * element.full_name = element.filename
 
 Command for uploading files:
-curl --data-binary @$FILENAME http://[...]/\?filename=$FILENAME\&states=prod\&states=qualif\&archive=$groupId.$artifactId\&version=$version
+curl --data-binary @$FILENAME http://[...]/\?filename=$FILENAME\&states=prod\&states=qualif\&archive=
+$groupId.$artifactId\&version=$version
 
 URLs to emulate:
     /$groupId[0]/../$groupId[n]/$artifactId/$version/(filename)$
@@ -39,10 +40,8 @@ URLs to emulate:
     /$groupId[0]/../$groupId[n]/$artifactId/$version/(filename).sha256$
 """
 from django.core.urlresolvers import reverse
-
-from django.shortcuts import get_object_or_404, render_to_response
-from django.template import RequestContext
-from django.template.loader import render_to_string
+from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
 from django.utils.translation import ugettext as _
 
 from moneta.repositories.maven3 import Maven3
@@ -89,7 +88,6 @@ class FlatFile(Maven3):
                            'admin_allowed': repo.admin_allowed(request), }
         state_infos = []
         template_values['state_slug'] = None
-        request_context = RequestContext(request)
         viewname = moneta_url(repo, 'browse')
         url = reverse(viewname, kwargs={'rid': repo.id, 'repo_slug': repo.slug, })
 
@@ -99,4 +97,4 @@ class FlatFile(Maven3):
             url = reverse(viewname, kwargs={'rid': repo.id, 'repo_slug': repo.slug, 'state_slug': state.slug})
             state_infos.append((state.slug, url, state.name, [state]))
         template_values['state_infos'] = state_infos
-        return render_to_response('repositories/flat_files/index.html', template_values, request_context)
+        return TemplateResponse(request, 'repositories/flat_files/index.html', template_values)

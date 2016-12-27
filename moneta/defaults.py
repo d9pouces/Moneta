@@ -4,6 +4,7 @@ from djangofloor.conf.config_values import AutocreateDirectory
 __author__ = 'flanker'
 
 DF_AUTHENTICATION_BACKENDS = ['allauth.account.auth_backends.AuthenticationBackend']
+DF_TEMPLATE_CONTEXT_PROCESSORS = ['moneta.context_processors.context_base']
 DF_INDEX_VIEW = 'moneta.views.index'
 DF_INSTALLED_APPS = ['allauth', 'allauth.account', 'allauth.socialaccount',
                      'moneta', 'moneta.repositories', 'moneta.repository', ]
@@ -29,7 +30,6 @@ REPOSITORY_CLASSES = [
     'moneta.repositories.vagrant.Vagrant',
 ]
 
-DF_TEMPLATE_CONTEXT_PROCESSORS = ['moneta.context_processors.context_base']
 
 STORAGES = {
     'archive': {

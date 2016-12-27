@@ -22,7 +22,7 @@ entry_points = {'console_scripts': ['moneta-manage = djangofloor.scripts:django'
 setup(
     name='moneta',
     version=version,
-    description='Emulator for different kinds (Debian/Yum/Pypi/Maven/Ruby) of package repositories on the same server.',
+    description='Emulator for different kinds (Debian/Yum/Pypi/Maven/…) of package repositories on the same server.',
     long_description=long_description,
     author='flanker',
     author_email='flanker@19pouces.net',
