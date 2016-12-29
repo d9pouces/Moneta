@@ -68,7 +68,7 @@ GNUPG_PATH = 'gpg'
 GNUPG_PATH_HELP = 'Path of the gpg binary'
 
 LOGGING = CallableSetting(lambda x:
-                          moneta_log_configuration(log_directory=x['LOG_DIRECTORY'], project_name=x['PROJECT_NAME'],
+                          moneta_log_configuration(log_directory=x['LOG_DIRECTORY'], module_name=x['DF_MODULE_NAME'],
                                                    script_name=x['SCRIPT_NAME'], debug=x['DEBUG'],
                                                    log_remote_url=x['LOG_REMOTE_URL']),
-                          'DEBUG', 'PROJECT_NAME', 'SCRIPT_NAME', 'LOG_DIRECTORY', 'LOG_REMOTE_URL')
+                          'DEBUG', 'DF_MODULE_NAME', 'SCRIPT_NAME', 'LOG_DIRECTORY', 'LOG_REMOTE_URL')
