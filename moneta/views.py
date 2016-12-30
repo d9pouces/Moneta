@@ -104,7 +104,7 @@ def private_check(request: HttpRequest):
 @never_cache
 def check(request: HttpRequest):
     s_h = settings.SECURE_PROXY_SSL_HEADER
-    a_h = settings.FLOOR_AUTHENTICATION_HEADER
+    a_h = settings.DF_REMOTE_USER_HEADER
     # noinspection PyArgumentList
     gpg_valid = False
     for key in GPG.list_keys(False):

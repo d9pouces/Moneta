@@ -89,7 +89,7 @@ We use logrotate to backup the database, with a new file each day.
     missingok
     create 640 moneta moneta
     postrotate
-    myproject-manage dumpdb | gzip > /var/backups/moneta/backup_db.sql.gz
+    moneta-manage dumpdb | gzip > /var/backups/moneta/backup_db.sql.gz
     endscript
   }
   EOF
@@ -122,7 +122,7 @@ If you have a lot of files to backup, beware of the available disk place!
   touch /var/backups/moneta/backup_media.tar.gz
   crontab -e
   MAILTO=admin@moneta.example.org
-  0 3 * * * rsync -arltDE /var/moneta/data/media/ /var/backups/moneta/media/
+  0 3 * * * rsync -arltDE /var/moneta/media/ /var/backups/moneta/media/
   0 5 0 * * logrotate -f /etc/moneta/backup_media.conf
 
 Restoring a backup
@@ -131,7 +131,7 @@ Restoring a backup
 .. code-block:: bash
 
   cat /var/backups/moneta/backup_db.sql.gz | gunzip | /usr/local/bin/moneta-manage dbshell
-  tar -C /var/moneta/data/media/ -xf /var/backups/moneta/backup_media.tar.gz
+  tar -C /var/moneta/media/ -xf /var/backups/moneta/backup_media.tar.gz
 
 
 

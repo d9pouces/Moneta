@@ -9,12 +9,11 @@ DF_TEMPLATE_CONTEXT_PROCESSORS = ['moneta.context_processors.context_base']
 DF_INDEX_VIEW = 'moneta.views.index'
 DF_INSTALLED_APPS = ['moneta', 'allauth', 'allauth.account', 'allauth.socialaccount',
                      'moneta.repositories', 'moneta.repository', ]
-PROJECT_NAME = 'Moneta'
 DF_SITE_SEARCH_VIEW = None
 DF_URL_CONF = 'moneta.root_urls.urls'
 LISTEN_ADDRESS = '127.0.0.1:8131'
 SERVER_BASE_URL = 'http://localhost:8131/'
-
+USE_CELERY = False
 UPLOAD_ROOT = 'uploads'
 ARCHIVE_FILTERS = [
     'moneta.repository.filters.informations',

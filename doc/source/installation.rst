@@ -2,7 +2,7 @@ Installation
 ============
 
 Like many Python packages, you can use several methods to install Moneta.
-Moneta designed to run with python3.4.x+.
+Moneta designed to run with python3.5.x+.
 The following packages are also required:
 
   * setuptools >= 3.0
@@ -74,10 +74,10 @@ in the configuration, you cannot use its IP address to access the website.
         </Location>
         ProxyPass / http://127.0.0.1:8131/
         ProxyPassReverse / http://127.0.0.1:8131/
-        DocumentRoot /var/moneta/static
+        DocumentRoot /var/moneta/static/
         ServerSignature off
         XSendFile on
-        XSendFilePath /var/moneta/data/media
+        XSendFilePath /var/moneta/media/
         # in older versions of XSendFile (<= 0.9), use XSendFileAllowAbove On
     </VirtualHost>
     EOF
@@ -131,7 +131,7 @@ If you want to use SSL:
         </Location>
         ProxyPass / http://127.0.0.1:8131/
         ProxyPassReverse / http://127.0.0.1:8131/
-        DocumentRoot /var/moneta/static
+        DocumentRoot /var/moneta/static/
         ServerSignature off
         RequestHeader set X_FORWARDED_PROTO https
         <Location />
@@ -148,7 +148,7 @@ If you want to use SSL:
             RequestHeader set REMOTE_USER %{REMOTE_USER}s
         </Location>
         XSendFile on
-        XSendFilePath /var/moneta/data/media
+        XSendFilePath /var/moneta/media/
         # in older versions of XSendFile (<= 0.9), use XSendFileAllowAbove On
         <Location /core/p/>
             Order deny,allow
@@ -181,10 +181,10 @@ Now, it's time to install Moneta:
     sudo mkdir -p /var/moneta
     sudo adduser --disabled-password moneta
     sudo chown moneta:www-data /var/moneta
-    sudo apt-get install virtualenvwrapper python3.4 python3.4-dev build-essential postgresql-client libpq-dev
+    sudo apt-get install virtualenvwrapper python3.5 python3.5-dev build-essential postgresql-client libpq-dev
     # application
     sudo -u moneta -i
-    mkvirtualenv moneta -p `which python3.4`
+    mkvirtualenv moneta -p `which python3.5`
     workon moneta
     pip install setuptools --upgrade
     pip install pip --upgrade
@@ -276,8 +276,8 @@ You can also use systemd to launch moneta:
     Group=moneta
     WorkingDirectory=/var/moneta/
     ExecStart=/home/moneta/.virtualenvs/moneta/bin/moneta-gunicorn
-    ExecReload=/bin/kill -s HUP $MAINPID
-    ExecStop=/bin/kill -s TERM $MAINPID
+    ExecReload=/bin/kill -s HUP \$MAINPID
+    ExecStop=/bin/kill -s TERM \$MAINPID
     [Install]
     WantedBy=multi-user.target
     EOF
