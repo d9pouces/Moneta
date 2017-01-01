@@ -59,7 +59,7 @@ Here is the complete list of settings:
   x_send_file = True
   # Apache and LightHTTPd only. Use the XSendFile header for sending large files.
   [gnupg]
-  home = /var/moneta/gpg
+  home = /var/moneta/gpg/
   # Path of the GnuPG secret data
   keyid = 1DA759EA7F5EF06F
   # ID of the GnuPG key

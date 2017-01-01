@@ -214,7 +214,7 @@ Now, it's time to install Moneta:
     x_accel_converter = False
     x_send_file = True
     [gnupg]
-    home = /var/moneta/gpg
+    home = /var/moneta/gpg/
     keyid = 1DA759EA7F5EF06F
     path = gpg
     [sentry]
@@ -225,7 +225,7 @@ Now, it's time to install Moneta:
     moneta-manage migrate
     moneta-manage collectstatic --noinput
     moneta-manage createsuperuser
-    chmod 0700 /var/moneta/gpg
+    chmod 0700 /var/moneta/gpg/
     moneta-manage gpg_gen generate --no-existing-keys
     KEY_ID=`moneta-manage gpg_gen show --only-id | tail -n 1`
     sed -i "s/1DA759EA7F5EF06F/$KEY_ID/" $VIRTUAL_ENV/etc/moneta/settings.ini
