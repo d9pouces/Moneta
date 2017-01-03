@@ -6,7 +6,7 @@ Moneta designed to run with python3.5.x+.
 The following packages are also required:
 
   * setuptools >= 3.0
-  * djangofloor >= 0.18.0
+  * djangofloor >= 1.0.0
   * python-gnupg
   * rubymarshal
   * pyyaml
@@ -51,15 +51,14 @@ PostgreSQL is often a good choice for Django sites:
 Apache
 ------
 
-I only present the installation with Apache, but an installation behind nginx should be similar.
-You cannot use different server names for browsing your mirror. If you use `moneta.example.org`
-in the configuration, you cannot use its IP address to access the website.
+Only the Apache installation is presented, but an installation behind nginx should be similar.
+Only the chosen server name (like `moneta.example.org`) can be used for accessing your site. For example, you cannot use its IP address.
 
 .. code-block:: bash
 
     SERVICE_NAME=moneta.example.org
     sudo apt-get install apache2 libapache2-mod-xsendfile
-    sudo a2enmod headers proxy proxy_http
+    sudo a2enmod headers proxy proxy_http xsendfile
     sudo a2dissite 000-default.conf
     # sudo a2dissite 000-default on Debian7
     cat << EOF | sudo tee /etc/apache2/sites-available/moneta.conf
@@ -192,33 +191,39 @@ Now, it's time to install Moneta:
     mkdir -p $VIRTUAL_ENV/etc/moneta
     cat << EOF > $VIRTUAL_ENV/etc/moneta/settings.ini
     [database]
-    engine = django.db.backends.postgresql_psycopg2
+    db = moneta
+    engine = postgresql
     host = localhost
-    name = moneta
     password = 5trongp4ssw0rd
     port = 5432
     user = moneta
+    
+    [email]
+    host = localhost
+    password = 
+    port = 25
+    use_ssl = False
+    use_tls = False
+    user = 
+    
     [global]
     admin_email = admin@moneta.example.org
-    bind_address = 127.0.0.1:8131
-    data_path = /var/moneta
-    debug = True
-    default_group = Users
-    extra_apps = 
+    data = /var/moneta
     language_code = fr-fr
-    protocol = http
-    remote_user_header = HTTP_REMOTE_USER
-    secret_key = NEZ6ngWX0JihNG2wepl1uxY7bkPOWrTEo27vxPGlUM3eBAYfPT
-    server_name = moneta.example.org
+    listen_address = 127.0.0.1:8131
+    log_remote_url = 
+    secret_key = secret_key
+    server_url = http://moneta.example.org
     time_zone = Europe/Paris
-    x_accel_converter = False
-    x_send_file = True
+    use_apache = True
+    use_nginx = False
+    
     [gnupg]
     home = /var/moneta/gpg/
     keyid = 1DA759EA7F5EF06F
     path = gpg
-    [sentry]
-    dsn_url = 
+    
+
     EOF
     chmod 0400 $VIRTUAL_ENV/etc/moneta/settings.ini
     # required since there are password in this file

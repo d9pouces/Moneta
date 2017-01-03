@@ -17,62 +17,43 @@ Here is the complete list of settings:
 .. code-block:: ini
 
   [database]
-  engine = django.db.backends.postgresql_psycopg2
-  # SQL database engine, can be 'django.db.backends.[postgresql_psycopg2|mysql|sqlite3|oracle]'.
+  db = moneta
+  engine = postgresql
   host = localhost
-  # Empty for localhost through domain sockets or "127.0.0.1" for localhost + TCP
-  name = moneta
-  # Name of your database, or path to database file if using sqlite3.
   password = 5trongp4ssw0rd
-  # Database password (not used with sqlite3)
   port = 5432
-  # Database port, leave it empty for default (not used with sqlite3)
   user = moneta
-  # Database user (not used with sqlite3)
+  
+  [email]
+  host = localhost
+  password = 
+  port = 25
+  use_ssl = False
+  use_tls = False
+  user = 
+  
   [global]
   admin_email = admin@moneta.example.org
-  # error logs are sent to this e-mail address
-  bind_address = 127.0.0.1:8131
-  # The socket (IP address:port) to bind to.
-  data_path = /var/moneta
-  # Base path for all data
-  debug = True
-  # A boolean that turns on/off debug mode.
-  default_group = Users
-  # Name of the default group for newly-created users.
-  extra_apps = 
-  # List of extra installed Django apps (separated by commas).
+  data = /var/moneta
   language_code = fr-fr
-  # A string representing the language code for this installation.
-  protocol = http
-  # Protocol (or scheme) used by your webserver (apache/nginx/…, can be http or https)
-  remote_user_header = HTTP_REMOTE_USER
-  # HTTP header corresponding to the username when using HTTP authentication.Should be "HTTP_REMOTE_USER". Leave it empty to disable HTTP authentication.
-  secret_key = NEZ6ngWX0JihNG2wepl1uxY7bkPOWrTEo27vxPGlUM3eBAYfPT
-  # A secret key for a particular Django installation. This is used to provide cryptographic signing, and should be set to a unique, unpredictable value.
-  server_name = moneta.example.org
-  # the name of your webserver (should be a DNS name, but can be an IP address)
+  listen_address = 127.0.0.1:8131
+  log_remote_url = 
+  secret_key = secret_key
+  server_url = http://moneta.example.org
   time_zone = Europe/Paris
-  # A string representing the time zone for this installation, or None. 
-  x_accel_converter = False
-  # Nginx only. Set it to "true" or "false"
-  x_send_file = True
-  # Apache and LightHTTPd only. Use the XSendFile header for sending large files.
+  use_apache = True
+  use_nginx = False
+  
   [gnupg]
   home = /var/moneta/gpg/
-  # Path of the GnuPG secret data
   keyid = 1DA759EA7F5EF06F
-  # ID of the GnuPG key
   path = gpg
-  # Path of the gpg binary
-  [sentry]
-  dsn_url = 
-  # Sentry URL to send data to. https://docs.getsentry.com/
+  
 
 
 
 If you need more complex settings, you can override default values (given in `djangofloor.defaults` and
-`moneta.defaults`) by creating a file named `/home/moneta/.virtualenvs/moneta/etc/moneta/settings.py`.
+`moneta.defaults`) by creating a file named `/moneta/settings.py`.
 
 
 
@@ -114,7 +95,7 @@ We use logrotate to backup the database, with a new file each day.
   sudo mkdir -p /var/backups/moneta
   sudo chown -r moneta: /var/backups/moneta
   sudo -u moneta -i
-  cat << EOF > /home/moneta/.virtualenvs/moneta/etc/moneta/backup_db.conf
+  cat << EOF > /moneta/backup_db.conf
   /var/backups/moneta/backup_db.sql.gz {
     daily
     rotate 20
@@ -129,8 +110,8 @@ We use logrotate to backup the database, with a new file each day.
   touch /var/backups/moneta/backup_db.sql.gz
   crontab -e
   MAILTO=admin@moneta.example.org
-  0 1 * * * /home/moneta/.virtualenvs/moneta/bin/moneta-manage clearsessions
-  0 2 * * * logrotate -f /home/moneta/.virtualenvs/moneta/etc/moneta/backup_db.conf
+  0 1 * * * /moneta-manage clearsessions
+  0 2 * * * logrotate -f /moneta/backup_db.conf
 
 
 Backup of the user-created files can be done with rsync, with a full backup each month:
@@ -140,7 +121,7 @@ If you have a lot of files to backup, beware of the available disk place!
 
   sudo mkdir -p /var/backups/moneta/media
   sudo chown -r moneta: /var/backups/moneta
-  cat << EOF > /home/moneta/.virtualenvs/moneta/etc/moneta/backup_media.conf
+  cat << EOF > /moneta/backup_media.conf
   /var/backups/moneta/backup_media.tar.gz {
     monthly
     rotate 6
@@ -156,14 +137,14 @@ If you have a lot of files to backup, beware of the available disk place!
   crontab -e
   MAILTO=admin@moneta.example.org
   0 3 * * * rsync -arltDE /var/moneta/media/ /var/backups/moneta/media/
-  0 5 0 * * logrotate -f /home/moneta/.virtualenvs/moneta/etc/moneta/backup_media.conf
+  0 5 0 * * logrotate -f /moneta/backup_media.conf
 
 Restoring a backup
 ~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-  cat /var/backups/moneta/backup_db.sql.gz | gunzip | /home/moneta/.virtualenvs/moneta/bin/moneta-manage dbshell
+  cat /var/backups/moneta/backup_db.sql.gz | gunzip | /moneta-manage dbshell
   tar -C /var/moneta/media/ -xf /var/backups/moneta/backup_media.tar.gz
 
 
@@ -192,12 +173,11 @@ Here is a sample NRPE configuration file:
 .. code-block:: bash
 
   cat << EOF | sudo tee /etc/nagios/nrpe.d/moneta.cfg
-  command[moneta_wsgi]=/usr/lib/nagios/plugins/check_http -H 127.0.0.1 -p 8131
-  command[moneta_database]=/usr/lib/nagios/plugins/check_tcp -H localhost -p 5432
+  command[moneta_wsgi]=/usr/lib/nagios/plugins/check_http -H moneta.example.org -p 443
   command[moneta_reverse_proxy]=/usr/lib/nagios/plugins/check_http -H moneta.example.org -p 80 -e 401
   command[moneta_backup_db]=/usr/lib/nagios/plugins/check_file_age -w 172800 -c 432000 /var/backups/moneta/backup_db.sql.gz
   command[moneta_backup_media]=/usr/lib/nagios/plugins/check_file_age -w 3024000 -c 6048000 /var/backups/moneta/backup_media.sql.gz
-  command[moneta_gunicorn]=/usr/lib/nagios/plugins/check_procs -C python -a '/home/moneta/.virtualenvs/moneta/bin/moneta-gunicorn'
+  command[moneta_gunicorn]=/usr/lib/nagios/plugins/check_procs -C python -a '/moneta-gunicorn'
   EOF
 
 Sentry

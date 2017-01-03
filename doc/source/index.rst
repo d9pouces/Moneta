@@ -21,15 +21,6 @@ Currently, you can create the following types of repositories:
     * any binary, versionned files.
 
 
-:doc:`installation`
-    Instruction on how to get the distribution
-
-:doc:`configuration`
-    All configuration options
-
-:doc:`debian`
-    Packaging Moneta for Debian or Ubuntu servers
-
 
 .. image:: _static/index.png
 
@@ -47,7 +38,7 @@ Full table of contents
 
    installation
    configuration
-   debian
+   packaging
 
 
 Indices and tables
