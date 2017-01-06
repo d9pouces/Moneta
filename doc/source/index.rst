@@ -36,6 +36,7 @@ Full table of contents
 .. toctree::
    :maxdepth: 1
 
+   quick-installation
    installation
    configuration
    packaging
