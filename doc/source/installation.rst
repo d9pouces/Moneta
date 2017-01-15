@@ -71,8 +71,8 @@ Only the chosen server name (like `moneta.example.org`) can be used for accessin
             Allow from all
             Satisfy any
         </Location>
-        ProxyPass / http://127.0.0.1:8131/
-        ProxyPassReverse / http://127.0.0.1:8131/
+        ProxyPass / http:///
+        ProxyPassReverse / http:///
         DocumentRoot /var/moneta/static/
         ServerSignature off
         XSendFile on
@@ -128,8 +128,8 @@ If you want to use SSL:
             Allow from all
             Satisfy any
         </Location>
-        ProxyPass / http://127.0.0.1:8131/
-        ProxyPassReverse / http://127.0.0.1:8131/
+        ProxyPass / http:///
+        ProxyPassReverse / http:///
         DocumentRoot /var/moneta/static/
         ServerSignature off
         RequestHeader set X_FORWARDED_PROTO https
