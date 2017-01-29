@@ -30,6 +30,21 @@ If you want to use the Ruby mirror functionnality, Ruby is required on the serve
         </Location>
 {% endblock %}
 
+{% block ini_configuration %}    [global]
+    data = $HOME/{{ DF_MODULE_NAME }}
+    [database]
+    db = {{ DF_MODULE_NAME }}
+    engine = postgresql
+    host = localhost
+    password = 5trongp4ssw0rd
+    port = 5432
+    user = {{ DF_MODULE_NAME }}
+    [gnupg]
+    home = /var/moneta/gpg/
+    keyid = {{ GNUPG_KEYID }}
+    path = gpg
+{% endblock %}
+
 {% block post_application %}    {{ processes.django }} createsuperuser
     chmod 0700 /var/moneta/gpg/
     {{ processes.django }} gpg_gen generate --absent

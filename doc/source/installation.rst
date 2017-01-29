@@ -5,7 +5,7 @@ Like many Python packages, you can use several methods to install Moneta.
 Moneta designed to run with python3.5.x+.
 The following packages are also required:
 
-  * setuptools >= 3.0
+  * setuptools >= 3.0,
   * djangofloor >= 1.0.0
   * python-gnupg
   * rubymarshal
@@ -22,6 +22,10 @@ Installing or Upgrading
 Here is a simple tutorial to install Moneta on a basic Debian/Linux installation.
 You should easily adapt it on a different Linux or Unix flavor.
 
+If you want to upgrade an existing installation, just install the new version (with the `--upgrade` flag for `pip`) and run
+the `collectstatic` and `migrate` commands (for updating both static files and the database).
+
+
 Ruby
 ----
 
@@ -30,6 +34,19 @@ If you want to use the Ruby mirror functionnality, Ruby is required on the serve
 .. code-block:: bash
 
    sudo apt-get install ruby
+
+
+Preparing the environment
+-------------------------
+
+.. code-block:: bash
+
+    sudo adduser --disabled-password moneta
+    sudo chown moneta:www-data $VIRTUALENV/var/moneta
+    sudo apt-get install virtualenvwrapper python3.5 python3.5-dev build-essential postgresql-client libpq-dev
+    sudo -u moneta -H -i
+    mkvirtualenv moneta -p `which python3.5`
+    workon moneta
 
 
 Database
@@ -44,6 +61,14 @@ PostgreSQL is often a good choice for Django sites:
    echo "ALTER USER moneta WITH ENCRYPTED PASSWORD '5trongp4ssw0rd'" | sudo -u postgres psql -d postgres
    echo "ALTER ROLE moneta CREATEDB" | sudo -u postgres psql -d postgres
    echo "CREATE DATABASE moneta OWNER moneta" | sudo -u postgres psql -d postgres
+
+
+Moneta can use Redis for caching pages and storing sessions:
+
+.. code-block:: bash
+
+    sudo apt-get install redis-server
+
 
 
 
@@ -64,24 +89,24 @@ Only the chosen server name (like `moneta.example.org`) can be used for accessin
     cat << EOF | sudo tee /etc/apache2/sites-available/moneta.conf
     <VirtualHost *:80>
         ServerName $SERVICE_NAME
-        Alias /static/ /var/moneta/static/
+        Alias /static/ $VIRTUALENV/var/moneta/static/
         ProxyPass /static/ !
         <Location /static/>
             Order deny,allow
             Allow from all
             Satisfy any
         </Location>
-        ProxyPass / http:///
-        ProxyPassReverse / http:///
-        DocumentRoot /var/moneta/static/
+        ProxyPass / http://127.0.0.1:8131/
+        ProxyPassReverse / http://127.0.0.1:8131/
+        DocumentRoot $VIRTUALENV/var/moneta/static/
         ServerSignature off
         XSendFile on
-        XSendFilePath /var/moneta/media/
+        XSendFilePath $VIRTUALENV/var/moneta/media/
         # in older versions of XSendFile (<= 0.9), use XSendFileAllowAbove On
     </VirtualHost>
     EOF
-    sudo mkdir /var/moneta
-    sudo chown -R www-data:www-data /var/moneta
+    sudo mkdir $VIRTUALENV/var/moneta
+    sudo chown -R www-data:www-data $VIRTUALENV/var/moneta
     sudo a2ensite moneta.conf
     sudo apachectl -t
     sudo apachectl restart
@@ -121,16 +146,16 @@ If you want to use SSL:
         ServerName $SERVICE_NAME
         SSLCertificateFile $PEM
         SSLEngine on
-        Alias /static/ /var/moneta/static/
+        Alias /static/ $VIRTUALENV/var/moneta/static/
         ProxyPass /static/ !
         <Location /static/>
             Order deny,allow
             Allow from all
             Satisfy any
         </Location>
-        ProxyPass / http:///
-        ProxyPassReverse / http:///
-        DocumentRoot /var/moneta/static/
+        ProxyPass / http://127.0.0.1:8131/
+        ProxyPassReverse / http://127.0.0.1:8131/
+        DocumentRoot $VIRTUALENV/var/moneta/static/
         ServerSignature off
         RequestHeader set X_FORWARDED_PROTO https
         <Location />
@@ -147,7 +172,7 @@ If you want to use SSL:
             RequestHeader set REMOTE_USER %{REMOTE_USER}s
         </Location>
         XSendFile on
-        XSendFilePath /var/moneta/media/
+        XSendFilePath $VIRTUALENV/var/moneta/media/
         # in older versions of XSendFile (<= 0.9), use XSendFileAllowAbove On
         <Location /core/p/>
             Order deny,allow
@@ -161,8 +186,8 @@ If you want to use SSL:
         </Location>
     </VirtualHost>
     EOF
-    sudo mkdir /var/moneta
-    sudo chown -R www-data:www-data /var/moneta
+    sudo mkdir $VIRTUALENV/var/moneta
+    sudo chown -R www-data:www-data $VIRTUALENV/var/moneta
     sudo a2ensite moneta.conf
     sudo apachectl -t
     sudo apachectl restart
@@ -177,19 +202,13 @@ Now, it's time to install Moneta:
 
 .. code-block:: bash
 
-    sudo mkdir -p /var/moneta
-    sudo adduser --disabled-password moneta
-    sudo chown moneta:www-data /var/moneta
-    sudo apt-get install virtualenvwrapper python3.5 python3.5-dev build-essential postgresql-client libpq-dev
-    # application
-    sudo -u moneta -i
-    mkvirtualenv moneta -p `which python3.5`
-    workon moneta
     pip install setuptools --upgrade
     pip install pip --upgrade
     pip install moneta psycopg2 gevent
     mkdir -p $VIRTUAL_ENV/etc/moneta
     cat << EOF > $VIRTUAL_ENV/etc/moneta/settings.ini
+    [global]
+    data = $HOME/moneta
     [database]
     db = moneta
     engine = postgresql
@@ -197,36 +216,13 @@ Now, it's time to install Moneta:
     password = 5trongp4ssw0rd
     port = 5432
     user = moneta
-    
-    [email]
-    host = localhost
-    password = 
-    port = 25
-    use_ssl = False
-    use_tls = False
-    user = 
-    
-    [global]
-    admin_email = admin@moneta.example.org
-    data = /var/moneta
-    language_code = fr-fr
-    listen_address = 127.0.0.1:8131
-    log_remote_url = 
-    secret_key = secret_key
-    server_url = http://moneta.example.org
-    time_zone = Europe/Paris
-    use_apache = True
-    use_nginx = False
-    
     [gnupg]
     home = /var/moneta/gpg/
     keyid = 1DA759EA7F5EF06F
     path = gpg
-    
-
     EOF
     chmod 0400 $VIRTUAL_ENV/etc/moneta/settings.ini
-    # required since there are password in this file
+    # protect passwords in the config files from by being readable by everyone
     moneta-manage migrate
     moneta-manage collectstatic --noinput
     moneta-manage createsuperuser
@@ -256,7 +252,7 @@ Supervisor is required to automatically launch moneta:
     sudo apt-get install supervisor
     cat << EOF | sudo tee /etc/supervisor/conf.d/moneta.conf
     [program:moneta_gunicorn]
-    command = /home/moneta/.virtualenvs/moneta/bin/moneta-gunicorn
+    command = $VIRTUAL_ENV/bin/moneta-gunicorn
     user = moneta
     EOF
     sudo service supervisor stop
@@ -279,8 +275,8 @@ You can also use systemd to launch moneta:
     [Service]
     User=moneta
     Group=moneta
-    WorkingDirectory=/var/moneta/
-    ExecStart=/home/moneta/.virtualenvs/moneta/bin/moneta-gunicorn
+    WorkingDirectory=$VIRTUALENV/var/moneta/
+    ExecStart=$VIRTUAL_ENV/bin/moneta-gunicorn
     ExecReload=/bin/kill -s HUP \$MAINPID
     ExecStop=/bin/kill -s TERM \$MAINPID
     [Install]

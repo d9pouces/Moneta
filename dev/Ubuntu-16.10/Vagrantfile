@@ -24,6 +24,7 @@ Vagrant.configure(2) do |config|
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
   # config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network "forwarded_port", guest: 8131, host: 10080
 
 
   # Create a private network, which allows host-only access to the machine
@@ -74,27 +75,52 @@ Vagrant.configure(2) do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
-    sudo locale-gen `echo $LC_ALL`
-    sudo apt-get update
-    sudo apt-get install -y virtualenvwrapper ruby ruby-dev build-essential libbz2-dev libdb-dev libc6-dev libgdbm-dev libncursesw5-dev libreadline-dev libsqlite3-dev libssl-dev libz-dev liblzma-dev tk-dev
-    sudo gem install fpm
-    sudo apt-get install python3.5 python3.5-dev build-essential
-    sudo -H pip install moneta
-        sudo mkdir -p /var/moneta /etc/moneta
-    sudo adduser --disabled-password moneta
-    cat << EOF | sudo -H tee /etc/moneta/settings.ini
-    [global]
-    data_path = /var/moneta
-    EOF
-    sudo chown moneta:moneta /var/moneta
-    sudo -H -u moneta moneta-manage migrate  # create the database (SQLite by default)
-    sudo -H -u moneta moneta-manage collectstatic --noinput  # prepare static files (CSS, JS, …)
-    
-    # sudo apt-get install -y rng-tools git
-    # echo "HRNGDEVICE=/dev/urandom" | sudo tee -a /etc/default/rng-tools
-    # sudo /etc/init.d/rng-tools restart
-    # git clone https://github.com/d9pouces/moneta.git
-    # chown -R vagrant:vagrant moneta
-  SHELL
+sudo locale-gen `echo $LC_ALL`
+sudo apt-get update
+# sudo apt-get install -y libbz2-dev libdb-dev libc6-dev libgdbm-dev libncursesw5-dev libreadline-dev libsqlite3-dev libssl-dev libz-dev liblzma-dev tk-dev
+# sudo apt-get install -y ruby ruby-dev
+# sudo gem install fpm
+sudo apt-get install -y npm
+sudo npm -g install yuglify
+sudo apt-get install -y virtualenvwrapper python3.5 python3.5-dev python3-pip build-essential
+sudo -H pip3 install git+https://github.com/d9pouces/EasyDjango.git
+sudo -H pip3 install moneta
+sudo mkdir -p /var/moneta/logs /etc/moneta
+sudo adduser --system --shell /bin/bash --disabled-password --gecos "" moneta
+cat << EOF | sudo -H tee /etc/moneta/settings.ini
+[global]
+data = /var/moneta
+listen_address = 0.0.0.0:8131
+server_url = http://localhost:10080/
+EOF
+sudo chown -R moneta: /var/moneta /etc/moneta
+sudo -H -u moneta moneta-manage migrate  # create the database (SQLite by default)
+sudo -H -u moneta moneta-manage collectstatic --noinput  # prepare static files (CSS, JS, …)
+sudo apt-get install -y supervisor
+cat << EOF | sudo tee /etc/supervisor/conf.d/moneta.conf
+[program:moneta_gunicorn]
+command = /usr/local/bin/moneta-gunicorn
+user = moneta
+EOF
+sudo service supervisor stop
+sudo service supervisor start
+cat << EOF | sudo -H -u moneta moneta-manage shell
+from django.contrib.auth import get_user_model
+M = get_user_model()
+u = M(username='demo')
+u.set_password('demo')
+u.save()
+u = M(username='admin', is_staff=True, is_superuser=True)
+u.set_password('admin')
+u.save()
+EOF
+
+
+# sudo apt-get install -y rng-tools git
+# echo "HRNGDEVICE=/dev/urandom" | sudo tee -a /etc/default/rng-tools
+# sudo /etc/init.d/rng-tools restart
+# git clone https://github.com/d9pouces/moneta.git
+# chown -R vagrant:vagrant moneta
+SHELL
 
 end

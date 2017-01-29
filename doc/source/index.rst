@@ -39,7 +39,6 @@ Full table of contents
    quick-installation
    installation
    configuration
-   packaging
 
 
 Indices and tables

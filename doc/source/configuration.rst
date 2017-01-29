@@ -10,50 +10,119 @@ You can look current settings with the following command:
 
 .. code-block:: bash
 
-    moneta-manage config
+    moneta-manage config ini -v 2
+
+You can also display the actual list of Python settings
+
+.. code-block:: bash
+
+    moneta-manage config python -v 2
+
 
 Here is the complete list of settings:
 
 .. code-block:: ini
 
   [database]
-  db = moneta
-  engine = postgresql
-  host = localhost
-  password = 5trongp4ssw0rd
-  port = 5432
-  user = moneta
+  db = moneta 
+  	# Main database name (or path of the sqlite3 database)
+  engine = postgresql 
+  	# Main database engine ("mysql", "postgresql", "sqlite3", "oracle", or the dotted name of the Django backend)
+  host = localhost 
+  	# Main database host
+  password = 5trongp4ssw0rd 
+  	# Main database password
+  port = 5432 
+  	# Main database port
+  user = moneta 
+  	# Main database user
   
   [email]
-  host = localhost
-  password = 
-  port = 25
-  use_ssl = False
-  use_tls = False
-  user = 
+  host = localhost 
+  	# SMTP server
+  password =  
+  	# SMTP password
+  port = 25 
+  	# SMTP port (often 25, 465 or 587)
+  use_ssl = False 
+  	# "true" if your SMTP uses SSL (often on port 465)
+  use_tls = False 
+  	# "true" if your SMTP uses STARTTLS (often on port 587)
+  user =  
+  	# SMTP user
   
   [global]
-  admin_email = admin@moneta.example.org
-  data = /var/moneta
-  language_code = fr-fr
-  listen_address = 127.0.0.1:8131
-  log_remote_url = 
-  secret_key = secret_key
-  server_url = http://moneta.example.org
-  time_zone = Europe/Paris
-  use_apache = True
-  use_nginx = False
+  admin_email = admin@moneta.example.org 
+  	# e-mail address for receiving logged errors
+  data = $VIRTUALENV/var/moneta 
+  	# where all data will be stored (static/uploaded/temporary files, …)If you change it, you must run the collectstatic and migrate commands again.
+  language_code = fr-fr 
+  	# default to fr_FR
+  listen_address = 127.0.0.1:8131 
+  	# address used by your web server.
+  log_remote_url =  
+  	# Send logs to a syslog or systemd log daemon.  
+  	# Examples: syslog+tcp://localhost:514/user, syslog:///local7,syslog:///dev/log/daemon, logd:///project_name
+  server_url = http://moneta.example.org 
+  	# Public URL of your website.  
+  	# Default to "http://listen_address" but should be ifferent if you use a reverse proxy like Apache or Nginx. Example: http://www.example.org.
+  time_zone = Europe/Paris 
+  	# default to Europe/Paris
+  use_apache = True 
+  	# Apache only. Set it to "true" or "false"
+  use_nginx = False 
+  	# Nginx only. Set it to "true" or "false"
   
   [gnupg]
-  home = /var/moneta/gpg/
-  keyid = 1DA759EA7F5EF06F
-  path = gpg
+  home = $VIRTUALENV/var/moneta/gpg/ 
+  	# Path of the GnuPG secret data
+  keyid = 1DA759EA7F5EF06F 
+  	# ID of the GnuPG key
+  path = gpg 
+  	# Path of the gpg binary
   
 
 
 
 If you need more complex settings, you can override default values (given in `djangofloor.defaults` and
 `moneta.defaults`) by creating a file named `/moneta/settings.py`.
+
+
+
+Optional components
+-------------------
+
+Efficient page caching
+~~~~~~~~~~~~~~~~~~~~~~
+
+You just need to install `django-redis-sessions`. Settings are automatically changed for using a local Redis server (of course, you can change it in your config file).
+
+.. code-block:: bash
+
+  pip install django-redis-sessions
+
+Faster session storage
+~~~~~~~~~~~~~~~~~~~~~~
+
+You just need to install `redis-sessions` for storing sessions into user sessions in Redis instead of storing them in the main database.
+Redis is not designed to be backuped; if you loose your Redis server, sessions are lost and all users must login again.
+However, Redis is faster than your main database server and sessions take a huge place if they are not regularly cleaned.
+Settings are automatically changed for using a local Redis server (of course, you can change it in your config file).
+
+.. code-block:: bash
+
+  pip install redis-sessions
+
+Optimized media files
+~~~~~~~~~~~~~~~~~~~~~
+
+You can use `Django-Pipeline <https://django-pipeline.readthedocs.io/en/latest/configuration.html>`_ to merge all media files (CSS and JS) for a faster site.
+
+.. code-block:: bash
+
+  pip install django-pipeline
+
+Optimized JavaScript files are currently deactivated due to syntax errors in generated files (not my fault ^^).
 
 
 
@@ -136,7 +205,7 @@ If you have a lot of files to backup, beware of the available disk place!
   touch /var/backups/moneta/backup_media.tar.gz
   crontab -e
   MAILTO=admin@moneta.example.org
-  0 3 * * * rsync -arltDE /var/moneta/media/ /var/backups/moneta/media/
+  0 3 * * * rsync -arltDE $VIRTUALENV/var/moneta/media/ /var/backups/moneta/media/
   0 5 0 * * logrotate -f /etc/moneta/backup_media.conf
 
 Restoring a backup
@@ -145,7 +214,7 @@ Restoring a backup
 .. code-block:: bash
 
   cat /var/backups/moneta/backup_db.sql.gz | gunzip | moneta-manage dbshell
-  tar -C /var/moneta/media/ -xf /var/backups/moneta/backup_media.tar.gz
+  tar -C $VIRTUALENV/var/moneta/media/ -xf /var/backups/moneta/backup_media.tar.gz
 
 
 

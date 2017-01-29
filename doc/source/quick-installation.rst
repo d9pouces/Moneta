@@ -43,7 +43,6 @@ You can launch the server process:
 .. code-block:: bash
 
     moneta-gunicorn
-    
 
 
 Then open http://127.0.0.1:8131 in your favorite browser.
