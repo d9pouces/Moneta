@@ -252,7 +252,8 @@ class Element(BaseModel):
 class ElementSignature(models.Model):
     GPG = 'gpg'
     OPENSSL = 'openssl'
-    METHODS = ((GPG, _('GnuPG')), (OPENSSL, _('OpenSSL/x509')))
+    X509 = 'x509'
+    METHODS = ((GPG, _('GnuPG')), (X509, _('x509 (openSSL/libreSSL)')))
     element = models.ForeignKey(Element, verbose_name=_('Element'), db_index=True, default=0)
     signature = models.TextField(_('signature'), default='', blank=True)
     method = models.CharField(_('signature method'), choices=METHODS, db_index=True, max_length=10)

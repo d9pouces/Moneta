@@ -6,4 +6,4 @@ gpg -b $FILENAME
 <p>{% trans 'Or a OpenSSL/x509 signature:' %}</p>
 <pre>{% if is_os_x %}SHASUM=`shasum -a 256 $FILENAME | cut -d ' ' -f 1`{% else %}SHASUM=`sha256 $FILENAME | cut -d ' ' -f 1`{% endif %}
 openssl dgst -sha256 -sign {% trans 'privatekey.pem' %} -out $FILENAME.ssl $FILENAME
-{% curl %} --data-binary @$FILENAME.ssl {{ absolute_url }}{% url 'moneta:add_element_signature' rid=repo.id %}\?method=gpg\&sha256=$SHASUM</pre>
+{% curl %} --data-binary @$FILENAME.ssl {{ absolute_url }}{% url 'moneta:add_element_signature' rid=repo.id %}\?method=x509\&sha256=$SHASUM</pre>

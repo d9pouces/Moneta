@@ -30,6 +30,10 @@ gpg -verify {{ element.filename }}.sig</pre>
             <pre>{% curl repo %} -o {{ element.filename }}.ssl {{ absolute_url }}{{ signature|signature:element }}
 openssl x509 -in {% trans 'certificate.pem' %} -pubkey -noout > {{ element.filename }}.pub
 openssl dgst -sha256  -verify  {{ element.filename }}.pub -signature {{ element.filename }}.ssl {{ element.filename }}
+            {% elif signature.method == signature.X509 %}<p>{% trans 'This element has a OpenSSL/x509 signature that you should check:' %}</p>
+            <pre>{% curl repo %} -o {{ element.filename }}.ssl {{ absolute_url }}{{ signature|signature:element }}
+openssl x509 -in {% trans 'certificate.pem' %} -pubkey -noout > {{ element.filename }}.pub
+openssl dgst -sha256  -verify  {{ element.filename }}.pub -signature {{ element.filename }}.ssl {{ element.filename }}
 {% endif %}</pre>
         </li>
 {% endfor %}
