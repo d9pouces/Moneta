@@ -434,7 +434,6 @@ class Aptitude(RepositoryModel):
             filename = 'dists/%(repo)s/Contents-%(architecture)s' % {'repo': repo_slug,
                                                                      'architecture': architecture, }
             open_files[filename] = tempfile.TemporaryFile(mode='w+b', dir=settings.TEMP_ROOT)
-            open_files[filename].write(render_to_string('repositories/aptitude/contents.txt').encode('utf-8'))
             for info in file_list:
                 open_files[filename].write(info.encode('utf-8'))
             # build the following files:
