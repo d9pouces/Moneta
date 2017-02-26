@@ -4,7 +4,6 @@ from moneta.log import moneta_log_configuration
 
 __author__ = 'flanker'
 
-DF_AUTHENTICATION_BACKENDS = ['allauth.account.auth_backends.AuthenticationBackend']
 DF_TEMPLATE_CONTEXT_PROCESSORS = ['moneta.context_processors.context_base']
 DF_INDEX_VIEW = 'moneta.views.index'
 DF_INSTALLED_APPS = ['moneta', 'moneta.repositories', 'moneta.repository', ]
@@ -65,8 +64,4 @@ GNUPG_KEYID_HELP = 'ID of the GnuPG key'
 GNUPG_PATH = 'gpg'
 GNUPG_PATH_HELP = 'Path of the gpg binary'
 
-LOGGING = CallableSetting(lambda x:
-                          moneta_log_configuration(log_directory=x['LOG_DIRECTORY'], module_name=x['DF_MODULE_NAME'],
-                                                   script_name=x['SCRIPT_NAME'], debug=x['DEBUG'],
-                                                   log_remote_url=x['LOG_REMOTE_URL']),
-                          'DEBUG', 'DF_MODULE_NAME', 'SCRIPT_NAME', 'LOG_DIRECTORY', 'LOG_REMOTE_URL')
+LOGGING = CallableSetting(moneta_log_configuration)

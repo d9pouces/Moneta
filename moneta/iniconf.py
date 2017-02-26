@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from djangofloor.conf.fields import bool_setting, CharConfigField, ConfigField
-from djangofloor.conf.mapping import NOREDIS_MAPPING
+from djangofloor.conf.mapping import BASE_MAPPING, REDIS_MAPPING, AUTH_MAPPING
 
 __author__ = 'flanker'
 
@@ -12,7 +12,7 @@ def x_accel_converter(value):
     return []
 
 
-INI_MAPPING = NOREDIS_MAPPING + [
+INI_MAPPING = BASE_MAPPING + AUTH_MAPPING + REDIS_MAPPING + [
     ConfigField('global.use_apache', 'USE_X_SEND_FILE', from_str=bool_setting,
                 help_str='Apache only. Set it to "true" or "false"'),
     ConfigField('global.use_nginx', 'X_ACCEL_REDIRECT', from_str=x_accel_converter,
