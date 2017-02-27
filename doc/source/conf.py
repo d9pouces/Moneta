@@ -233,7 +233,7 @@ man_pages = [
 
 # Bibliographic Dublin Core info.
 epub_title = "Moneta"
-epub_author = author
+epub_author = ''
 epub_publisher = "19pouces.net"
 epub_copyright = '2017, %s' % author
 

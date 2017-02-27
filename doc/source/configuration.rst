@@ -23,6 +23,40 @@ Here is the complete list of settings:
 
 .. code-block:: ini
 
+  [auth]
+  allow_basic_auth = True 
+  	# Set to "true" if you want to allow HTTP basic auth, using the Django database.
+  ldap_bind_dn =  
+  	# Bind dn for LDAP authentication
+  ldap_bind_password =  
+  	# Bind password for LDAP authentication
+  ldap_direct_bind =  
+  	# Set it for a direct LDAP bind, like "uid=%(user)s,ou=users,dc=example,dc=com"
+  ldap_filter = (uid=%(user)s) 
+  	# Filter for LDAP authentication, like "(uid=%(user)s)".
+  ldap_search_base = ou=users,dc=example,dc=com 
+  	# Search base for LDAP authentication, like "ou=users,dc=example,dc=com".
+  ldap_server_url =  
+  	# URL of your LDAP server, like "ldap://ldap.example.com". Python packages "pyldap" and "django-auth-ldap" must be installed.
+  ldap_start_tls = False
+  oauth2_providers =  
+  	# Comma-separated OAuth2 providers, among "vk","bitbucket_oauth2","evernote","shopify","kakao","douban","angellist","facebook","naver","slack","pinterest","google","persona","fivehundredpx","twitch","spotify","draugiem","daum","xing","twentythreeandme","linkedin","edmodo","weibo","flickr","bitbucket","untappd","hubic","odnoklassniki","instagram","asana","robinhood","orcid","digitalocean","mailru","feedly","foursquare","windowslive","auth0","dropbox_oauth2","soundcloud","github","dropbox","vimeo","bitly","basecamp","twitter","openid","coinbase","tumblr","stripe","weixin","linkedin_oauth2","fxa","baidu","stackexchange","discord","amazon","line","eveonline","reddit","paypal","mailchimp","gitlab". "django-allauth" package must be installed.
+  remote_user_groups = Users 
+  	# Comma-separated list of groups of new users, authenticated by a HTTP header.
+  remote_user_header =  
+  	# Set it if you want to use HTTP authentication, a common value is "HTTP-REMOTE-USER".
+  
+  [cache]
+  db = 2 
+  	# Database number of the Redis Cache DB. 
+  	# Python package "django-redis" is required.
+  host = localhost 
+  	# Redis Cache DB host
+  password =  
+  	# Redis Cache DB password (if required)
+  port = 6379 
+  	# Redis Cache DB port
+  
   [database]
   db = moneta 
   	# Main database name (or path of the sqlite3 database)
@@ -62,7 +96,7 @@ Here is the complete list of settings:
   	# address used by your web server.
   log_remote_url =  
   	# Send logs to a syslog or systemd log daemon.  
-  	# Examples: syslog+tcp://localhost:514/user, syslog:///local7,syslog:///dev/log/daemon, logd:///project_name
+  	# Examples: syslog+tcp://localhost:514/user, syslog:///local7, syslog:///dev/log/daemon, logd:///project_name
   server_url = http://moneta.example.org 
   	# Public URL of your website.  
   	# Default to "http://listen_address" but should be ifferent if you use a reverse proxy like Apache or Nginx. Example: http://www.example.org.
@@ -81,6 +115,17 @@ Here is the complete list of settings:
   path = gpg 
   	# Path of the gpg binary
   
+  [sessions]
+  db = 3 
+  	# Database number of the Redis sessions DB 
+  	# Python package "django-redis-sessions" is required.
+  host = localhost 
+  	# Redis sessions DB host
+  password =  
+  	# Redis sessions DB password (if required)
+  port = 6379 
+  	# Redis sessions DB port
+  
 
 
 
@@ -95,23 +140,24 @@ Optional components
 Efficient page caching
 ~~~~~~~~~~~~~~~~~~~~~~
 
-You just need to install `django-redis-sessions`. Settings are automatically changed for using a local Redis server (of course, you can change it in your config file).
+You just need to install `django-redis`.
+Settings are automatically changed for using a local Redis server (of course, you can change it in your config file).
 
 .. code-block:: bash
 
-  pip install django-redis-sessions
+  pip install django-redis
 
 Faster session storage
 ~~~~~~~~~~~~~~~~~~~~~~
 
-You just need to install `redis-sessions` for storing sessions into user sessions in Redis instead of storing them in the main database.
+You just need to install `django-redis-sessions` for storing sessions into user sessions in Redis instead of storing them in the main database.
 Redis is not designed to be backuped; if you loose your Redis server, sessions are lost and all users must login again.
 However, Redis is faster than your main database server and sessions take a huge place if they are not regularly cleaned.
 Settings are automatically changed for using a local Redis server (of course, you can change it in your config file).
 
 .. code-block:: bash
 
-  pip install redis-sessions
+  pip install django-redis-sessions
 
 Optimized media files
 ~~~~~~~~~~~~~~~~~~~~~
