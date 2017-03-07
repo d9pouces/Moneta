@@ -17,6 +17,7 @@ for line in codecs.open(os.path.join('moneta', '__init__.py'), 'r', encoding='ut
     version = version or matcher and matcher.group(1)
 
 entry_points = {'console_scripts': ['moneta-manage = djangofloor.scripts:django',
+                                    'moneta-aiohttp = djangofloor.scripts:aiohttp',
                                     'moneta-gunicorn = djangofloor.scripts:gunicorn']}
 
 setup(
@@ -32,8 +33,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=['setuptools>=1.0', 'djangofloor>=0.17', 'python-gnupg', 'rubymarshal', 'pyyaml', 'gunicorn',
-                      'django-allauth'],
+    install_requires=['setuptools>=1.0', 'djangofloor>=1.0.0', 'python-gnupg', 'rubymarshal', 'pyyaml', 'gunicorn'],
     setup_requires=[],
     classifiers=[],
 )

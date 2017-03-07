@@ -280,7 +280,8 @@ def delete_element(sender, instance=None, **kwargs):
 def create_default_group(signal, sender, app_config, verbosity, interactive, using, **kwargs):
     if sender.name != 'moneta.repository':
         return
-    group, created = Group.objects.get_or_create(name=settings.FLOOR_DEFAULT_GROUP_NAME)
     perms = list(Permission.objects.filter(codename='add_repository')[0:1])
-    if perms:
-        group.permissions.add(*perms)
+    for group_name in settings.DF_DEFAULT_GROUPS:
+        group, __ = Group.objects.get_or_create(name=group_name)
+        if perms:
+            group.permissions.add(*perms)
