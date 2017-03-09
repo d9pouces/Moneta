@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals, print_function, absolute_import
-
 from djangofloor.log import log_configuration
 
 __author__ = 'Matthieu Gallet'

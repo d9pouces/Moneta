@@ -53,6 +53,7 @@ class BaseStorage(object):
         """
         Store a file content given by a file descriptor
         :param uid: UUID of the Element
+        :param filename: name of the destination file
         :param fd: file descriptor
         :return: a key unique to this storage
         :raise:
