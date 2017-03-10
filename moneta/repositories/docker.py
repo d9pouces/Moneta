@@ -7,7 +7,9 @@ import uuid
 import io
 from django.conf import settings
 from django.conf.urls import url
+from django.db.models import Q
 from django.http import HttpResponse
+from django.http import JsonResponse
 from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
@@ -48,6 +50,9 @@ class Docker(RepositoryModel):
                     self.wrap_view('blob', csrf_exempt=True), name='blob'),
                 url(r'^(?P<rid>\d+)/v2/%s/manifests/(?P<reference>.+)$' % np,
                     self.wrap_view('manifests', csrf_exempt=True), name='manifests'),
+                url(r'^(?P<rid>\d+)/v2/_catalog$', self.wrap_view('catalog', csrf_exempt=True), name='catalog'),
+                url(r'^(?P<rid>\d+)/v2/%s/tags/list$' % np,
+                    self.wrap_view('tags', csrf_exempt=True), name='tags'),
                 ]
 
     def index(self, request, rid):
@@ -67,7 +72,8 @@ class Docker(RepositoryModel):
 
         204 No Content
         """
-        get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
+        if Repository.reader_queryset(request).filter(id=rid, archive_type=self.archive_type).first() is None:
+            return HttpResponse(status=404)
         response = HttpResponse(status=204)
         response['Docker-Distribution-API-Version'] = 'registry/2.0'
         return response
@@ -82,10 +88,12 @@ class Docker(RepositoryModel):
         Docker-Upload-UUID: <uuid>
 
         """
-        repo = get_object_or_404(Repository.upload_queryset(request), id=rid, archive_type=self.archive_type)
+        repo = Repository.upload_queryset(request).filter(id=rid, archive_type=self.archive_type).first()
+        if repo is None:
+            return HttpResponse(status=404)
         if request.method == 'POST':
             slug = slugify(name)
-            layer = LayerBlob(name=name, author=request.user, uuid=str(uuid.uuid4()))
+            layer = LayerBlob(name=name, author=request.user, uuid=str(uuid.uuid4()), repository=repo)
             layer.archive_key = storage(settings.STORAGE_ARCHIVE).store_descriptor(layer.uuid, slug, io.BytesIO())
             layer.save()
             response = HttpResponse(status=202)
@@ -141,8 +149,12 @@ class Docker(RepositoryModel):
 
 
         """
-        repo = get_object_or_404(Repository.upload_queryset(request), id=rid, archive_type=self.archive_type)
-        layer = get_object_or_404(LayerBlob, name=name, uuid=layer_uid)
+        repo = Repository.upload_queryset(request).filter(id=rid, archive_type=self.archive_type).first()
+        if repo is None:
+            return HttpResponse(status=404)
+        layer = LayerBlob.objects.filter(name=name, uuid=layer_uid, repository=repo).first()
+        if layer is None:
+            return HttpResponse(status=404)
         if request.method == 'GET':
             if layer.sha256:
                 response = HttpResponse(status=204)
@@ -154,7 +166,9 @@ class Docker(RepositoryModel):
             return HttpResponse(status=404)
         elif request.method == 'DELETE':
             layer.delete()
-            return HttpResponse(status=202)
+            response = HttpResponse(status=202)
+            response['Content-Length'] = ''
+            return response
         elif request.method == 'PATCH':
             matcher_length = re.match('^(\d+)$', request.META.get('Content-Length', ''))
             if not matcher_length:
@@ -241,24 +255,39 @@ class Docker(RepositoryModel):
         Content-Length: None
 
         """
-        repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
-        layer = get_object_or_404(LayerBlob, name=name, **{digest_method: digest})
         if request.method == 'HEAD':
+            repo = Repository.reader_queryset(request).filter(id=rid, archive_type=self.archive_type).first()
+            if repo is None:
+                return HttpResponse(status=404)
+            layer = LayerBlob.objects.filter(repository=repo, name=name, **{digest_method: digest}).first()
+            if layer is None:
+                return HttpResponse(status=404)
             response = HttpResponse(status=200, content_type='application/octet-stream')
             response['Content-Length'] = '%d' % layer.filesize
             response['Docker-Content-Digest'] = 'sha256:%s' % layer.sha256
             return response
         elif request.method == 'GET':
+            repo = Repository.reader_queryset(request).filter(id=rid, archive_type=self.archive_type).first()
+            if repo is None:
+                return HttpResponse(status=404)
+            layer = LayerBlob.objects.filter(repository=repo, name=name, **{digest_method: digest}).first()
+            if layer is None:
+                return HttpResponse(status=404)
             fd = storage(settings.STORAGE_ARCHIVE).get_file(layer.archive_key, mode='rb')
             response = StreamingHttpResponse(fd, status=200, content_type='application/octet-stream')
             response['Content-Length'] = '%d' % layer.filesize
             response['Docker-Content-Digest'] = 'sha256:%s' % layer.sha256
             return response
         elif request.method == 'DELETE':
-            get_object_or_404(Repository.upload_queryset(request), id=rid, archive_type=self.archive_type)
+            repo = Repository.upload_queryset(request).filter(id=rid, archive_type=self.archive_type).first()
+            if repo is None:
+                return HttpResponse(status=404)
+            layer = LayerBlob.objects.filter(repository=repo, name=name, image=None, **{digest_method: digest}).first()
+            if layer is None:
+                return HttpResponse(status=404)
             layer.delete()
             response = HttpResponse(status=202)
-            response['Content-Length'] = 'None'
+            response['Content-Length'] = ''
             return response
         return HttpResponse(status=405)
 
@@ -288,8 +317,10 @@ class Docker(RepositoryModel):
             202 Accepted
             Content-Length: None
         """
-        repo = get_object_or_404(Repository.upload_queryset(request), id=rid, archive_type=self.archive_type)
         if request.method == 'PUT':
+            repo = Repository.upload_queryset(request).filter(id=rid, archive_type=self.archive_type).first()
+            if repo is None:
+                return HttpResponse(status=404)
             try:
                 manifest_str = request.body.read().decode('utf-8')
                 manifest_content = json.loads(manifest_str)
@@ -298,7 +329,7 @@ class Docker(RepositoryModel):
             # request.META.get('Content-Type', '')
             tag = manifest_content.get('tag')
             available_layers = {}
-            for layer in LayerBlob.objects.filter(image=None):
+            for layer in LayerBlob.objects.filter(image=None, repository=repo):
                 available_layers[layer.md5] = layer
                 available_layers[layer.sha1] = layer
                 available_layers[layer.sha256] = layer
@@ -313,43 +344,89 @@ class Docker(RepositoryModel):
                     layer_ids.append(available_layers[value].id)
             image = Image(name=name, tag=tag, repository=repo, manifest=manifest_str)
             image.save()
-            LayerBlob.objects.filter(id__in=layer_ids).update(image=image)
+            LayerBlob.objects.filter(id__in=layer_ids, repository=repo).update(image=image)
             return HttpResponse(status=201)
         elif request.method == 'GET':
-            image = get_object_or_404(Image, name=name, tag=reference)
+            repo = Repository.reader_queryset(request).filter(id=rid, archive_type=self.archive_type).first()
+            if repo is None:
+                return HttpResponse(status=404)
+            image = Image.objects.filter(Q(tag=reference) | Q(digest=reference), name=name, repository=repo).first()
+            if image is None:
+                return HttpResponse(status=404)
             manifest_content = json.loads(image.manifest)
             media_type = manifest_content.get('mediaType', 'application/vnd.docker.distribution.manifest.v1+prettyjws')
             return HttpResponse(image.manifest, status=200, content_type=media_type)
+        elif request.method == 'DELETE':
+            repo = Repository.admin_queryset(request).filter(id=rid, archive_type=self.archive_type).first()
+            if repo is None:
+                return HttpResponse(status=404)
+            image = Image.objects.filter(digest=reference, name=name, repository=repo).first()
+            if image is None:
+                return HttpResponse(status=404)
+            for layer in LayerBlob.objects.filter(image=image, repository=repo):
+                layer.delete()
+            image.delete()
+            response = HttpResponse(status=202)
+            response['Content-Length'] = ''
+            return response
+        return HttpResponse(status=405)
 
+    def catalog(self, request, rid):
+        """
+        GET /v2/_catalog
+            200 OK
+            Content-Type: application/json
+            Link: <<url>?n=<n from the request>&last=<last repository in response>>; rel="next"
+            {
+              "repositories": [
+                <name>,
+                ...
+              ]
+            }
+        """
+        repo = Repository.reader_queryset(request).filter(id=rid, archive_type=self.archive_type).first()
+        if repo is None:
+            return HttpResponse(status=404)
+        base_query = Image.objects.filter(repository=repo).order_by('name')
+        query = self.format_query(request, base_query)
+        names = list({obj.name for obj in query})
+        names.sort()
+        result = {'repositories': names}
+        return JsonResponse(result)
 
-"""
+    def tags(self, request, rid, name):
+        """
+        GET /v2/<name>/tags/list
+            200 OK
+            Content-Type: application/json
+            Link: <<url>?n=<n from the request>&last=<last tag value from previous response>>; rel="next"
+            {
+              "name": <name>,
+              "tags": [
+                <tag>,
+                ...
+              ]
+            }
+        """
+        repo = Repository.reader_queryset(request).filter(id=rid, archive_type=self.archive_type).first()
+        if repo is None:
+            return HttpResponse(status=404)
+        base_query = Image.objects.filter(repository=repo, name=name)
+        query = self.format_query(request, base_query)
+        tags = list({obj.tag for obj in query})
+        tags.sort()
+        result = {'tags': tags}
+        return JsonResponse(result)
 
-
-DELETE /v2/<name>/manifests/<reference>
-    202 Accepted
-    Content-Length: None
-
-GET /v2/_catalog
-    200 OK
-    Content-Type: application/json
-    Link: <<url>?n=<n from the request>&last=<last repository in response>>; rel="next"
-    {
-      "repositories": [
-        <name>,
-        ...
-      ]
-    }
-
-GET /v2/<name>/tags/list
-    200 OK
-    Content-Type: application/json
-    Link: <<url>?n=<n from the request>&last=<last tag value from previous response>>; rel="next"
-    {
-      "name": <name>,
-      "tags": [
-        <tag>,
-        ...
-      ]
-    }
-
-"""
+    @staticmethod
+    def format_query(request, base_query):
+        matcher = re.match('^\d+$', request.GET.get('n', ''))
+        start = 0
+        if matcher:
+            start = int(request.GET['n'])
+        matcher = re.match('^\d+$', request.GET.get('last', ''))
+        if matcher:
+            last = int(request.GET['last'])
+            return base_query[start:last + 1]
+        else:
+            return base_query[start:]
