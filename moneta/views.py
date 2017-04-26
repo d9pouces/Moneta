@@ -411,15 +411,15 @@ def get_file(request: HttpRequest, eid: int, compression: str=None, path: str=''
     """
     Send file to the client as a HttpResponse
     Multiple combinations:
-        * case 1) if path != '' => send a file inside a compressed archive
-        * case 2) elif compression is not None => required uncompressed archive to compress it to the new format
+        * case 1) if path != '' => send a file from inside a given compressed archive
+        * case 2) elif compression is not None => require the uncompressed archive to compress it to the new format
         * case 3) else => require original file
 
     :param request:
-    :param eid:
+    :param eid: the id of the Element
     :param compression:
     :param path:
-    :param element: avoid an extra DB query to fetch 
+    :param element: if the Element is already fetched from the DB, you can pass it
     :param name:
     :return:
     """
