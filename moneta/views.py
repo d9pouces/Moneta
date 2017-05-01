@@ -15,7 +15,7 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import UploadedFile
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.validators import RegexValidator
 from django.db.models import Count
 from django.http import HttpResponseRedirect, Http404, StreamingHttpResponse, HttpResponse, HttpRequest
@@ -45,7 +45,7 @@ def index(request: HttpRequest):
     elif request.method == 'POST':
         form = get_repository_form()(request.POST)
         if form.is_valid():
-            author = None if user.is_anonymous() else user
+            author = None if user.is_anonymous else user
             repo = Repository(author=author, name=form.cleaned_data['name'], on_index=form.cleaned_data['on_index'],
                               archive_type=form.cleaned_data['archive_type'],
                               is_private=form.cleaned_data['is_private'])
@@ -93,7 +93,7 @@ def public_check(request: HttpRequest):
 @never_cache
 def private_check(request: HttpRequest):
     # noinspection PyUnresolvedReferences
-    if request.user.is_anonymous():
+    if request.user.is_anonymous:
         messages.error(request, _('You are not authenticated.'))
     else:
         messages.success(request, _('You can access to this page and you are authenticated.'))
@@ -133,7 +133,7 @@ def check(request: HttpRequest):
 def modify_repository(request: HttpRequest, rid):
     repo = get_object_or_404(Repository.upload_queryset(request), id=rid)
     # noinspection PyUnresolvedReferences
-    author = None if request.user.is_anonymous() else request.user
+    author = None if request.user.is_anonymous else request.user
 
     if request.method == 'POST':
         form = RepositoryUpdateForm(request.POST)
@@ -256,7 +256,7 @@ def generic_add_element(request: HttpRequest, repo, uploaded_file, state_names, 
         element = elements[0]
     else:
         # noinspection PyUnresolvedReferences
-        user = None if request.user.is_anonymous() else request.user
+        user = None if request.user.is_anonymous else request.user
         element = Element(repository=repo, author=user)
     if archive:
         element.archive = archive
@@ -317,7 +317,7 @@ def add_element_signature(request: HttpRequest, rid):
     sha256 = form.cleaned_data['sha256']
     method = form.cleaned_data['method']
     # noinspection PyUnresolvedReferences
-    user = None if request.user.is_anonymous() else request.user
+    user = None if request.user.is_anonymous else request.user
     element = get_object_or_404(Element.reader_queryset(request), repository__id=rid, sha256=sha256, author=user)
     ElementSignature(element=element, signature=signature, method=method).save()
     return HttpResponse(_('This signature has been added to %(filename)s') % {'filename': element.filename})

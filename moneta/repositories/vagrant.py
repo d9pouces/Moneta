@@ -6,7 +6,7 @@ import tarfile
 from django.conf import settings
 from django.conf.urls import url
 from django.core.files.uploadedfile import UploadedFile
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpRequest
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404

@@ -6,7 +6,7 @@ import functools
 
 from django.conf import settings
 from django.contrib.auth.models import Group, Permission
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import pre_delete, post_migrate
@@ -86,14 +86,14 @@ class Repository(BaseModel):
     @staticmethod
     def index_queryset(request):
         user = request.user
-        if user.is_anonymous():
+        if user.is_anonymous:
             return Repository.objects.filter(Q(on_index=True) | Q(author=None)).distinct()
         return Repository.objects.filter(Q(on_index=True) | Q(author=user)).distinct()
 
     @staticmethod
     def upload_queryset(request):
         user = request.user
-        if user.is_anonymous():
+        if user.is_anonymous:
             return Repository.objects.filter(author=None)
         elif user.is_superuser:
             return Repository.objects.all()
@@ -102,7 +102,7 @@ class Repository(BaseModel):
     @staticmethod
     def admin_queryset(request):
         user = request.user
-        if user.is_anonymous():
+        if user.is_anonymous:
             return Repository.objects.filter(author=None)
         elif user.is_superuser:
             return Repository.objects.all()
@@ -111,7 +111,7 @@ class Repository(BaseModel):
     @staticmethod
     def reader_queryset(request):
         user = request.user
-        if user.is_anonymous():
+        if user.is_anonymous:
             return Repository.objects.filter(Q(is_private=False) | Q(author=None)).distinct()
         return Repository.objects.filter(Q(is_private=False) | Q(author=user) | Q(reader_group=user.groups.all())
                                          | Q(admin_group=user.groups.all())).distinct()
@@ -124,7 +124,7 @@ class Repository(BaseModel):
 
     def reader_allowed(self, request):
         user = request.user
-        if user.is_anonymous():
+        if user.is_anonymous:
             return not self.is_private
         return not self.is_private or self.author == user or \
             (not {x.id for x in user.groups.all()}.isdisjoint({x.id for x in self.reader_group.all()})) or \

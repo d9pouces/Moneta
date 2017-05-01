@@ -8,7 +8,7 @@ from django.conf import settings
 from django.conf.urls import url
 from django.core.exceptions import PermissionDenied
 from django.core.files.uploadedfile import UploadedFile
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse

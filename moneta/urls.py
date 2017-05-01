@@ -1,12 +1,13 @@
 # -*- coding=utf-8 -*-
+from django.conf.urls import url
 from moneta.views import public_check, index, check, add_element, add_element_post, add_element_signature, \
     get_signature, modify_repository, delete_repository, delete_element, search_package, compare_states, private_check, \
     test_upload, get_file_p, get_checksum_p, get_signature_p, get_file, get_checksum, show_file
 
 __author__ = 'flanker'
 
-from django.conf.urls import url
 
+app_name = 'moneta'
 urlpatterns = [
     url(r'^p/$', public_check, name='public_check'),
     url(r'^p/get/(?P<eid>\d+)/(?P<name>.*)$', get_file_p, name='get_file_p'),
