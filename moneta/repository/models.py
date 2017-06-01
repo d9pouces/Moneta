@@ -53,7 +53,8 @@ class BaseModel(models.Model):
     slug = models.SlugField(_('Slug'), max_length=100, blank=False, db_index=True)
     creation = models.DateTimeField(_('Creation date'), db_index=True, auto_now_add=True)
     modification = models.DateTimeField(_('Modification date'), db_index=True, auto_now=True)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('Author'), db_index=True, blank=True, null=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('Author'), db_index=True, blank=True, null=True,
+                               on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
@@ -132,7 +133,7 @@ class Repository(BaseModel):
 
 
 class ArchiveState(BaseModel):
-    repository = models.ForeignKey(Repository, verbose_name=_('Repository'), db_index=True)
+    repository = models.ForeignKey(Repository, verbose_name=_('Repository'), db_index=True, on_delete=models.CASCADE)
 
 
 class Element(BaseModel):
@@ -140,7 +141,7 @@ class Element(BaseModel):
     short_description = models.CharField(_('Short description'), max_length=500, blank=True)
     long_description = models.TextField(_('Long description'), blank=True)
     states = models.ManyToManyField(ArchiveState, verbose_name=_('Archive states'), db_index=True)
-    repository = models.ForeignKey(Repository, verbose_name=_('Repository'), db_index=True)
+    repository = models.ForeignKey(Repository, verbose_name=_('Repository'), db_index=True, on_delete=models.CASCADE)
     full_name = models.CharField(_('Complete name'), max_length=255, blank=True, db_index=True)
     full_name_normalized = models.CharField(_('Normalized complete name'), max_length=255, blank=True, db_index=True,
                                             help_text=_("Complete name without special chars nor accents"))
@@ -254,7 +255,7 @@ class ElementSignature(models.Model):
     OPENSSL = 'openssl'
     X509 = 'x509'
     METHODS = ((GPG, _('GnuPG')), (X509, _('x509 (openSSL/libreSSL)')))
-    element = models.ForeignKey(Element, verbose_name=_('Element'), db_index=True, default=0)
+    element = models.ForeignKey(Element, verbose_name=_('Element'), db_index=True, default=0, on_delete=models.CASCADE)
     signature = models.TextField(_('signature'), default='', blank=True)
     method = models.CharField(_('signature method'), choices=METHODS, db_index=True, max_length=10)
     creation = models.DateTimeField(_('Creation date'), db_index=True, auto_now_add=True)

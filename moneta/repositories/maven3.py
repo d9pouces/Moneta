@@ -232,13 +232,13 @@ class Maven3(Aptitude):
 
         # http://mvnrepository.com/artifact/org.requs/requs-exec/1.11
         pattern_list = [
-            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/browse/(?P<query_string>.*)$',
+            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-._]+)/browse/(?P<query_string>.*)$',
                 self.wrap_view('browse_repository'), name='browse'),
-            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/s/(?P<state_slug>[\w\-\._]+)/browse/(?P<query_string>.*)$',
+            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-._]+)/s/(?P<state_slug>[\w\-._]+)/browse/(?P<query_string>.*)$',
                 self.wrap_view('browse_repository'), name='browse'),
-            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/browse/$', self.wrap_view('browse_repository'),
+            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-._]+)/browse/$', self.wrap_view('browse_repository'),
                 name='browse'),
-            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/s/(?P<state_slug>[\w\-\._]+)/browse/$',
+            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-._]+)/s/(?P<state_slug>[\w\-._]+)/browse/$',
                 self.wrap_view('browse_repository'), name='browse'),
             url(r"^(?P<rid>\d+)/$", self.wrap_view('index'), name="index"),
         ]
@@ -251,12 +251,11 @@ class Maven3(Aptitude):
                            'admin_allowed': repo.admin_allowed(request), }
         state_infos = []
         template_values['state_slug'] = None
-        request_context = RequestContext(request)
-        setting_str = render_to_string('repositories/maven3/maven_settings.xml', template_values, request_context)
+        setting_str = render_to_string('repositories/maven3/maven_settings.xml', template_values)
         state_infos.append(('all-packages', str(setting_str), _('All states'), states))
         for state in states:
             template_values['state_slug'] = state.slug
-            setting_str = render_to_string('repositories/maven3/maven_settings.xml', template_values, request_context)
+            setting_str = render_to_string('repositories/maven3/maven_settings.xml', template_values)
             state_infos.append((state.slug, str(setting_str), state.name, [state]))
         template_values['state_infos'] = state_infos
-        return TemplateResponse(request, 'repositories/maven3/index.html', template_values)
+        return TemplateResponse(request, 'repositories/maven3/index.html', template_values, status=200)

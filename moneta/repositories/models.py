@@ -10,7 +10,7 @@ __author__ = 'flanker'
 
 class Image(BaseModel):
     states = models.ManyToManyField(ArchiveState, verbose_name=_('Archive states'), db_index=True)
-    repository = models.ForeignKey(Repository, verbose_name=_('Repository'), db_index=True)
+    repository = models.ForeignKey(Repository, verbose_name=_('Repository'), db_index=True, on_delete=models.CASCADE)
     tag = models.CharField(_('Tag'), db_index=True, max_length=255, blank=True, null=True, default=None)
     digest = models.CharField(_('Digest'), db_index=True, max_length=255, blank=True, null=True, default=None)
     manifest = models.TextField(_('Manifest content'), blank=True, default='')
@@ -23,9 +23,10 @@ class Image(BaseModel):
 class LayerBlob(BaseModel):
     creation = models.DateTimeField(_('Creation date'), db_index=True, auto_now_add=True)
     modification = models.DateTimeField(_('Modification date'), db_index=True, auto_now=True)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('Author'), db_index=True, blank=True, null=True)
-    image = models.ForeignKey(Image, db_index=True, blank=True, null=True, default=None)
-    repository = models.ForeignKey(Repository, verbose_name=_('Repository'), db_index=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('Author'), db_index=True, blank=True, null=True,
+                               on_delete=models.CASCADE)
+    image = models.ForeignKey(Image, db_index=True, blank=True, null=True, default=None, on_delete=models.CASCADE)
+    repository = models.ForeignKey(Repository, verbose_name=_('Repository'), db_index=True, on_delete=models.CASCADE)
     uuid = models.CharField(_('UUID'), db_index=True, max_length=40, blank=True, help_text=_('Unique identifier'))
     md5 = models.CharField(_('MD5 sum'), max_length=120, blank=True, db_index=True, default='',
                            help_text=_('Automatically generated on creation'))
