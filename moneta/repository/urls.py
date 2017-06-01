@@ -19,5 +19,5 @@ def get_patterns():
 
 
 name_set = set()
-# app_name = 'repository'
+app_name = 'repository'
 urlpatterns = get_patterns()

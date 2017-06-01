@@ -110,8 +110,8 @@ class RepositoryModel(object):
         Provides URLconf details for the ``Api`` and all registered
         ``Resources`` beneath it.
         """
-        return [x for x in self.url_list()]
+        return [x for x in self.url_list()], self.archive_type
 
     @property
     def public_urls(self):
-        return [x for x in self.public_url_list()]
+        return [x for x in self.public_url_list()], self.archive_type
