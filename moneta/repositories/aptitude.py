@@ -205,7 +205,7 @@ class Aptitude(RepositoryModel):
         """ Provides an iterable of tuples (URL, name), to add on the main index
         """
         result = []
-        force_index = (reverse('%s:force_index' % self.archive_type, kwargs={'rid': repo.id, 'repo_slug': repo.slug}),
+        force_index = (reverse('repositories:%s:force_index' % self.archive_type, kwargs={'rid': repo.id, 'repo_slug': repo.slug}),
                        _('Index packages'))
         result.append(force_index)
         return result
@@ -357,7 +357,7 @@ class Aptitude(RepositoryModel):
         default_architectures = {'amd64', }
         uid = self.storage_uid % repository.id
         repo_slug = repository.slug
-        root_url = reverse('%s:index' % self.archive_type, kwargs={'rid': repository.id, })
+        root_url = reverse('repositories:%s:index' % self.archive_type, kwargs={'rid': repository.id, })
         if repository.is_private:
             root_url = 'authb-%s' % root_url
         if states is None:
@@ -409,7 +409,7 @@ class Aptitude(RepositoryModel):
                                       ('Size', 'filesize')):
                         if key not in control_data:
                             package_file.write("{0}: {1}\n".format(key, getattr(element, attr)).encode('utf-8'))
-                    package_url = reverse('%s:get_file' % self.archive_type,
+                    package_url = reverse('repositories:%s:get_file' % self.archive_type,
                                           kwargs={'rid': repository.id, 'repo_slug': repo_slug,
                                                   'filename': element.filename, 'state_slug': state.slug,
                                                   'folder': element.filename[0:1], })
@@ -446,8 +446,8 @@ class Aptitude(RepositoryModel):
         # store all files in the cache
         release_file = tempfile.TemporaryFile(mode='w+b', dir=settings.TEMP_ROOT)
         now = datetime.datetime.now(tz)
-        now_str = now.strftime('%a, %d %b %Y %H:%M:%S %z')  # 'Mon, 29 Nov 2010 08:12:51 UTC'
-        until = (now + datetime.timedelta(validity)).strftime('%a, %d %b %Y %H:%M:%S %z')
+        now_str = now.strftime('%a, %d %b %Y %H:%M:%S UTC')  # 'Mon, 29 Nov 2010 08:12:51 UTC'
+        until = (now + datetime.timedelta(validity)).strftime('%a, %d %b %Y %H:%M:%S UTC')
         content = render_to_string('repositories/aptitude/state_release.txt',
                                    {'architectures': all_states_architectures, 'until': until,
                                     'states': all_states, 'repository': repository, 'date': now_str})

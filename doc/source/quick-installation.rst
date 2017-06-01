@@ -1,22 +1,26 @@
 Quick installation
 ==================
 
+First of all, you should use virtual environments
 You can quickly test Moneta, storing all data in $HOME/moneta:
 
 .. code-block:: bash
 
     sudo apt-get install python3.5 python3.5-dev build-essential
-    pip install moneta
+    pip3 install moneta
+    moneta-manage  config ini -v 2  # display the config
     moneta-manage migrate  # create the database (SQLite by default)
     moneta-manage collectstatic --noinput  # prepare static files (CSS, JS, …)
     moneta-manage createsuperuser
     moneta-manage gpg_gen generate --absent
     KEY_ID=`moneta-manage gpg_gen show --onlyid | tail -n 1`
     CONFIG_FILENAME=`moneta-manage  config ini -v 2 | head -n 1 | grep ".ini" | cut -d '"' -f 2`
+    mkdir -p `dirname $CONFIG_FILENAME`
     cat << EOF > $CONFIG_FILENAME
     [gnupg]
     keyid = $KEY_ID
     EOF
+    moneta-manage  config ini -v 2  # display the config
 
 
 

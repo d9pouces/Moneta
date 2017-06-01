@@ -97,7 +97,7 @@ class Docker(RepositoryModel):
             layer.archive_key = storage(settings.STORAGE_ARCHIVE).store_descriptor(layer.uuid, slug, io.BytesIO())
             layer.save()
             response = HttpResponse(status=202)
-            response['Location'] = reverse('docker:blob_add_upload',
+            response['Location'] = reverse('repositories:docker:blob_add_upload',
                                            kwargs={'rid': repo.id, 'name': name, 'layer_uid': layer.uuid})
             response['Range'] = 'bytes=0-0'
             response['Content-Length'] = '0'
@@ -158,7 +158,7 @@ class Docker(RepositoryModel):
         if request.method == 'GET':
             if layer.sha256:
                 response = HttpResponse(status=204)
-                response['Location'] = reverse('docker:blob_add_upload',
+                response['Location'] = reverse('repositories:docker:blob_add_upload',
                                                kwargs={'rid': repo.id, 'name': name, 'layer_uid': layer.uuid})
                 response['Range'] = 'bytes=0-%d' % layer.filesize
                 response['Docker-Upload-UUID'] = layer.uuid
@@ -188,7 +188,7 @@ class Docker(RepositoryModel):
             layer.save()
             fd.close()
             response = HttpResponse(status=202)
-            response['Location'] = reverse('docker:blob_add_upload',
+            response['Location'] = reverse('repositories:docker:blob_add_upload',
                                            kwargs={'rid': repo.id, 'name': name, 'layer_uid': layer.uuid})
             response['Range'] = 'bytes=0-%d' % layer.filesize
             response['Content-Length'] = '0'
@@ -232,7 +232,7 @@ class Docker(RepositoryModel):
             layer.save()
             # Docker-Content-Digest: <digest>
             response = HttpResponse(status=201)
-            response['Location'] = reverse('docker:blob',
+            response['Location'] = reverse('repositories:docker:blob',
                                            kwargs={'rid': repo.id, 'name': name, 'digest_method': 'sha256',
                                                    'digest': layer.sha256})
             response['Content-Length'] = '0'

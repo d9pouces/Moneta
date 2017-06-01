@@ -6,7 +6,7 @@
     <ul class="nav nav-tabs">
         {% for tab_info in tab_infos %}
             <li {% if tab_info.3 == state_slug %}class="active"{% endif %}><a
-                    href="{% url 'vagrant:index' rid=repo.id state_slug=tab_info.3 %}">{{ tab_info.1.name }}</a>
+                    href="{% url 'repositories:vagrant:index' rid=repo.id state_slug=tab_info.3 %}">{{ tab_info.1.name }}</a>
             </li>
         {% endfor %}
     </ul>

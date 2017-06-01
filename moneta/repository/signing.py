@@ -37,7 +37,8 @@ class DSASigner(RSASigner):
         return force_str(signature)
 
 try:
-    GPG = gnupg.GPG(gnupghome=settings.GNUPG_HOME, gpgbinary=settings.GNUPG_PATH)
+    GPG = gnupg.GPG(gnupghome=settings.GNUPG_HOME, gpgbinary=settings.GNUPG_PATH,
+                    options=['--digest-algo', 'SHA256', '--cert-digest-algo', 'SHA256', '--cipher-algo', 'AES256'])
 
     class GPGSigner(Signer):
 

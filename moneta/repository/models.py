@@ -81,7 +81,7 @@ class Repository(BaseModel):
         return RepositoryModelsClasses.get_model(self.archive_type)
 
     def get_absolute_url(self):
-        return reverse('%s:index' % self.archive_type, kwargs={'rid': self.id})
+        return reverse('repositories:%s:index' % self.archive_type, kwargs={'rid': self.id})
 
     @staticmethod
     def index_queryset(request):

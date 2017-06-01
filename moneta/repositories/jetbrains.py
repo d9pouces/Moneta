@@ -45,9 +45,9 @@ class Jetbrains(RepositoryModel):
     def index(self, request, rid):
         repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
         states = [state for state in ArchiveState.objects.filter(repository=repo).order_by('name')]
-        tab_infos = [(reverse('jetbrains:plugin_index', kwargs={'rid': repo.id, 'repo_slug': repo.slug}),
+        tab_infos = [(reverse('repositories:jetbrains:plugin_index', kwargs={'rid': repo.id, 'repo_slug': repo.slug}),
                       ArchiveState(name=_('All states'), slug='all-states'), states), ]
-        tab_infos += [(reverse('jetbrains:plugin_index',
+        tab_infos += [(reverse('repositories:jetbrains:plugin_index',
                                kwargs={'rid': repo.id, 'repo_slug': repo.slug, 'state_slug': state.slug}),
                        state, [state])
                       for state in states]
