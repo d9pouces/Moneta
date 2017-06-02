@@ -9,12 +9,15 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 # noinspection PyPackageRequirements
+from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from moneta.repositories.aptitude import Aptitude
 from moneta.repositories import rpm
 from moneta.repository.models import Repository, storage, Element, ArchiveState
 from moneta.repository.signing import GPGSigner
+from moneta.templatetags.moneta import moneta_url
 from moneta.views import sendpath
 
 __author__ = 'flanker'
@@ -54,11 +57,15 @@ class Yum(Aptitude):
         rpm_ = {'binary': rpm_obj.binary, 'canonical_filename': rpm_obj.canonical_filename,
                 'checksum': rpm_obj.checksum, 'filesize': rpm_obj.filesize, 'source': rpm_obj.source,
                 'filelist': [{'type': x.type, 'name': x.name, } for x in rpm_obj.filelist],
-                'provides': [{'name': x.name, 'str_flags': x.str_flags, 'version': list(x.version)} for x in rpm_obj.provides],
-                'requires': [{'name': x.name, 'str_flags': x.str_flags, 'version': list(x.version)} for x in rpm_obj.requires],
+                'provides': [{'name': x.name, 'str_flags': x.str_flags, 'version': list(x.version)}
+                             for x in rpm_obj.provides],
+                'requires': [{'name': x.name, 'str_flags': x.str_flags, 'version': list(x.version)}
+                             for x in rpm_obj.requires],
                 'changelog': [{'name': x.name, 'time': x.time, 'text': x.text, } for x in rpm_obj.changelog],
-                'obsoletes': [{'name': x.name, 'str_flags': x.str_flags, 'version': list(x.version)} for x in rpm_obj.obsoletes],
-                'conflicts': [{'name': x.name, 'str_flags': x.str_flags, 'version': list(x.version)} for x in rpm_obj.conflicts],
+                'obsoletes': [{'name': x.name, 'str_flags': x.str_flags, 'version': list(x.version)}
+                              for x in rpm_obj.obsoletes],
+                'conflicts': [{'name': x.name, 'str_flags': x.str_flags, 'version': list(x.version)}
+                              for x in rpm_obj.conflicts],
                 'header_range': list(rpm_obj.header.header_range),
                 }
         rpm_dict = {'header': header, 'signature': signature, 'rpm': rpm_, }
@@ -83,9 +90,10 @@ class Yum(Aptitude):
             url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/(?P<state_slug>[\w\-\._]+)/(?P<folder>[\w\-\._]+)/Packages/'
                 r'(?P<filename>[\w\-\.]+)$', self.wrap_view('get_file'), name='get_file'),
             url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/(?P<state_slug>[\w\-\._]+)/(?P<arch>[\w\-\._]+)/repodata/'
-                r'(?P<filename>\w+\.xml)(?P<compression>|.bz2|.gz)$', self.wrap_view('repodata_file'), name='repodata_file'),
-            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]+)/(?P<state_slug>[\w\-\._]+)/(?P<arch>[\w\-\._]+)$',
-                self.wrap_view('index'), name='repo_index'),
+                r'(?P<filename>\w+\.xml)(?P<compression>|.bz2|.gz)$', self.wrap_view('repodata_file'),
+                name='repodata_file'),
+            url(r'^(?P<rid>\d+)/(?P<repo_slug>[\w\-._]+)/(?P<state_slug>[\w\-._]+)/(?P<arch>[\w\-._]+)$',
+                self.wrap_view('repo_index'), name='repo_index'),
             url(r"^(?P<rid>\d+)/gpg_key.asc$", self.wrap_view('gpg_key'), name="gpg_key"),
             url(r"^(?P<rid>\d+)/$", self.wrap_view('index'), name="index"),
         ]
@@ -112,11 +120,21 @@ class Yum(Aptitude):
         key = storage(settings.STORAGE_CACHE).uid_to_key(uid)
         return sendpath(settings.STORAGE_CACHE, key, filename, mimetype)
 
+    def repo_index(self, request, rid, repo_slug, state_slug, arch):
+        repo = get_object_or_404(Repository.reader_queryset(request), id=rid, archive_type=self.archive_type)
+        filenames = [reverse(moneta_url(repo, 'repodata_file'),
+                             kwargs={'rid': rid, 'repo_slug': repo_slug, 'state_slug': state_slug, 'arch': arch,
+                                     'filename': filename, 'compression': ''})
+                     for filename in ('comps.xml', 'primary.xml', 'other.xml', 'filelists.xml', 'repomd.xml', )]
+        template_values = {'repo': repo, 'filenames': filenames}
+        return TemplateResponse(request, 'repositories/yum/files.txt', template_values, content_type='text/plain')
+
     def generate_indexes(self, repository, states=None, validity=365):
         if states is None:
             states = list(ArchiveState.objects.filter(repository=repository).order_by('name'))
         revision = int(time.time())
-        architectures_by_state = {x.slug: set() for x in states}  # architectures_by_state[archive_state.slug] = {'x86_64', 'c7', }
+        architectures_by_state = {x.slug: set() for x in states}
+        # architectures_by_state[archive_state.slug] = {'x86_64', 'c7', }
         # load all dict infos and count all architectures
         rpm_objects = []
         package_count_by_state_arch = {x.slug: {'noarch': 0} for x in states}
@@ -155,11 +173,14 @@ class Yum(Aptitude):
                     open_files[filename] = tempfile.TemporaryFile(mode='w+b', dir=settings.TEMP_ROOT)
                     write(name, '<?xml version="1.0" encoding="UTF-8"?>\n')
                 package_count = package_count_by_state_arch[state_slug][architecture]
-                write('other.xml', '<otherdata xmlns="http://linux.duke.edu/metadata/other" packages="%d">\n' % package_count)
-                write('filelists.xml', '<filelists xmlns="http://linux.duke.edu/metadata/filelists" packages="%d">\n' % package_count)
+                write('other.xml', '<otherdata xmlns="http://linux.duke.edu/metadata/other" packages="%d">\n'
+                      % package_count)
+                write('filelists.xml', '<filelists xmlns="http://linux.duke.edu/metadata/filelists" packages="%d">\n'
+                      % package_count)
                 write('comps.xml', '<!DOCTYPE comps PUBLIC "-//CentOS//DTD Comps info//EN" "comps.dtd">\n')
                 write('comps.xml', '<comps>\n')
-                write('primary.xml', '<metadata xmlns="http://linux.duke.edu/metadata/common" xmlns:rpm="http://linux.duke.edu/metadata/rpm" packages="%d">\n' % package_count)
+                write('primary.xml', '<metadata xmlns="http://linux.duke.edu/metadata/common" xmlns:rpm="http://linux.'
+                                     'duke.edu/metadata/rpm" packages="%d">\n' % package_count)
         # fill all files with RPMs
         for rpm_dict in rpm_objects:
             filelists = render_to_string('repositories/yum/filelists.xml', rpm_dict)
@@ -170,8 +191,10 @@ class Yum(Aptitude):
                 if architectures == {'noarch', }:
                     architectures = architectures_by_state[state_slug]
                 for architecture in architectures:
-                    open_files[self.index_filename(state_slug, architecture, 'filelists.xml')].write(filelists.encode('utf-8'))
-                    open_files[self.index_filename(state_slug, architecture, 'primary.xml')].write(primary.encode('utf-8'))
+                    open_files[self.index_filename(state_slug, architecture, 'filelists.xml')]\
+                        .write(filelists.encode('utf-8'))
+                    open_files[self.index_filename(state_slug, architecture, 'primary.xml')]\
+                        .write(primary.encode('utf-8'))
                     open_files[self.index_filename(state_slug, architecture, 'other.xml')].write(other.encode('utf-8'))
         # finish all files
         for state_slug, architectures in architectures_by_state.items():
@@ -211,4 +234,5 @@ class Yum(Aptitude):
 
     @staticmethod
     def index_filename(state: str, architecture: str, name: str):
-        return '%(state)s/%(architecture)s/repodata/%(name)s' % {'state': state, 'architecture': architecture, 'name': name, }
+        return '%(state)s/%(architecture)s/repodata/%(name)s' % {'state': state, 'architecture': architecture,
+                                                                 'name': name, }

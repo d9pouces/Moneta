@@ -1,0 +1,2 @@
+{% load moneta %}{% for filename in filenames %}{{ absolute_url }}{{ filename }}
+{% endfor %}
