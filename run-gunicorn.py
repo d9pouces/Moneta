@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-from djangofloor.scripts import gunicorn
-import os
-os.environ['DJANGOFLOOR_PROJECT_NAME'] = 'moneta'
+from djangofloor.scripts import gunicorn, set_env
+
+__author__ = 'Matthieu Gallet'
+
+set_env(command_name='moneta-gunicorn')
 gunicorn()

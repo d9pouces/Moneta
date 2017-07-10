@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-from djangofloor.scripts import manage
-import os
-os.environ['DJANGOFLOOR_PROJECT_NAME'] = 'moneta'
-manage()
+from djangofloor.scripts import django, set_env
+
+__author__ = 'Matthieu Gallet'
+
+set_env(command_name='moneta-django')
+django()
