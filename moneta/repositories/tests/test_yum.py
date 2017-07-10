@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pkg_resources
 
 from moneta.repositories.tests import RepositoryTestCase

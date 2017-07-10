@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # https://www.nopsec.com/news-and-resources/blog/2015/3/27/private-vagrant-box-hosting-easy-versioning/
 import json
 import tarfile

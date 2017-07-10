@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.http import HttpRequest
 from django.test import TestCase
 from moneta.repositories.maven3 import Maven3

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import UploadedFile

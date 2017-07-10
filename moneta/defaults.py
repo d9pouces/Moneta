@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from djangofloor.conf.config_values import AutocreateDirectory, CallableSetting
 from moneta.log import moneta_log_configuration
 

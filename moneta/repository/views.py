@@ -1,4 +1,3 @@
-# coding=utf-8
 from django.contrib import messages
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _

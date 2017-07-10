@@ -1,4 +1,3 @@
-# coding=utf-8
 from bootstrap3.templatetags.bootstrap3 import get_pagination_context
 from django import template
 from django.core.urlresolvers import reverse

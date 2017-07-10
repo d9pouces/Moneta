@@ -1,3 +1,4 @@
+import pkg_resources
 from django.conf import settings
 from django.core.signing import Signer, base64_hmac, BadSignature
 from django.utils.crypto import constant_time_compare
@@ -8,6 +9,7 @@ import logging
 
 __author__ = 'flanker'
 logger = logging.getLogger('django.requests')
+GPG_CONF_FILENAME = pkg_resources.resource_filename('moneta', 'templates/gpg.conf')
 
 
 class RSASigner(Signer):
@@ -37,7 +39,8 @@ class DSASigner(RSASigner):
         return force_str(signature)
 
 try:
-    GPG = gnupg.GPG(gnupghome=settings.GNUPG_HOME, gpgbinary=settings.GNUPG_PATH)
+    GPG = gnupg.GPG(gnupghome=settings.GNUPG_HOME, gpgbinary=settings.GNUPG_PATH,
+                    options=['--options', GPG_CONF_FILENAME])
 
     class GPGSigner(Signer):
 
@@ -61,7 +64,7 @@ try:
 
         def unsign(self, signed_value):
             signed_value = force_str(signed_value)
-            if not self.sep in signed_value:
+            if self.sep not in signed_value:
                 raise BadSignature('No "%s" found in value' % self.sep)
             value, sig = signed_value.rsplit(self.sep, 1)
             if constant_time_compare(sig, self.signature(value)):

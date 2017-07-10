@@ -1,4 +1,3 @@
-# coding=utf-8
 from xmlrpc.client import dumps, Fault, loads
 from django.http.response import HttpResponse
 

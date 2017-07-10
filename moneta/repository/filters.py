@@ -1,4 +1,3 @@
-# coding=utf-8
 # noinspection PyCompatibility
 import bz2
 import gzip

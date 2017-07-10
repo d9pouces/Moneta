@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from djangofloor.conf.fields import bool_setting, CharConfigField, ConfigField
 from djangofloor.conf.mapping import BASE_MAPPING, REDIS_MAPPING, AUTH_MAPPING
 
