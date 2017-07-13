@@ -1,3 +1,5 @@
+import os
+
 import pkg_resources
 from django.conf import settings
 from django.core.signing import Signer, base64_hmac, BadSignature
@@ -39,8 +41,13 @@ class DSASigner(RSASigner):
         return force_str(signature)
 
 try:
-    GPG = gnupg.GPG(gnupghome=settings.GNUPG_HOME, gpgbinary=settings.GNUPG_PATH,
-                    options=['--options', GPG_CONF_FILENAME])
+    if not os.path.isdir(settings.GNUPG_HOME):
+        gnupg = None
+        GPG = None
+        logger.error(_('Folder %(folder)s does not exist.') % {'folder': settings.GNUPG_HOME})
+    else:
+        GPG = gnupg.GPG(gnupghome=settings.GNUPG_HOME, gpgbinary=settings.GNUPG_PATH,
+                        options=['--options', GPG_CONF_FILENAME])
 
     class GPGSigner(Signer):
 
