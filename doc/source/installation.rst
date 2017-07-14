@@ -216,20 +216,12 @@ Now, it's time to install Moneta:
     password = 5trongp4ssw0rd
     port = 5432
     user = moneta
-    [gnupg]
-    home = /var/moneta/gpg/
-    keyid = 1DA759EA7F5EF06F
-    path = gpg
     EOF
     chmod 0400 $VIRTUAL_ENV/etc/moneta/settings.ini
     # protect passwords in the config files from by being readable by everyone
-    moneta-manage migrate
     moneta-manage collectstatic --noinput
+    moneta-manage migrate
     moneta-manage createsuperuser
-    chmod 0700 /var/moneta/gpg/
-    moneta-manage gpg_gen generate --absent
-    KEY_ID=`moneta-manage gpg_gen show --onlyid | tail -n 1`
-    sed -i "s/1DA759EA7F5EF06F/$KEY_ID/" $VIRTUAL_ENV/etc/moneta/settings.ini
 
 On VirtualBox, you may need to install rng-tools to generate enough entropy for GPG keys:
 

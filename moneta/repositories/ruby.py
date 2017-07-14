@@ -376,8 +376,8 @@ class RubyGem(Aptitude):
     def __write_file(self, repo, dest_filename, write_function):
         uid = self.storage_uid % repo.pk
         key = storage(settings.STORAGE_CACHE).uid_to_key(uid)
-        plain_file = tempfile.NamedTemporaryFile(mode='w+b', dir=settings.TEMP_ROOT, delete=False)
-        gz_plain_file = tempfile.NamedTemporaryFile(mode='w+b', dir=settings.TEMP_ROOT, delete=False)
+        plain_file = tempfile.NamedTemporaryFile(mode='w+b', dir=settings.FILE_UPLOAD_TEMP_DIR, delete=False)
+        gz_plain_file = tempfile.NamedTemporaryFile(mode='w+b', dir=settings.FILE_UPLOAD_TEMP_DIR, delete=False)
         gz_file = gzip.open(gz_plain_file, 'wb')
         write_function(plain_file)
         plain_file.flush()

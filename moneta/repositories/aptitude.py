@@ -110,7 +110,7 @@ class Aptitude(RepositoryModel):
         key = storage(settings.STORAGE_CACHE).uid_to_key(uid)
         fileobj = storage(settings.STORAGE_CACHE).get_file(key, cache_filename)
         if fileobj is None:
-            tmpfile = tempfile.NamedTemporaryFile(dir=settings.TEMP_ROOT)
+            tmpfile = tempfile.NamedTemporaryFile(dir=settings.FILE_UPLOAD_TEMP_DIR)
             archive_file = storage(settings.STORAGE_ARCHIVE).get_file(element.archive_key, sub_path='')
             ar_file = ArFile(element.filename, mode='r', fileobj=archive_file)
             data_file, data_file_name = self.get_subfile(ar_file, 'data.tar.')
@@ -313,9 +313,9 @@ class Aptitude(RepositoryModel):
             gz_filename = filename + '.gz'
             bz2_filename = filename + '.bz2'
             xz_filename = filename + '.xz'
-            gz_file = tempfile.TemporaryFile(mode='w+b', dir=settings.TEMP_ROOT)
-            bz2_file = tempfile.TemporaryFile(mode='w+b', dir=settings.TEMP_ROOT)
-            xz_file = tempfile.TemporaryFile(mode='w+b', dir=settings.TEMP_ROOT)
+            gz_file = tempfile.TemporaryFile(mode='w+b', dir=settings.FILE_UPLOAD_TEMP_DIR)
+            bz2_file = tempfile.TemporaryFile(mode='w+b', dir=settings.FILE_UPLOAD_TEMP_DIR)
+            xz_file = tempfile.TemporaryFile(mode='w+b', dir=settings.FILE_UPLOAD_TEMP_DIR)
             bz2_compressor = bz2.BZ2Compressor(9)
             if lzma is not None:
                 xz_compressor = lzma.LZMACompressor()
@@ -401,7 +401,7 @@ class Aptitude(RepositoryModel):
                     filename = 'dists/%(repo)s/%(state)s/binary-%(architecture)s/Packages' % {
                         'repo': repo_slug, 'state': state.name, 'architecture': architecture, }
                     if filename not in open_files:
-                        open_files[filename] = tempfile.TemporaryFile(mode='w+b', dir=settings.TEMP_ROOT)
+                        open_files[filename] = tempfile.TemporaryFile(mode='w+b', dir=settings.FILE_UPLOAD_TEMP_DIR)
                     package_file = open_files[filename]
                     package_file.write(element.extra_data.encode('utf-8'))
                     for key, attr in (('MD5sum', 'md5'), ('SHA1', 'sha1'), ('SHA256', 'sha256'),
@@ -422,7 +422,7 @@ class Aptitude(RepositoryModel):
                 filename = 'dists/%(repo)s/%(state)s/binary-%(architecture)s/Release' % {
                     'repo': repo_slug, 'state': state.slug, 'architecture': architecture,
                 }
-                open_files[filename] = tempfile.TemporaryFile(mode='w+b', dir=settings.TEMP_ROOT)
+                open_files[filename] = tempfile.TemporaryFile(mode='w+b', dir=settings.FILE_UPLOAD_TEMP_DIR)
                 content = render_to_string('repositories/aptitude/architecture_release.txt',
                                            {'architecture': architecture, 'repository': repository, 'state': state, })
                 open_files[filename].write(content.encode('utf-8'))
@@ -432,7 +432,7 @@ class Aptitude(RepositoryModel):
             file_list.sort()
             filename = 'dists/%(repo)s/Contents-%(architecture)s' % {'repo': repo_slug,
                                                                      'architecture': architecture, }
-            open_files[filename] = tempfile.TemporaryFile(mode='w+b', dir=settings.TEMP_ROOT)
+            open_files[filename] = tempfile.TemporaryFile(mode='w+b', dir=settings.FILE_UPLOAD_TEMP_DIR)
             for info in file_list:
                 open_files[filename].write(info.encode('utf-8'))
             # build the following files:
@@ -443,7 +443,7 @@ class Aptitude(RepositoryModel):
         hash_controls = self.compress_files(open_files, root, uid)
         #   * dists/(group)/Release
         # store all files in the cache
-        release_file = tempfile.TemporaryFile(mode='w+b', dir=settings.TEMP_ROOT)
+        release_file = tempfile.TemporaryFile(mode='w+b', dir=settings.FILE_UPLOAD_TEMP_DIR)
         now = datetime.datetime.now(tz)
         now_str = now.strftime('%a, %d %b %Y %H:%M:%S %z')  # 'Mon, 29 Nov 2010 08:12:51 UTC'
         until = (now + datetime.timedelta(validity)).strftime('%a, %d %b %Y %H:%M:%S %z')
@@ -466,7 +466,7 @@ class Aptitude(RepositoryModel):
         signature = GPGSigner().sign_file(release_file)
         release_file.close()
 
-        gpg_file = tempfile.TemporaryFile(mode='w+b', dir=settings.TEMP_ROOT)
+        gpg_file = tempfile.TemporaryFile(mode='w+b', dir=settings.FILE_UPLOAD_TEMP_DIR)
         gpg_file.write(signature.encode('utf-8'))
         gpg_file.flush()
         gpg_file.seek(0)

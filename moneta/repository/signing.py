@@ -1,50 +1,23 @@
+import logging
 import os
 
+import gnupg
 import pkg_resources
 from django.conf import settings
-from django.core.signing import Signer, base64_hmac, BadSignature
+from django.core.signing import Signer, BadSignature
 from django.utils.crypto import constant_time_compare
 from django.utils.encoding import force_str, force_text
 from django.utils.translation import ugettext as _
-import gnupg
-import logging
 
 __author__ = 'flanker'
 logger = logging.getLogger('django.requests')
 GPG_CONF_FILENAME = pkg_resources.resource_filename('moneta', 'templates/gpg.conf')
 
 
-class RSASigner(Signer):
-
-    def __init__(self, key=None, sep=':', salt=None):
-        super().__init__(sep=sep, salt=salt)
-        self.key = str(key or settings.RSA_SECRET_KEY)
-
-    def signature(self, value):
-        signature = base64_hmac(self.salt + 'signer', value, self.key)
-        # Convert the signature from bytes to str only on Python 3
-        return force_str(signature)
-
-    def sign_file(self, fd):
-        return self.signature(fd.read())
-
-
-class DSASigner(RSASigner):
-
-    def __init__(self, key=None, sep=':', salt=None):
-        super().__init__(sep=sep, salt=salt)
-        self.key = str(key or settings.DSA_SECRET_KEY)
-
-    def signature(self, value):
-        signature = base64_hmac(self.salt + 'signer', value, self.key)
-        # Convert the signature from bytes to str only on Python 3
-        return force_str(signature)
-
 try:
     if not os.path.isdir(settings.GNUPG_HOME):
         gnupg = None
         GPG = None
-        logger.error(_('Folder %(folder)s does not exist.') % {'folder': settings.GNUPG_HOME})
     else:
         GPG = gnupg.GPG(gnupghome=settings.GNUPG_HOME, gpgbinary=settings.GNUPG_PATH,
                         options=['--options', GPG_CONF_FILENAME])

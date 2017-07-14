@@ -343,7 +343,7 @@ def add_element_post(request: HttpRequest, rid):
     if not form.is_valid():
         return TemplateResponse(request, 'moneta/not_allowed.html', {}, status=405)
 
-    tmp_file = tempfile.TemporaryFile(mode='w+b', dir=settings.TEMP_ROOT)
+    tmp_file = tempfile.TemporaryFile(mode='w+b', dir=settings.FILE_UPLOAD_TEMP_DIR)
     c = False
     chunk = request.read(32768)
     while chunk:
@@ -440,7 +440,7 @@ def get_file(request: HttpRequest, eid: int, compression: str=None, path: str=''
     else:
         raise Http404
     if arc_storage is not None:
-        temp_file = tempfile.TemporaryFile(mode='w+b', dir=settings.TEMP_ROOT)
+        temp_file = tempfile.TemporaryFile(mode='w+b', dir=settings.FILE_UPLOAD_TEMP_DIR)
         comp_file = None
         ext = ''
         if compression == 'zip':

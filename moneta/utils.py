@@ -104,11 +104,11 @@ def normalize_str(x):
 
 def mkdtemp():
     """
-    create a temporary directory inside the settings.TEMP_ROOT
+    create a temporary directory inside the settings.FILE_UPLOAD_TEMP_DIR
     :return: the name of the created directory
     """
-    makedir(settings.TEMP_ROOT)
-    return tempfile.mkdtemp(dir=settings.TEMP_ROOT, prefix='moneta')
+    makedir(settings.FILE_UPLOAD_TEMP_DIR)
+    return tempfile.mkdtemp(dir=settings.FILE_UPLOAD_TEMP_DIR, prefix='moneta')
 
 
 def read_file_in_chunks(fileobj, chunk_size=4096):
@@ -163,7 +163,7 @@ class BZ2File(object):
 def split_lines(fd, compression=None, bufsize=10240):
     __buffer = ''
     if compression == 'gz':
-        tmp_file = tempfile.TemporaryFile(dir=settings.TEMP_ROOT)
+        tmp_file = tempfile.TemporaryFile(dir=settings.FILE_UPLOAD_TEMP_DIR)
         data = fd.read(bufsize)
         while data:
             tmp_file.write(data)

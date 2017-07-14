@@ -1,5 +1,5 @@
-from djangofloor.conf.config_values import AutocreateDirectory, CallableSetting
-from moneta.log import moneta_log_configuration
+from djangofloor.conf.config_values import Directory, CallableSetting, AutocreateFileContent
+from moneta.conf import moneta_log_configuration, auto_generate_signing_key
 
 __author__ = 'flanker'
 
@@ -30,17 +30,17 @@ REPOSITORY_CLASSES = [
 STORAGES = {
     'archive': {
         'ENGINE': 'moneta.repository.storages.FlatStorage',
-        'ROOT': AutocreateDirectory('{MEDIA_ROOT}/archives'),
+        'ROOT': Directory('{MEDIA_ROOT}/archives'),
         'PATH_LEN': 1,
     },
     'default': {
         'ENGINE': 'moneta.repository.storages.FlatStorage',
-        'ROOT': AutocreateDirectory('{MEDIA_ROOT}/uncompressed'),
+        'ROOT': Directory('{MEDIA_ROOT}/uncompressed'),
         'PATH_LEN': 1,
     },
     'cache': {
         'ENGINE': 'moneta.repository.storages.FlatStorage',
-        'ROOT': AutocreateDirectory('{MEDIA_ROOT}/cache'),
+        'ROOT': Directory('{MEDIA_ROOT}/cache'),
         'PATH_LEN': 1,
     }
 }
@@ -50,17 +50,8 @@ STORAGE_UNCOMPRESSED = 'uncompressed'
 STORAGE_CACHE = 'cache'
 WEBSOCKET_URL = None
 
-# TO BE CONFIGURED
-GNUPG_HOME = AutocreateDirectory('{LOCAL_PATH}/gpg')
-GNUPG_HOME_HELP = 'Path of the GnuPG secret data'
-# TO BE CONFIGURED
-TEMP_ROOT = AutocreateDirectory('{LOCAL_PATH}/tmp')
-TEMP_ROOT_HELP = 'Path used for temporary archive storage'
-# TO BE CONFIGURED
-GNUPG_KEYID = '1DA759EA7F5EF06F'
-GNUPG_KEYID_HELP = 'ID of the GnuPG key'
-# TO BE CONFIGURED
+GNUPG_HOME = Directory('{LOCAL_PATH}/gpg')
+GNUPG_KEYID = AutocreateFileContent('{LOCAL_PATH}/gpg_key_id.txt', auto_generate_signing_key)
 GNUPG_PATH = 'gpg'
-GNUPG_PATH_HELP = 'Path of the gpg binary'
 
 LOGGING = CallableSetting(moneta_log_configuration)
