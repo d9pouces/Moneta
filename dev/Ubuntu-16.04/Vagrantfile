@@ -85,7 +85,7 @@ sudo npm -g install yuglify
 sudo apt-get install -y virtualenvwrapper python3.5 python3.5-dev python3-pip build-essential
 sudo -H pip3 install git+https://github.com/d9pouces/EasyDjango.git
 sudo -H pip3 install moneta
-sudo mkdir -p /var/moneta/logs /etc/moneta
+sudo mkdir -p /var/moneta/log /etc/moneta
 sudo adduser --system --shell /bin/bash --disabled-password --gecos "" moneta
 cat << EOF | sudo -H tee /etc/moneta/settings.ini
 [global]
