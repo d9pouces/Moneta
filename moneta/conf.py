@@ -34,7 +34,9 @@ def auto_generate_signing_key(django_ready):
                                        name_real='%s GNUPG key' % settings.SERVER_NAME,
                                        name_comment='GPG key of the %s repository' % settings.SERVER_NAME,
                                        name_email=settings.ADMIN_EMAIL, expire_date='10y')
+        print('Generating a new private signing key. Can take some time...')
         GPG.gen_key(input_data)
+        print('Private key generated.')
     key_id = None
     for key in GPG.list_keys(False):
         key_id = "{keyid}".format(**key)
