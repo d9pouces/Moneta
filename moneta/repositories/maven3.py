@@ -1,4 +1,3 @@
-# -*- coding=utf-8 -*-
 """
 Emulate a Maven3-compatible repository.
 
