@@ -1,6 +1,7 @@
 import os
 
 from djangofloor.log import log_configuration
+from moneta.repository.signing import get_gpg
 
 __author__ = 'Matthieu Gallet'
 
@@ -20,7 +21,6 @@ def auto_generate_signing_key(django_ready):
     if not django_ready:
         return None
     from django.conf import settings
-    from moneta.repository.signing import GPG
     gnupg_home = settings.GNUPG_HOME
     if not os.path.isdir(gnupg_home):
         os.makedirs(gnupg_home)
@@ -29,16 +29,17 @@ def auto_generate_signing_key(django_ready):
         os.chmod(root, 0o700)
         for filename in filenames:
             os.chmod(os.path.join(root, filename), 0o600)
-    if len(GPG.list_keys(False)) == 0:
-        input_data = GPG.gen_key_input(key_type='RSA', key_length=2048,
+    gpg = get_gpg()
+    if len(gpg.list_keys(False)) == 0:
+        input_data = gpg.gen_key_input(key_type='RSA', key_length=2048,
                                        name_real='%s GNUPG key' % settings.SERVER_NAME,
                                        name_comment='GPG key of the %s repository' % settings.SERVER_NAME,
                                        name_email=settings.ADMIN_EMAIL, expire_date='10y')
-        print('Generating a new private signing key. Can take some time...')
-        GPG.gen_key(input_data)
+        print('Generating a new private signing key (can take some time…)')
+        gpg.gen_key(input_data)
         print('Private key generated.')
     key_id = None
-    for key in GPG.list_keys(False):
+    for key in gpg.list_keys(False):
         key_id = "{keyid}".format(**key)
     return key_id or ''
 

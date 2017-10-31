@@ -28,10 +28,11 @@ from djangofloor.views import send_file
 from moneta.exceptions import InvalidRepositoryException
 from moneta.repository.forms import get_repository_form, RepositoryUpdateForm
 from moneta.repository.models import Repository, ArchiveState, Element, storage, ElementSignature
-from moneta.repository.signing import GPG
+from moneta.repository.signing import get_gpg
 from moneta.utils import read_file_in_chunks
 
 __author__ = 'flanker'
+GPG = get_gpg()
 
 
 @never_cache

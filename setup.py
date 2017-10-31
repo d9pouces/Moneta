@@ -32,7 +32,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=['setuptools>=1.0', 'djangofloor>=1.0.0', 'python-gnupg', 'rubymarshal', 'pyyaml', 'gunicorn'],
+    install_requires=['setuptools>=1.0', 'djangofloor>=1.0.25', 'python-gnupg', 'rubymarshal', 'pyyaml', 'gunicorn'],
     setup_requires=[],
     classifiers=[],
 )

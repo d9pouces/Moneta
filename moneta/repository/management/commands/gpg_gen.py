@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from moneta.repository.signing import GPG
+from moneta.repository.signing import get_gpg
 
 __author__ = 'flanker'
 
@@ -14,6 +14,7 @@ if settings.ADMINS and len(settings.ADMINS[0]) == 2:
     default_email = settings.ADMINS[0][1]
 else:
     default_email = 'moneta@19pouces.net'
+GPG = get_gpg()
 
 
 class Command(BaseCommand):
