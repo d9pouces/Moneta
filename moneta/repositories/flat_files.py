@@ -1,4 +1,4 @@
-"""
+r"""
 Emulate a Maven3-compatible repository.
 
 
@@ -38,7 +38,7 @@ URLs to emulate:
     /$groupId[0]/../$groupId[n]/$artifactId/$version/(filename).sha1$
     /$groupId[0]/../$groupId[n]/$artifactId/$version/(filename).sha256$
 """
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext as _

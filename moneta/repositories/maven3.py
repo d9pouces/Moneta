@@ -1,4 +1,4 @@
-"""
+r"""
 Emulate a Maven3-compatible repository.
 
 
@@ -43,7 +43,7 @@ import zipfile
 
 from django.conf import settings
 from django.conf.urls import url
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Q
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -219,7 +219,7 @@ class Maven3(Aptitude):
         return reverse(browse_view_name, kwargs=kwargs)
 
     def public_url_list(self):
-        """
+        r"""
         Return a list of URL patterns specific to this repository
         Sample recognized urls:
             /$groupId[0]/../$groupId[n]/$artifactId/$version/(filename)(|.md5|sha1|sha256)$

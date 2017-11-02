@@ -26,6 +26,7 @@ REPOSITORY_CLASSES = [
     'moneta.repositories.jetbrains.Jetbrains',
     'moneta.repositories.vagrant.Vagrant',
 ]
+USE_HTTP_BASIC_AUTH = True
 
 STORAGES = {
     'archive': {

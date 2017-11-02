@@ -29,3 +29,4 @@ urlpatterns = [
     url(r'^test/$', test_upload, name='test_upload'),
 
 ]
+app_name = 'moneta'

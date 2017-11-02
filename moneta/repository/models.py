@@ -5,7 +5,7 @@ import functools
 
 from django.conf import settings
 from django.contrib.auth.models import Group, Permission
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import pre_delete, post_migrate
@@ -19,9 +19,7 @@ from moneta.utils import normalize_str, remove, import_path
 
 __author__ = 'flanker'
 
-
 logger = logging.getLogger('moneta.files')
-
 
 ARCHIVE_FILTER_CALLABLES = None
 STORAGES = {}
@@ -52,7 +50,8 @@ class BaseModel(models.Model):
     slug = models.SlugField(_('Slug'), max_length=100, blank=False, db_index=True)
     creation = models.DateTimeField(_('Creation date'), db_index=True, auto_now_add=True)
     modification = models.DateTimeField(_('Modification date'), db_index=True, auto_now=True)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('Author'), db_index=True, blank=True, null=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('Author'), db_index=True, blank=True, null=True,
+                               on_delete=models.SET_NULL)
 
     class Meta:
         abstract = True
@@ -85,14 +84,14 @@ class Repository(BaseModel):
     @staticmethod
     def index_queryset(request):
         user = request.user
-        if user.is_anonymous():
+        if user.is_anonymous:
             return Repository.objects.filter(Q(on_index=True) | Q(author=None)).distinct()
         return Repository.objects.filter(Q(on_index=True) | Q(author=user)).distinct()
 
     @staticmethod
     def upload_queryset(request):
         user = request.user
-        if user.is_anonymous():
+        if user.is_anonymous:
             return Repository.objects.filter(author=None)
         elif user.is_superuser:
             return Repository.objects.all()
@@ -101,7 +100,7 @@ class Repository(BaseModel):
     @staticmethod
     def admin_queryset(request):
         user = request.user
-        if user.is_anonymous():
+        if user.is_anonymous:
             return Repository.objects.filter(author=None)
         elif user.is_superuser:
             return Repository.objects.all()
@@ -110,7 +109,7 @@ class Repository(BaseModel):
     @staticmethod
     def reader_queryset(request):
         user = request.user
-        if user.is_anonymous():
+        if user.is_anonymous:
             return Repository.objects.filter(Q(is_private=False) | Q(author=None)).distinct()
         return Repository.objects.filter(Q(is_private=False) | Q(author=user) | Q(reader_group=user.groups.all())
                                          | Q(admin_group=user.groups.all())).distinct()
@@ -123,15 +122,16 @@ class Repository(BaseModel):
 
     def reader_allowed(self, request):
         user = request.user
-        if user.is_anonymous():
+        if user.is_anonymous:
             return not self.is_private
         return not self.is_private or self.author == user or \
-            (not {x.id for x in user.groups.all()}.isdisjoint({x.id for x in self.reader_group.all()})) or \
-            (not {x.id for x in user.groups.all()}.isdisjoint({x.id for x in self.admin_group.all()}))
+               (not {x.id for x in user.groups.all()}.isdisjoint({x.id for x in self.reader_group.all()})) or \
+               (not {x.id for x in user.groups.all()}.isdisjoint({x.id for x in self.admin_group.all()}))
 
 
 class ArchiveState(BaseModel):
-    repository = models.ForeignKey(Repository, verbose_name=_('Repository'), db_index=True)
+    repository = models.ForeignKey(Repository, verbose_name=_('Repository'), db_index=True,
+                                   on_delete=models.CASCADE)
 
 
 class Element(BaseModel):
@@ -139,7 +139,8 @@ class Element(BaseModel):
     short_description = models.CharField(_('Short description'), max_length=500, blank=True)
     long_description = models.TextField(_('Long description'), blank=True)
     states = models.ManyToManyField(ArchiveState, verbose_name=_('Archive states'), db_index=True)
-    repository = models.ForeignKey(Repository, verbose_name=_('Repository'), db_index=True)
+    repository = models.ForeignKey(Repository, verbose_name=_('Repository'), db_index=True,
+                                   on_delete=models.CASCADE)
     full_name = models.CharField(_('Complete name'), max_length=255, blank=True, db_index=True)
     full_name_normalized = models.CharField(_('Normalized complete name'), max_length=255, blank=True, db_index=True,
                                             help_text=_("Complete name without special chars nor accents"))
@@ -253,7 +254,8 @@ class ElementSignature(models.Model):
     OPENSSL = 'openssl'
     X509 = 'x509'
     METHODS = ((GPG, _('GnuPG')), (X509, _('x509 (openSSL/libreSSL)')))
-    element = models.ForeignKey(Element, verbose_name=_('Element'), db_index=True, default=0)
+    element = models.ForeignKey(Element, verbose_name=_('Element'), db_index=True, default=0,
+                                on_delete=models.CASCADE)
     signature = models.TextField(_('signature'), default='', blank=True)
     method = models.CharField(_('signature method'), choices=METHODS, db_index=True, max_length=10)
     creation = models.DateTimeField(_('Creation date'), db_index=True, auto_now_add=True)

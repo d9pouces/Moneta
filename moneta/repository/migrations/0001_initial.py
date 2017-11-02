@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('slug', models.SlugField(max_length=100, verbose_name='Nom raccourci')),
                 ('creation', models.DateTimeField(db_index=True, auto_now_add=True, verbose_name='Date de création')),
                 ('modification', models.DateTimeField(db_index=True, auto_now=True, verbose_name='Date de modification')),
-                ('author', models.ForeignKey(blank=True, null=True, verbose_name='Auteur', to=settings.AUTH_USER_MODEL)),
+                ('author', models.ForeignKey(blank=True, null=True, verbose_name='Auteur', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'abstract': False,
@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
                 ('archive_key', models.CharField(db_index=True, max_length=255, blank=True, default='', verbose_name='Original file')),
                 ('uncompressed_key', models.CharField(db_index=True, max_length=255, blank=True, default='', verbose_name='Stored path')),
                 ('extra_data', models.TextField(blank=True, default='', verbose_name='Extra repo data')),
-                ('author', models.ForeignKey(blank=True, null=True, verbose_name='Auteur', to=settings.AUTH_USER_MODEL)),
+                ('author', models.ForeignKey(blank=True, null=True, verbose_name='Auteur', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'files',
@@ -66,7 +66,7 @@ class Migration(migrations.Migration):
                 ('signature', models.TextField(blank=True, default='', verbose_name='signature')),
                 ('method', models.CharField(db_index=True, max_length=10, choices=[('gpg', 'GnuPG'), ('openssl', 'OpenSSL/x509')], verbose_name='méthode de signature')),
                 ('creation', models.DateTimeField(db_index=True, auto_now_add=True, verbose_name='Date de création')),
-                ('element', models.ForeignKey(verbose_name='Élément', default=0, to='repository.Element')),
+                ('element', models.ForeignKey(verbose_name='Élément', default=0, to='repository.Element', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -81,7 +81,7 @@ class Migration(migrations.Migration):
                 ('on_index', models.BooleanField(db_index=True, default=True, verbose_name='Display on public index?')),
                 ('is_private', models.BooleanField(db_index=True, default=False, verbose_name='Authentification requise en lecture ?')),
                 ('admin_group', models.ManyToManyField(db_index=True, related_name='repository_admin', blank=True, to='auth.Group', verbose_name="Groupes d'administration")),
-                ('author', models.ForeignKey(blank=True, null=True, verbose_name='Auteur', to=settings.AUTH_USER_MODEL)),
+                ('author', models.ForeignKey(blank=True, null=True, verbose_name='Auteur', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
                 ('reader_group', models.ManyToManyField(db_index=True, related_name='repository_reader', blank=True, to='auth.Group', verbose_name='Groupes ayant accès en lecture')),
             ],
             options={
@@ -91,7 +91,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='element',
             name='repository',
-            field=models.ForeignKey(to='repository.Repository', verbose_name='Dépôt'),
+            field=models.ForeignKey(to='repository.Repository', verbose_name='Dépôt', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='element',
@@ -101,6 +101,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='archivestate',
             name='repository',
-            field=models.ForeignKey(to='repository.Repository', verbose_name='Dépôt'),
+            field=models.ForeignKey(to='repository.Repository', verbose_name='Dépôt', on_delete=models.CASCADE),
         ),
     ]

@@ -7,7 +7,7 @@ from django.conf import settings
 from django.conf.urls import url
 from django.core.exceptions import PermissionDenied
 from django.core.files.uploadedfile import UploadedFile
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
@@ -150,7 +150,7 @@ class Pypi(Aptitude):
             url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/simple/?$",
                 self.wrap_view('simple'), name="simple"),
             url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/simple/"
-                "(?P<search_pattern>[a-z\d_\-]*)/?$", self.wrap_view('simple'),
+                r"(?P<search_pattern>[a-z\d_\-]*)/?$", self.wrap_view('simple'),
                 name="simple"),
             url(r"^(?P<rid>\d+)/(?P<repo_slug>[\w\-\._]*)/s/(?P<state_slug>[\w\-\._]+)/rpc/?$",
                 self.wrap_view('xmlrpc', csrf_exempt=True), name="xmlrpc"),

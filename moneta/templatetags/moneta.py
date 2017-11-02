@@ -1,6 +1,6 @@
 from bootstrap3.templatetags.bootstrap3 import get_pagination_context
 from django import template
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
