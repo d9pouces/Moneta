@@ -24,9 +24,9 @@
                     <a class="navbar-brand" href="{% url 'df:set_password' %}">{% fontawesome_icon 'pencil' %}&nbsp;
                         <small>{{ user }}</small>
                     </a>
-                    <a class="navbar-brand" href="{% url 'df:logout' %}">{% fontawesome_icon 'sign-out' %}</a>
+                    <a class="navbar-brand" href="{% url 'auth:logout' %}">{% fontawesome_icon 'sign-out' %}</a>
                 {% elif user.is_anonymous %}
-                    <a class="navbar-brand" href="{% url 'login' %}">{% fontawesome_icon 'sign-in' %}</a>
+                    <a class="navbar-brand" href="{% url 'auth:login' %}">{% fontawesome_icon 'sign-in' %}</a>
                 {% endif %}
                 {% if user.is_staff %}
                     <a class="navbar-brand" href="{% url 'admin:index' %}">{% fontawesome_icon 'wrench' %}</a>
