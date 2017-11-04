@@ -74,6 +74,10 @@ class Repository(BaseModel):
     reader_group = models.ManyToManyField(Group, verbose_name=_('Readers groups'), db_index=True, blank=True,
                                           related_name='repository_reader')
 
+    class Meta:
+        verbose_name = 'repository'
+        verbose_name_plural = 'repositories'
+
     def get_model(self):
         from moneta.repositories.base import RepositoryModelsClasses
         return RepositoryModelsClasses.get_model(self.archive_type)
