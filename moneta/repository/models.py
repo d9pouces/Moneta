@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.db.models.signals import pre_delete, post_migrate
 from django.dispatch import receiver
 from django.utils.text import slugify
-from django.utils.translation import ugettext as _, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from moneta.exceptions import InvalidRepositoryException
 from moneta.repository.storages import BaseStorage
