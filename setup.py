@@ -15,9 +15,7 @@ for line in codecs.open(os.path.join('moneta', '__init__.py'), 'r', encoding='ut
     matcher = re.match(r"""^__version__\s*=\s*['"](.*)['"]\s*$""", line)
     version = version or matcher and matcher.group(1)
 
-entry_points = {'console_scripts': ['moneta-manage = djangofloor.scripts:django',
-                                    'moneta-aiohttp = djangofloor.scripts:aiohttp',
-                                    'moneta-gunicorn = djangofloor.scripts:gunicorn']}
+entry_points = {'console_scripts': ['moneta-ctl = djangofloor.scripts:control']}
 
 setup(
     name='moneta',
