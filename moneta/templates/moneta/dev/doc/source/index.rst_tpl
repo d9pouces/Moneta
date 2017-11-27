@@ -1,0 +1,9 @@
+{% extends 'djangofloor/dev/doc/source/index.rst_tpl' %}
+
+{% block screenshots %}
+.. image:: _static/index.png
+
+.. image:: _static/apt.png
+
+.. image:: _static/package.png
+{% endblock %}

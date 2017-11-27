@@ -1,0 +1,12 @@
+{% extends 'djangofloor/dev/doc/source/quick-installation.rst_tpl' %}
+{% block install_extra_deps %}    sudo apt-get install ruby  # required for Ruby mirrors
+{% endblock %}
+{% block before_install %}
+On VirtualBox, you may need to install rng-tools to generate enough entropy for GPG keys (otherwise the generation will be very slow):
+
+.. code-block:: bash
+
+    sudo apt-get install rng-tools
+    echo "HRNGDEVICE=/dev/urandom" | sudo tee -a /etc/default/rng-tools
+    sudo /etc/init.d/rng-tools restart
+{% endblock %}

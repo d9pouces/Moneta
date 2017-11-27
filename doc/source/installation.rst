@@ -1,26 +1,15 @@
 Installation
 ============
 
-Like many Python packages, you can use several methods to install Moneta.
-Moneta designed to run with python3.5.x+.
-The following packages are also required:
-
-  * setuptools >= 3.0,
-  * djangofloor >= 1.0.0
-  * python-gnupg
-  * rubymarshal
-  * pyyaml
-
-
-
-Of course you can install it from the source, but the preferred way is to install it as a standard Python package, via pip.
-
-
-Installing or Upgrading
------------------------
-
 Here is a simple tutorial to install Moneta on a basic Debian/Linux installation.
 You should easily adapt it on a different Linux or Unix flavor.
+
+Like many Python packages, you can use several methods to install Moneta.
+Of course you can install it from source, but the preferred way is to install it as a standard Python package, via pip.
+
+
+Upgrading
+---------
 
 If you want to upgrade an existing installation, just install the new version (with the `--upgrade` flag for `pip`) and run
 the `collectstatic` and `migrate` commands (for updating both static files and the database).
@@ -42,10 +31,10 @@ Preparing the environment
 .. code-block:: bash
 
     sudo adduser --disabled-password moneta
-    sudo chown moneta:www-data $VIRTUALENV/var/moneta
-    sudo apt-get install virtualenvwrapper python3.5 python3.5-dev build-essential postgresql-client libpq-dev
+    sudo chown moneta:www-data ./django_data
+    sudo apt-get install virtualenvwrapper python3.6 python3.6-dev build-essential postgresql-client libpq-dev
     sudo -u moneta -H -i
-    mkvirtualenv moneta -p `which python3.5`
+    mkvirtualenv moneta -p `which python3.6`
     workon moneta
 
 
@@ -89,7 +78,7 @@ Only the chosen server name (like `moneta.example.org`) can be used for accessin
     cat << EOF | sudo tee /etc/apache2/sites-available/moneta.conf
     <VirtualHost *:80>
         ServerName $SERVICE_NAME
-        Alias /static/ $VIRTUALENV/var/moneta/static/
+        Alias /static/ django_data/static/
         ProxyPass /static/ !
         <Location /static/>
             Order deny,allow
@@ -98,15 +87,15 @@ Only the chosen server name (like `moneta.example.org`) can be used for accessin
         </Location>
         ProxyPass / http://127.0.0.1:8131/
         ProxyPassReverse / http://127.0.0.1:8131/
-        DocumentRoot $VIRTUALENV/var/moneta/static/
+        DocumentRoot django_data/static/
         ServerSignature off
         XSendFile on
-        XSendFilePath $VIRTUALENV/var/moneta/media/
+        XSendFilePath django_data/media/
         # in older versions of XSendFile (<= 0.9), use XSendFileAllowAbove On
     </VirtualHost>
     EOF
-    sudo mkdir $VIRTUALENV/var/moneta
-    sudo chown -R www-data:www-data $VIRTUALENV/var/moneta
+    sudo mkdir ./django_data
+    sudo chown -R www-data:www-data ./django_data
     sudo a2ensite moneta.conf
     sudo apachectl -t
     sudo apachectl restart
@@ -146,7 +135,7 @@ If you want to use SSL:
         ServerName $SERVICE_NAME
         SSLCertificateFile $PEM
         SSLEngine on
-        Alias /static/ $VIRTUALENV/var/moneta/static/
+        Alias /static/ django_data/static/
         ProxyPass /static/ !
         <Location /static/>
             Order deny,allow
@@ -155,7 +144,7 @@ If you want to use SSL:
         </Location>
         ProxyPass / http://127.0.0.1:8131/
         ProxyPassReverse / http://127.0.0.1:8131/
-        DocumentRoot $VIRTUALENV/var/moneta/static/
+        DocumentRoot django_data/static/
         ServerSignature off
         RequestHeader set X_FORWARDED_PROTO https
         <Location />
@@ -172,7 +161,7 @@ If you want to use SSL:
             RequestHeader set REMOTE_USER %{REMOTE_USER}s
         </Location>
         XSendFile on
-        XSendFilePath $VIRTUALENV/var/moneta/media/
+        XSendFilePath django_data/media/
         # in older versions of XSendFile (<= 0.9), use XSendFileAllowAbove On
         <Location /core/p/>
             Order deny,allow
@@ -186,8 +175,8 @@ If you want to use SSL:
         </Location>
     </VirtualHost>
     EOF
-    sudo mkdir $VIRTUALENV/var/moneta
-    sudo chown -R www-data:www-data $VIRTUALENV/var/moneta
+    sudo mkdir ./django_data
+    sudo chown -R www-data:www-data ./django_data
     sudo a2ensite moneta.conf
     sudo apachectl -t
     sudo apachectl restart
@@ -219,10 +208,9 @@ Now, it's time to install Moneta:
     EOF
     chmod 0400 $VIRTUAL_ENV/etc/moneta/settings.ini
     # protect passwords in the config files from by being readable by everyone
-    moneta-manage collectstatic --noinput
-    moneta-manage migrate
-    moneta-manage createsuperuser
-
+     collectstatic --noinput
+     migrate
+     createsuperuser
 On VirtualBox, you may need to install rng-tools to generate enough entropy for GPG keys:
 
 .. code-block:: bash
@@ -243,8 +231,8 @@ Supervisor is required to automatically launch moneta:
 
     sudo apt-get install supervisor
     cat << EOF | sudo tee /etc/supervisor/conf.d/moneta.conf
-    [program:moneta_gunicorn]
-    command = $VIRTUAL_ENV/bin/moneta-gunicorn
+    [program:moneta_aiohttp]
+    command = $VIRTUAL_ENV/bin/moneta-ctl server
     user = moneta
     EOF
     sudo service supervisor stop
@@ -260,22 +248,22 @@ You can also use systemd to launch moneta:
 
 .. code-block:: bash
 
-    cat << EOF | sudo tee /etc/systemd/system/moneta-gunicorn.service
+    cat << EOF | sudo tee /etc/systemd/system/moneta-ctl.service
     [Unit]
-    Description=Moneta Gunicorn process
+    Description=Moneta aIOHTTP process
     After=network.target
     [Service]
     User=moneta
     Group=moneta
-    WorkingDirectory=$VIRTUALENV/var/moneta/
-    ExecStart=$VIRTUAL_ENV/bin/moneta-gunicorn
+    WorkingDirectory=./django_data/
+    ExecStart=$VIRTUAL_ENV/bin/moneta-ctl server
     ExecReload=/bin/kill -s HUP \$MAINPID
     ExecStop=/bin/kill -s TERM \$MAINPID
     [Install]
     WantedBy=multi-user.target
     EOF
-    systemctl enable moneta-gunicorn.service
-    sudo service moneta-gunicorn start
+    systemctl enable moneta-ctl.service
+    sudo service moneta-ctl start
 
 
 
