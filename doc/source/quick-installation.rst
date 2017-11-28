@@ -1,7 +1,7 @@
 Quick installation
 ==================
 
-Moneta mainly requires Python.
+Moneta mainly requires Python (3.5, 3.6, 3.7).
 
 You should create a dedicated virtualenvironment on your system to isolate Moneta.
 You can use `pipenv <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_ or `virtualenvwrapper <https://virtualenvwrapper.readthedocs.io>`_.

@@ -17,6 +17,12 @@ If you want to use the Ruby mirror functionnality, Ruby is required on the serve
 {% endblock %}
 {% block webserver_media %}{% endblock %}
 {% block webserver_ssl_media %}{% endblock %}
+{% block pre_webserver_ssl %}
+
+If you want HTTP authentication, be sure to ensure that `/core/p/` and `/repo/p/` are publicly available.
+These URLs are used by packaging tools that do not use such authentication.
+
+{% endblock %}
 
 {% block webserver_ssl_extra %}        <Location /core/p/>
             Order deny,allow
@@ -41,7 +47,9 @@ If you want to use the Ruby mirror functionnality, Ruby is required on the serve
     user = {{ DF_MODULE_NAME }}
 {% endblock %}
 
-{% block post_application %}    {{ processes.django }} createsuperuser
+{% block post_application %}    {{ control_command }} createsuperuser
+
+
 On VirtualBox, you may need to install rng-tools to generate enough entropy for GPG keys:
 
 .. code-block:: bash

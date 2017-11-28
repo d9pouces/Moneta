@@ -68,6 +68,8 @@ Apache
 Only the Apache installation is presented, but an installation behind nginx should be similar.
 Only the chosen server name (like `moneta.example.org`) can be used for accessing your site. For example, you cannot use its IP address.
 
+
+
 .. code-block:: bash
 
     SERVICE_NAME=moneta.example.org
@@ -99,6 +101,14 @@ Only the chosen server name (like `moneta.example.org`) can be used for accessin
     sudo a2ensite moneta.conf
     sudo apachectl -t
     sudo apachectl restart
+
+
+
+
+
+If you want HTTP authentication, be sure to ensure that `/core/p/` and `/repo/p/` are publicly available.
+These URLs are used by packaging tools that do not use such authentication.
+
 
 
 If you want to use SSL:
@@ -193,7 +203,7 @@ Now, it's time to install Moneta:
 
     pip install setuptools --upgrade
     pip install pip --upgrade
-    pip install moneta psycopg2 gevent
+    pip install moneta psycopg2
     mkdir -p $VIRTUAL_ENV/etc/moneta
     cat << EOF > $VIRTUAL_ENV/etc/moneta/settings.ini
     [global]
@@ -208,9 +218,11 @@ Now, it's time to install Moneta:
     EOF
     chmod 0400 $VIRTUAL_ENV/etc/moneta/settings.ini
     # protect passwords in the config files from by being readable by everyone
-     collectstatic --noinput
-     migrate
-     createsuperuser
+    moneta-ctl collectstatic --noinput
+    moneta-ctl migrate
+    moneta-ctl createsuperuser
+
+
 On VirtualBox, you may need to install rng-tools to generate enough entropy for GPG keys:
 
 .. code-block:: bash
@@ -221,10 +233,12 @@ On VirtualBox, you may need to install rng-tools to generate enough entropy for 
 
 
 
+
+
 supervisor
 ----------
 
-Supervisor is required to automatically launch moneta:
+Supervisor can be used to automatically launch moneta:
 
 .. code-block:: bash
 
@@ -244,13 +258,13 @@ Now, Supervisor should start moneta after a reboot.
 systemd
 -------
 
-You can also use systemd to launch moneta:
+You can also use systemd (present in many modern Linux distributions) to launch moneta:
 
 .. code-block:: bash
 
     cat << EOF | sudo tee /etc/systemd/system/moneta-ctl.service
     [Unit]
-    Description=Moneta aIOHTTP process
+    Description=Moneta HTTP process
     After=network.target
     [Service]
     User=moneta
