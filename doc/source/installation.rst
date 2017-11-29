@@ -31,7 +31,7 @@ Preparing the environment
 .. code-block:: bash
 
     sudo adduser --disabled-password moneta
-    sudo chown moneta:www-data ./django_data
+    sudo chown moneta:www-data $VIRTUALENV/var/moneta
     sudo apt-get install virtualenvwrapper python3.6 python3.6-dev build-essential postgresql-client libpq-dev
     sudo -u moneta -H -i
     mkvirtualenv moneta -p `which python3.6`
@@ -80,24 +80,37 @@ Only the chosen server name (like `moneta.example.org`) can be used for accessin
     cat << EOF | sudo tee /etc/apache2/sites-available/moneta.conf
     <VirtualHost *:80>
         ServerName $SERVICE_NAME
-        Alias /static/ django_data/static/
+        Alias /static/ $VIRTUALENV/var/moneta/static/
         ProxyPass /static/ !
         <Location /static/>
             Order deny,allow
             Allow from all
             Satisfy any
         </Location>
+        # CAUTION: THE FOLLOWING LINES ALLOW PUBLIC ACCESS TO ANY UPLOADED CONTENT
+        Alias /media/ $VIRTUALENV/var/moneta/media/
+        # the right value is provided by "moneta-ctl config python | grep MEDIA_ROOT"
+        ProxyPass /media/ !
+        <Location /media/>
+            Order deny,allow
+            Allow from all
+            Satisfy any
+        </Location>
         ProxyPass / http://127.0.0.1:8131/
         ProxyPassReverse / http://127.0.0.1:8131/
-        DocumentRoot django_data/static/
+        DocumentRoot $VIRTUALENV/var/moneta/static/
+        # the right value is provided by "moneta-ctl config python | grep STATIC_ROOT"
         ServerSignature off
+        # the optional two following lines are useful
+        # for keeping uploaded content  private with good performance
         XSendFile on
-        XSendFilePath django_data/media/
+        XSendFilePath $VIRTUALENV/var/moneta/media/
+        # the right value is provided by "moneta-ctl config python | grep MEDIA_ROOT"
         # in older versions of XSendFile (<= 0.9), use XSendFileAllowAbove On
     </VirtualHost>
     EOF
-    sudo mkdir ./django_data
-    sudo chown -R www-data:www-data ./django_data
+    sudo mkdir $VIRTUALENV/var/moneta
+    sudo chown -R www-data:www-data $VIRTUALENV/var/moneta
     sudo a2ensite moneta.conf
     sudo apachectl -t
     sudo apachectl restart
@@ -145,16 +158,26 @@ If you want to use SSL:
         ServerName $SERVICE_NAME
         SSLCertificateFile $PEM
         SSLEngine on
-        Alias /static/ django_data/static/
+        Alias /static/ $VIRTUALENV/var/moneta/static/
         ProxyPass /static/ !
         <Location /static/>
             Order deny,allow
             Allow from all
             Satisfy any
         </Location>
+        # CAUTION: THE FOLLOWING LINES ALLOW PUBLIC ACCESS TO ANY UPLOADED CONTENT
+        Alias /media/ $VIRTUALENV/var/moneta/media/
+        # the right value is provided by "moneta-ctl config python | grep MEDIA_ROOT"
+        ProxyPass /media/ !
+        <Location /media/>
+            Order deny,allow
+            Allow from all
+            Satisfy any
+        </Location>
         ProxyPass / http://127.0.0.1:8131/
         ProxyPassReverse / http://127.0.0.1:8131/
-        DocumentRoot django_data/static/
+        DocumentRoot $VIRTUALENV/var/moneta/static/
+        # the right value is provided by "moneta-ctl config python | grep STATIC_ROOT"
         ServerSignature off
         RequestHeader set X_FORWARDED_PROTO https
         <Location />
@@ -170,8 +193,11 @@ If you want to use SSL:
             Require valid-user
             RequestHeader set REMOTE_USER %{REMOTE_USER}s
         </Location>
+        # the optional two following lines are useful
+        # for private uploaded content and good performance
         XSendFile on
-        XSendFilePath django_data/media/
+        XSendFilePath $VIRTUALENV/var/moneta/media/
+        # the right value is provided by "moneta-ctl config python | grep MEDIA_ROOT"
         # in older versions of XSendFile (<= 0.9), use XSendFileAllowAbove On
         <Location /core/p/>
             Order deny,allow
@@ -185,8 +211,8 @@ If you want to use SSL:
         </Location>
     </VirtualHost>
     EOF
-    sudo mkdir ./django_data
-    sudo chown -R www-data:www-data ./django_data
+    sudo mkdir $VIRTUALENV/var/moneta
+    sudo chown -R www-data:www-data $VIRTUALENV/var/moneta
     sudo a2ensite moneta.conf
     sudo apachectl -t
     sudo apachectl restart
@@ -269,7 +295,7 @@ You can also use systemd (present in many modern Linux distributions) to launch 
     [Service]
     User=moneta
     Group=moneta
-    WorkingDirectory=./django_data/
+    WorkingDirectory=$VIRTUALENV/var/moneta/
     ExecStart=$VIRTUAL_ENV/bin/moneta-ctl server
     ExecReload=/bin/kill -s HUP \$MAINPID
     ExecStop=/bin/kill -s TERM \$MAINPID

@@ -46,7 +46,8 @@ editing the configuration file.
 
     CONFIG_FILENAME=`moneta-ctl config ini -v 2 | grep -m 1 ' - .ini file' | cut -d '"' -f 2`
     # prepare a limited configuration file
-    cat << EOF > $FILENAME
+    mkdir -p `dirname $CONFIG_FILENAME`
+    cat << EOF > $CONFIG_FILENAME
     [global]
     data = $HOME/moneta
     EOF

@@ -81,7 +81,7 @@ Here is the complete list of settings:
   session_duration = 1209600 
   	# Duration of the connection sessions (in seconds, default to 1,209,600 s / 14 days)
   social_providers = github 
-  	# Comma-separated OAuth2 providers, among "draugiem","openid","stripe","odnoklassniki","foursquare","spotify","vimeo","baidu","mailru","discord","angellist","digitalocean","bitbucket_oauth2","auth0","mailchimp","fivehundredpx","stackexchange","vk","eveonline","linkedin","robinhood","persona","shopify","bitly","twitter","instagram","amazon","paypal","evernote","kakao","weixin","line","dropbox","feedly","edmodo","asana","flickr","hubic","twitch","pinterest","orcid","dropbox_oauth2","twentythreeandme","daum","github","google","coinbase","douban","linkedin_oauth2","xing","windowslive","bitbucket","fxa","naver","reddit","untappd","facebook","soundcloud","weibo","slack","basecamp","tumblr","gitlab". "django-allauth" package must be installed.
+  	# Comma-separated OAuth2 providers, among "bitly","baidu","openid","eveonline","mailchimp","feedly","fxa","odnoklassniki","orcid","twentythreeandme","github","basecamp","digitalocean","xing","amazon","mailru","paypal","shopify","dropbox","edmodo","linkedin","vk","weibo","foursquare","stripe","soundcloud","bitbucket_oauth2","google","pinterest","slack","evernote","facebook","spotify","vimeo","twitch","weixin","angellist","windowslive","twitter","flickr","instagram","fivehundredpx","auth0","draugiem","asana","gitlab","untappd","daum","linkedin_oauth2","bitbucket","stackexchange","tumblr","coinbase","reddit","robinhood","persona","naver","dropbox_oauth2","kakao","douban","line","discord","hubic". "django-allauth" package must be installed.
   
   [cache]
   db = 2 
@@ -95,17 +95,17 @@ Here is the complete list of settings:
   	# Redis Cache DB port
   
   [database]
-  db = django_data/database.sqlite3 
+  db = moneta 
   	# Main database name (or path of the sqlite3 database)
-  engine = sqlite3 
+  engine = postgresql 
   	# Main database engine ("mysql", "postgresql", "sqlite3", "oracle", or the dotted name of the Django backend)
-  host =  
+  host = localhost 
   	# Main database host
-  password =  
+  password = 5trongp4ssw0rd 
   	# Main database password
-  port =  
+  port = 5432 
   	# Main database port
-  user =  
+  user = moneta 
   	# Main database user
   
   [email]
@@ -125,22 +125,22 @@ Here is the complete list of settings:
   	# SMTP user
   
   [global]
-  admin_email = admin@localhost 
+  admin_email = admin@moneta.example.org 
   	# e-mail address for receiving logged errors
-  data = ./django_data 
+  data = $VIRTUALENV/var/moneta 
   	# where all data will be stored (static/uploaded/temporary files, …). If you change it, you must run the collectstatic and migrate commands again.
   language_code = fr-fr 
   	# default to fr_FR
   listen_address = 127.0.0.1:8131 
   	# address used by your web server.
-  log_directory = django_data/log/ 
+  log_directory = $VIRTUALENV/var/moneta/log/ 
   	# Write all local logs to this directory.
   log_remote_access = true 
   	# If true, log of HTTP connections are also sent to syslog/logd
   log_remote_url =  
   	# Send logs to a syslog or systemd log daemon.  
   	# Examples: syslog+tcp://localhost:514/user, syslog:///local7, syslog:///dev/log/daemon, logd:///project_name
-  server_url = http://localhost:8131/ 
+  server_url = http://moneta.example.org 
   	# Public URL of your website.  
   	# Default to "http://{listen_address}/" but should be different if you use a reverse proxy like Apache or Nginx. Example: http://www.example.org/.
   ssl_certfile =  
@@ -149,13 +149,13 @@ Here is the complete list of settings:
   	# Private SSL key (if you do not use a reverse proxy with SSL)
   time_zone = Europe/Paris 
   	# default to Europe/Paris
-  use_apache = false 
+  use_apache = true 
   	# "true" if Apache is used as reverse-proxy with mod_xsendfile.The X-SENDFILE header must be allowed from file directories
   use_nginx = False 
   	# "true" is nginx is used as reverse-proxy with x-accel-redirect.The media directory (and url) must be allowed in the Nginx configuration.
   
   [gnupg]
-  home = django_data/gpg/ 
+  home = $VIRTUALENV/var/moneta/gpg/ 
   	# Path of the GnuPG secret data
   keyid =  
   	# ID of the GnuPG key
@@ -164,11 +164,11 @@ Here is the complete list of settings:
   
   [server]
   processes = 2 
-  	# The number of Gunicorn processes for handling requests.
+  	# The number of web server processes for handling requests.
   threads = 2 
-  	# The number of Gunicorn threads for handling requests.
+  	# The number of web server threads for handling requests.
   timeout = 30 
-  	# Workers silent for more than this many seconds are killed and restarted.
+  	# Web workers silent for more than this many seconds are killed and restarted.
   
   [sessions]
   db = 3 
