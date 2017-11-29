@@ -15,8 +15,6 @@ If you want to use the Ruby mirror functionnality, Ruby is required on the serve
 
    sudo apt-get install ruby
 {% endblock %}
-{% block webserver_media %}{% endblock %}
-{% block webserver_ssl_media %}{% endblock %}
 {% block pre_webserver_ssl %}
 
 If you want HTTP authentication, be sure to ensure that `/core/p/` and `/repo/p/` are publicly available.
