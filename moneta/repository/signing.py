@@ -5,7 +5,6 @@ import gnupg
 import pkg_resources
 from django.core.signing import Signer, BadSignature
 from django.utils.crypto import constant_time_compare
-from django.utils.encoding import force_str, force_text
 
 __author__ = 'flanker'
 logger = logging.getLogger('django.requests')
@@ -30,27 +29,27 @@ class GPGSigner(Signer):
 
     def signature(self, value):
         # noinspection PyUnresolvedReferences
-        return force_str(get_gpg().sign(value, keyid=self.key, detach=True))
+        return str(get_gpg().sign(value, keyid=self.key, detach=True))
 
     def sign_file(self, fd):
         # noinspection PyUnresolvedReferences
-        return force_str(get_gpg().sign_file(fd, keyid=self.key, detach=True))
+        return str(get_gpg().sign_file(fd, keyid=self.key, detach=True))
 
     def export_key(self):
         # noinspection PyUnresolvedReferences
         return get_gpg().export_keys(self.key)
 
     def sign(self, value):
-        value = force_str(value)
+        value = str(value)
         return str('%s%s%s') % (value, self.sep, self.signature(value))
 
     def unsign(self, signed_value):
-        signed_value = force_str(signed_value)
+        signed_value = str(signed_value)
         if self.sep not in signed_value:
             raise BadSignature('No "%s" found in value' % self.sep)
         value, sig = signed_value.rsplit(self.sep, 1)
         if constant_time_compare(sig, self.signature(value)):
-            return force_text(value)
+            return str(value)
         raise BadSignature('Signature "%s" does not match' % sig)
 
     # noinspection PyMethodMayBeStatic
