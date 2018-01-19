@@ -39,6 +39,7 @@ table of contents
    quick-installation
    requirements
    installation
+   hosting
    configuration
    changes
 

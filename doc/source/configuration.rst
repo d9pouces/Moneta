@@ -2,6 +2,7 @@
 Complete configuration
 ======================
 
+.. _configuration:
 
 Configuration options
 ---------------------
@@ -81,18 +82,20 @@ Here is the complete list of settings:
   session_duration = 1209600 
   	# Duration of the connection sessions (in seconds, default to 1,209,600 s / 14 days)
   social_providers = github 
-  	# Comma-separated OAuth2 providers, among "bitly","baidu","openid","eveonline","mailchimp","feedly","fxa","odnoklassniki","orcid","twentythreeandme","github","basecamp","digitalocean","xing","amazon","mailru","paypal","shopify","dropbox","edmodo","linkedin","vk","weibo","foursquare","stripe","soundcloud","bitbucket_oauth2","google","pinterest","slack","evernote","facebook","spotify","vimeo","twitch","weixin","angellist","windowslive","twitter","flickr","instagram","fivehundredpx","auth0","draugiem","asana","gitlab","untappd","daum","linkedin_oauth2","bitbucket","stackexchange","tumblr","coinbase","reddit","robinhood","persona","naver","dropbox_oauth2","kakao","douban","line","discord","hubic". "django-allauth" package must be installed.
+  	# Comma-separated OAuth2 providers, among "shopify","feedly","mailru","fxa","persona","flickr","stackexchange","twitch","linkedin","bitbucket_oauth2","vk","weixin","instagram","eveonline","odnoklassniki","spotify","google","asana","facebook","dropbox","soundcloud","coinbase","draugiem","angellist","edmodo","github","daum","naver","twentythreeandme","dropbox_oauth2","evernote","slack","twitter","paypal","weibo","bitly","orcid","windowslive","linkedin_oauth2","basecamp","foursquare","kakao","reddit","tumblr","robinhood","digitalocean","gitlab","pinterest","discord","vimeo","mailchimp","baidu","amazon","bitbucket","fivehundredpx","line","untappd","hubic","openid","stripe","xing","auth0","douban". "django-allauth" package must be installed.
   
   [cache]
   db = 2 
-  	# Database number of the Redis Cache DB. 
-  	# Python package "django-redis" is required.
+  	# Database number (redis only).  
+  	# Python package "django-redis" is also required to use Redis.
+  engine = redis 
+  	# cache storage engine ("locmem", "redis" or "memcache") Valid choices: "redis", "memcache", "locmem", "file"
   host = localhost 
-  	# Redis Cache DB host
+  	# cache server host (redis or memcache)
   password =  
-  	# Redis Cache DB password (if required)
+  	# cache server password (if required by redis)
   port = 6379 
-  	# Redis Cache DB port
+  	# cache server port (redis or memcache)
   
   [database]
   db = moneta 
@@ -127,13 +130,13 @@ Here is the complete list of settings:
   [global]
   admin_email = admin@moneta.example.org 
   	# e-mail address for receiving logged errors
-  data = $VIRTUALENV/var/moneta 
+  data = $DATA_ROOT 
   	# where all data will be stored (static/uploaded/temporary files, …). If you change it, you must run the collectstatic and migrate commands again.
   language_code = fr-fr 
   	# default to fr_FR
   listen_address = 127.0.0.1:8131 
   	# address used by your web server.
-  log_directory = $VIRTUALENV/var/moneta/log/ 
+  log_directory = $DATA_ROOT/log/ 
   	# Write all local logs to this directory.
   log_remote_access = true 
   	# If true, log of HTTP connections are also sent to syslog/logd
@@ -155,7 +158,7 @@ Here is the complete list of settings:
   	# "true" is nginx is used as reverse-proxy with x-accel-redirect.The media directory (and url) must be allowed in the Nginx configuration.
   
   [gnupg]
-  home = $VIRTUALENV/var/moneta/gpg/ 
+  home = $DATA_ROOT/gpg/ 
   	# Path of the GnuPG secret data
   keyid =  
   	# ID of the GnuPG key
@@ -163,15 +166,21 @@ Here is the complete list of settings:
   	# Path of the gpg binary
   
   [server]
+  graceful_timeout = 25 
+  	# After receiving a restart signal, workers have this much time to finish serving requests. Workers still alive after the timeout (starting from the receipt of the restart signal) are force killed.
+  keepalive = 5 
+  	# After receiving a restart signal, workers have this much time to finish serving requests. Workers still alive after the timeout (starting from the receipt of the restart signal) are force killed.
+  max_requests = 10000 
+  	# The maximum number of requests a worker will process before restarting.
   processes = 2 
   	# The number of web server processes for handling requests.
   threads = 2 
   	# The number of web server threads for handling requests.
-  timeout = 30 
+  timeout = 35 
   	# Web workers silent for more than this many seconds are killed and restarted.
   
   [sessions]
-  db = 3 
+  db = 1 
   	# Database number of the Redis sessions DB 
   	# Python package "django-redis-sessions" is required.
   host = localhost 

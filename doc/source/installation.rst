@@ -31,7 +31,7 @@ Preparing the environment
 .. code-block:: bash
 
     sudo adduser --disabled-password moneta
-    sudo chown moneta:www-data $VIRTUALENV/var/moneta
+    sudo chown moneta:www-data $DATA_ROOT
     sudo apt-get install virtualenvwrapper python3.6 python3.6-dev build-essential postgresql-client libpq-dev
     sudo -u moneta -H -i
     mkvirtualenv moneta -p `which python3.6`
@@ -80,7 +80,7 @@ Only the chosen server name (like `moneta.example.org`) can be used for accessin
     cat << EOF | sudo tee /etc/apache2/sites-available/moneta.conf
     <VirtualHost *:80>
         ServerName $SERVICE_NAME
-        Alias /static/ $VIRTUALENV/var/moneta/static/
+        Alias /static/ $DATA_ROOT/static/
         ProxyPass /static/ !
         <Location /static/>
             Order deny,allow
@@ -88,7 +88,7 @@ Only the chosen server name (like `moneta.example.org`) can be used for accessin
             Satisfy any
         </Location>
         # CAUTION: THE FOLLOWING LINES ALLOW PUBLIC ACCESS TO ANY UPLOADED CONTENT
-        Alias /media/ $VIRTUALENV/var/moneta/media/
+        Alias /media/ $DATA_ROOT/media/
         # the right value is provided by "moneta-ctl config python | grep MEDIA_ROOT"
         ProxyPass /media/ !
         <Location /media/>
@@ -98,19 +98,19 @@ Only the chosen server name (like `moneta.example.org`) can be used for accessin
         </Location>
         ProxyPass / http://127.0.0.1:8131/
         ProxyPassReverse / http://127.0.0.1:8131/
-        DocumentRoot $VIRTUALENV/var/moneta/static/
+        DocumentRoot $DATA_ROOT/static/
         # the right value is provided by "moneta-ctl config python | grep STATIC_ROOT"
         ServerSignature off
         # the optional two following lines are useful
         # for keeping uploaded content  private with good performance
         XSendFile on
-        XSendFilePath $VIRTUALENV/var/moneta/media/
+        XSendFilePath $DATA_ROOT/media/
         # the right value is provided by "moneta-ctl config python | grep MEDIA_ROOT"
         # in older versions of XSendFile (<= 0.9), use XSendFileAllowAbove On
     </VirtualHost>
     EOF
-    sudo mkdir $VIRTUALENV/var/moneta
-    sudo chown -R www-data:www-data $VIRTUALENV/var/moneta
+    sudo mkdir $DATA_ROOT
+    sudo chown -R www-data:www-data $DATA_ROOT
     sudo a2ensite moneta.conf
     sudo apachectl -t
     sudo apachectl restart
@@ -158,7 +158,7 @@ If you want to use SSL:
         ServerName $SERVICE_NAME
         SSLCertificateFile $PEM
         SSLEngine on
-        Alias /static/ $VIRTUALENV/var/moneta/static/
+        Alias /static/ $DATA_ROOT/static/
         ProxyPass /static/ !
         <Location /static/>
             Order deny,allow
@@ -166,7 +166,7 @@ If you want to use SSL:
             Satisfy any
         </Location>
         # CAUTION: THE FOLLOWING LINES ALLOW PUBLIC ACCESS TO ANY UPLOADED CONTENT
-        Alias /media/ $VIRTUALENV/var/moneta/media/
+        Alias /media/ $DATA_ROOT/media/
         # the right value is provided by "moneta-ctl config python | grep MEDIA_ROOT"
         ProxyPass /media/ !
         <Location /media/>
@@ -176,7 +176,7 @@ If you want to use SSL:
         </Location>
         ProxyPass / http://127.0.0.1:8131/
         ProxyPassReverse / http://127.0.0.1:8131/
-        DocumentRoot $VIRTUALENV/var/moneta/static/
+        DocumentRoot $DATA_ROOT/static/
         # the right value is provided by "moneta-ctl config python | grep STATIC_ROOT"
         ServerSignature off
         RequestHeader set X_FORWARDED_PROTO https
@@ -196,7 +196,7 @@ If you want to use SSL:
         # the optional two following lines are useful
         # for private uploaded content and good performance
         XSendFile on
-        XSendFilePath $VIRTUALENV/var/moneta/media/
+        XSendFilePath $DATA_ROOT/media/
         # the right value is provided by "moneta-ctl config python | grep MEDIA_ROOT"
         # in older versions of XSendFile (<= 0.9), use XSendFileAllowAbove On
         <Location /core/p/>
@@ -211,8 +211,8 @@ If you want to use SSL:
         </Location>
     </VirtualHost>
     EOF
-    sudo mkdir $VIRTUALENV/var/moneta
-    sudo chown -R www-data:www-data $VIRTUALENV/var/moneta
+    sudo mkdir $DATA_ROOT
+    sudo chown -R www-data:www-data $DATA_ROOT
     sudo a2ensite moneta.conf
     sudo apachectl -t
     sudo apachectl restart
@@ -255,9 +255,7 @@ On VirtualBox, you may need to install rng-tools to generate enough entropy for 
 
     sudo apt-get install rng-tools
     echo "HRNGDEVICE=/dev/urandom" | sudo tee -a /etc/default/rng-tools
-    sudo /etc/init.d/rng-tools restart
-
-
+    sudo service rng-tools restart
 
 
 
@@ -284,26 +282,29 @@ Now, Supervisor should start moneta after a reboot.
 systemd
 -------
 
-You can also use systemd (present in many modern Linux distributions) to launch moneta:
+You can also use systemd in most modern Linux distributions to launch moneta:
 
 .. code-block:: bash
 
-    cat << EOF | sudo tee /etc/systemd/system/moneta-ctl.service
+    cat << EOF | sudo tee /etc/systemd/system/moneta-web.service
     [Unit]
-    Description=Moneta HTTP process
+    Description=Moneta web process
     After=network.target
+
     [Service]
     User=moneta
     Group=moneta
-    WorkingDirectory=$VIRTUALENV/var/moneta/
+    WorkingDirectory=$DATA_ROOT/
     ExecStart=$VIRTUAL_ENV/bin/moneta-ctl server
     ExecReload=/bin/kill -s HUP \$MAINPID
     ExecStop=/bin/kill -s TERM \$MAINPID
+    Restart=on-failure
+
     [Install]
     WantedBy=multi-user.target
     EOF
-    systemctl enable moneta-ctl.service
-    sudo service moneta-ctl start
+    systemctl enable moneta-web.service
+    sudo service moneta-web
 
 
 

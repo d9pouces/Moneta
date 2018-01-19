@@ -56,7 +56,7 @@ master_doc = 'index'
 # General information about the project.
 project = 'Moneta'
 # noinspection PyShadowingBuiltins
-copyright = '2017, %s' % author
+copyright = '2018, %s' % author
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -125,7 +125,7 @@ html_logo = '_static/logo.png'
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-# html_favicon = None
+html_favicon = '_static/favicon.png'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -148,10 +148,10 @@ html_static_path = ['_static']
 # html_additional_pages = {}
 
 # If false, no module index is generated.
-# html_domain_indices = True
+html_domain_indices = False
 
 # If false, no index is generated.
-# html_use_index = True
+html_use_index = False
 
 # If true, the index is split into individual pages for each letter.
 # html_split_index = False
@@ -232,7 +232,7 @@ man_pages = [
 epub_title = "Moneta"
 epub_author = ''
 epub_publisher = "19pouces.net"
-epub_copyright = '2017, %s' % author
+epub_copyright = '2018, %s' % author
 
 # The language of the text. It defaults to the language option
 # or en if the language is not set.
