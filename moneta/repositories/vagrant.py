@@ -120,7 +120,7 @@ class Vagrant(RepositoryModel):
             provider = json.loads(element.extra_data)['provider']
             element_infos.append(
                 (element.name,
-                 reverse('vagrant:get_box',
+                 reverse('repository:vagrant:get_box',
                          kwargs={'rid': rid, 'repo_slug': repo.slug, 'eid': element.id, 'provider': provider,
                                  'archive': element.archive, 'version': element.version}),
                  element.sha1)
@@ -128,11 +128,11 @@ class Vagrant(RepositoryModel):
         states = [state for state in ArchiveState.objects.filter(repository=repo).order_by('name')]
         tab_infos = []
         # list of (relative URL, name, list of states, state_slug)
-        tab_infos += [(reverse('vagrant:index',
+        tab_infos += [(reverse('repository:vagrant:index',
                                kwargs={'rid': repo.id, 'state_slug': state.slug}),
                        state, [state], state.slug)
                       for state in states]
-        tab_infos += [(reverse('vagrant:index', kwargs={'rid': repo.id, 'state_slug': ''}),
+        tab_infos += [(reverse('repository:vagrant:index', kwargs={'rid': repo.id, 'state_slug': ''}),
                       ArchiveState(name=_('All boxes'), slug='all-states'), states, ''), ]
 
         template_values = {'repo': repo, 'states': states, 'upload_allowed': repo.upload_allowed(request),

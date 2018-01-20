@@ -54,5 +54,6 @@ WEBSOCKET_URL = None
 GNUPG_HOME = Directory('{LOCAL_PATH}/gpg')
 GNUPG_KEYID = AutocreateFileContent('{LOCAL_PATH}/gpg_key_id.txt', auto_generate_signing_key)
 GNUPG_PATH = 'gpg'
+GNUPG_DIGEST_ALGO = 'SHA512'
 
 LOGGING = CallableSetting(moneta_log_configuration)

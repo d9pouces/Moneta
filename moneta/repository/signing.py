@@ -1,9 +1,12 @@
 import logging
 from functools import lru_cache
 
+# noinspection PyPackageRequirements
 import gnupg
 import pkg_resources
+# noinspection PyPackageRequirements
 from django.core.signing import Signer, BadSignature
+# noinspection PyPackageRequirements
 from django.utils.crypto import constant_time_compare
 
 __author__ = 'flanker'
@@ -11,11 +14,26 @@ logger = logging.getLogger('django.requests')
 GPG_CONF_FILENAME = pkg_resources.resource_filename('moneta', 'templates/gpg.conf')
 
 
+class DigestGPG(gnupg.GPG):
+
+    # noinspection PyShadowingBuiltins
+    def gen_key(self, input):
+        # noinspection PyPackageRequirements
+        from django.conf import settings
+        args = ["--gen-key"] + ['--cert-digest-algo', settings.GNUPG_DIGEST_ALGO]
+        result = self.result_map['generate'](self)
+        # noinspection PyProtectedMember
+        f = gnupg._make_binary_stream(input, self.encoding)
+        self._handle_io(args, f, result, binary=True)
+        f.close()
+        return result
+
+
 @lru_cache()
 def get_gpg():
     # noinspection PyPackageRequirements
     from django.conf import settings
-    gpg = gnupg.GPG(gnupghome=settings.GNUPG_HOME, gpgbinary=settings.GNUPG_PATH,
+    gpg = DigestGPG(gnupghome=settings.GNUPG_HOME, gpgbinary=settings.GNUPG_PATH,
                     options=['--options', GPG_CONF_FILENAME])
     return gpg
 
@@ -29,11 +47,13 @@ class GPGSigner(Signer):
 
     def signature(self, value):
         # noinspection PyUnresolvedReferences
-        return str(get_gpg().sign(value, keyid=self.key, detach=True))
+        return str(get_gpg().sign(value, keyid=self.key, detach=True,
+                                  extra_args=['--digest-algo', settings.GNUPG_DIGEST_ALGO]))
 
     def sign_file(self, fd):
         # noinspection PyUnresolvedReferences
-        return str(get_gpg().sign_file(fd, keyid=self.key, detach=True))
+        return str(get_gpg().sign_file(fd, keyid=self.key, detach=True,
+                                       extra_args=['--digest-algo', settings.GNUPG_DIGEST_ALGO]))
 
     def export_key(self):
         # noinspection PyUnresolvedReferences

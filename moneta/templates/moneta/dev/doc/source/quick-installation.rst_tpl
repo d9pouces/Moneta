@@ -8,5 +8,5 @@ On VirtualBox, you may need to install rng-tools to generate enough entropy for 
 
     sudo apt-get install rng-tools
     echo "HRNGDEVICE=/dev/urandom" | sudo tee -a /etc/default/rng-tools
-    sudo /etc/init.d/rng-tools restart
+    sudo service rng-tools restart
 {% endblock %}

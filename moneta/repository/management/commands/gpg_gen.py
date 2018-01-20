@@ -38,7 +38,7 @@ class Command(BaseCommand):
         parser.add_argument('--absent', action='store_true',
                             default=False, help='Generate keys only when no key already exists.'),
         parser.add_argument('--onlyid', action='store_true', default=False,
-                            help='Generate keys only when no key already exists.'),
+                            help='Only display the ID of the keys (that is the ID expected in the config gile).'),
 
     def handle(self, *args, **options):
         command = options['gpg_command']
@@ -50,17 +50,18 @@ class Command(BaseCommand):
                                            name_email=options['email'],
                                            expire_date=options['years'])
             key = GPG.gen_key(input_data)
-            print("Fingerprint", key)
+            self.stdout.write("Fingerprint %s" % key)
         elif command == 'show':
             if options['onlyid']:
                 for key in GPG.list_keys(False):
-                    print("{keyid}".format(**key))
+                    self.stdout.write("{keyid}".format(**key))
             else:
-                print("Available keys:")
+                self.stdout.write("Available keys:")
                 for key in GPG.list_keys(False):
-                    print("id (GNUPG_KEYID) : {keyid}, longueur : {length}, empreinte : {fingerprint}".format(**key))
+                    self.stdout.write("id (GNUPG_KEYID) : {keyid}, "
+                                      "length : {length}, fingerprint : {fingerprint}".format(**key))
         elif command == 'export':
-            print(GPG.export_keys(settings.GNUPG_KEYID))
+            self.stdout.write(GPG.export_keys(settings.GNUPG_KEYID))
         self.check_rights()
 
     def check_rights(self):
@@ -69,6 +70,8 @@ class Command(BaseCommand):
         must_apply_owners = self.check_owner(os_stat)
         for root, dirnames, filenames in os.walk(settings.GNUPG_HOME):
             for filename in filenames:
+                if 'gpg-agent' in filename or 'pub' in filename:
+                    continue
                 os_stat = os.stat(os.path.join(root, filename))
                 must_apply_rights |= self.check_mode(os_stat, stat.S_IRUSR | stat.S_IWUSR)
                 must_apply_owners |= self.check_owner(os_stat)
@@ -79,9 +82,9 @@ class Command(BaseCommand):
 
         if must_apply_rights:
             self.stderr.write('Invalid permissions. You should run the following commands to fix them')
-            self.stderr.write('chmod 0700 "%s"' % settings.GNUPG_HOME)
-            self.stderr.write('find "%s" -type d -exec chmod 0700 {} \;' % settings.GNUPG_HOME)
-            self.stderr.write('find "%s" -type f -exec chmod 0600 {} \;' % settings.GNUPG_HOME)
+            self.stderr.write('chmod 700 "%s"' % settings.GNUPG_HOME)
+            self.stderr.write('find "%s" -type d -exec chmod 700 {} \\;' % settings.GNUPG_HOME)
+            self.stderr.write('find "%s" -type f -exec chmod 600 {} \\;' % settings.GNUPG_HOME)
         if must_apply_owners:
             user = pwd.getpwuid(os.getuid())
             if user:
@@ -95,5 +98,5 @@ class Command(BaseCommand):
     @staticmethod
     def check_mode(os_stat, expected):
         mask = stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO
-        current_mode = os_stat.st_mode
+        current_mode = os_stat.st_mode & mask
         return bool((current_mode & mask) - (current_mode & expected)) or (current_mode & expected != expected)
