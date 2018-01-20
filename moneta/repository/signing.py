@@ -46,11 +46,15 @@ class GPGSigner(Signer):
         self.key = str(key or settings.GNUPG_KEYID)
 
     def signature(self, value):
+        # noinspection PyPackageRequirements
+        from django.conf import settings
         # noinspection PyUnresolvedReferences
         return str(get_gpg().sign(value, keyid=self.key, detach=True,
                                   extra_args=['--digest-algo', settings.GNUPG_DIGEST_ALGO]))
 
     def sign_file(self, fd):
+        # noinspection PyPackageRequirements
+        from django.conf import settings
         # noinspection PyUnresolvedReferences
         return str(get_gpg().sign_file(fd, keyid=self.key, detach=True,
                                        extra_args=['--digest-algo', settings.GNUPG_DIGEST_ALGO]))

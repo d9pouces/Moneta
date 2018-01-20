@@ -335,7 +335,8 @@ def add_element_post(request: HttpRequest, rid):
 
     class ElementForm(forms.Form):
         filename = forms.CharField(label=_('Package'), max_length=255, validators=validators)
-        states = forms.MultipleChoiceField([(x.name, x.name) for x in repo.archivestate_set.all()], label=_('States'))
+        states = forms.MultipleChoiceField(choices=[(x.name, x.name) for x in repo.archivestate_set.all()],
+                                           label=_('States'))
         name = forms.CharField(label=_('Name'), max_length=255, validators=validators, required=False)
         archive = forms.CharField(label=_('Archive'), max_length=255, validators=validators, required=False)
         version = forms.CharField(label=_('Version'), max_length=255, validators=validators, required=False)
@@ -510,7 +511,7 @@ def compare_states(request: HttpRequest, rid):
 
     class CompareForm(forms.Form):
         state_left = forms.ModelChoiceField(states, label=_('Left state'))
-        operator = forms.ChoiceField([(x, x) for x in operators], label=_('Assert operator'))
+        operator = forms.ChoiceField(choices=[(x, x) for x in operators], label=_('Assert operator'))
         state_right = forms.ModelChoiceField(states, label=_('Right state'))
 
     template_values = {'repo': repo, 'upload_allowed': repo.upload_allowed(request)}

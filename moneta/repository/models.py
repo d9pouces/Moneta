@@ -115,8 +115,8 @@ class Repository(BaseModel):
         user = request.user
         if user.is_anonymous:
             return Repository.objects.filter(Q(is_private=False) | Q(author=None)).distinct()
-        return Repository.objects.filter(Q(is_private=False) | Q(author=user) | Q(reader_group=user.groups.all())
-                                         | Q(admin_group=user.groups.all())).distinct()
+        return Repository.objects.filter(Q(is_private=False) | Q(author=user) | Q(reader_group__in=user.groups.all())
+                                         | Q(admin_group__in=user.groups.all())).distinct()
 
     def upload_allowed(self, request):
         return self.upload_queryset(request).filter(id=self.id)[0:1].count() > 0

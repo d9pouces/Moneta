@@ -15,8 +15,8 @@ def extra_repo_urls(repo, request):
 @register.filter
 def moneta_url(repo, view_name='index'):
     if repo.is_private:
-        return 'authb-%s:%s' % (repo.archive_type, view_name)
-    return '%s:%s' % (repo.archive_type, view_name)
+        return 'repository:authb-%s:%s' % (repo.archive_type, view_name)
+    return 'repository:%s:%s' % (repo.archive_type, view_name)
 
 
 @register.filter
@@ -55,7 +55,7 @@ def signature(signature_, element=None):
 
 @register.filter
 def auth_moneta_url(repo, view_name='index'):
-    return 'auth-%s:%s' % (repo.archive_type, view_name)
+    return 'repository:auth-%s:%s' % (repo.archive_type, view_name)
 
 
 @register.inclusion_tag('bootstrap3/pagination.html')
