@@ -23,7 +23,7 @@ from django.urls import reverse
 from django.http.response import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
-from django.utils.timezone import get_current_timezone
+from django.utils.timezone import get_current_timezone, utc
 from django.utils.translation import ugettext as _
 
 from moneta.archives import ArFile
@@ -184,7 +184,7 @@ class Aptitude(RepositoryModel):
             url(r"^(?P<rid>\d+)/pool/(?P<repo_slug>[\w\-\._]+)/(?P<state_slug>[\w\-\._]+)/(?P<folder>[\w\-\.~_]+)/"
                 r"(?P<filename>[\w\-\.~_ ]+)$",
                 self.wrap_view('get_file'), name="get_file"),
-            url(r"^(?P<rid>\d+)/dists/(?P<repo_slug>[\w\-\._]+)/(?P<filename>Release|Release.gpg)$",
+            url(r"^(?P<rid>\d+)/dists/(?P<repo_slug>[\w\-\._]+)/(?P<filename>InRelease|Release|Release.gpg)$",
                 self.wrap_view('repo_release'), name="repo_release"),
             url(r"^(?P<rid>\d+)/dists/(?P<repo_slug>[\w\-\._]+)/Contents-(?P<arch>[\w]+)"
                 r"%s$" % compression, self.wrap_view('arch_contents'), name="arch_contents"),
@@ -444,9 +444,9 @@ class Aptitude(RepositoryModel):
         #   * dists/(group)/Release
         # store all files in the cache
         release_file = tempfile.TemporaryFile(mode='w+b', dir=settings.FILE_UPLOAD_TEMP_DIR)
-        now = datetime.datetime.now(tz)
-        now_str = now.strftime('%a, %d %b %Y %H:%M:%S %z')  # 'Mon, 29 Nov 2010 08:12:51 UTC'
-        until = (now + datetime.timedelta(validity)).strftime('%a, %d %b %Y %H:%M:%S %z')
+        now = datetime.datetime.now(utc)
+        now_str = now.strftime('%a, %d %b %Y %H:%M:%S UTC')  # 'Mon, 29 Nov 2010 08:12:51 UTC'
+        until = (now + datetime.timedelta(validity)).strftime('%a, %d %b %Y %H:%M:%S UTC')
         content = render_to_string('repositories/aptitude/state_release.txt',
                                    {'architectures': all_states_architectures, 'until': until,
                                     'states': all_states, 'repository': repository, 'date': now_str})
@@ -463,13 +463,23 @@ class Aptitude(RepositoryModel):
         #   * dists/(group)/Release.gpg
         # store all files in the cache
         release_file.seek(0)
-        signature = GPGSigner().sign_file(release_file)
+        signature_content = GPGSigner().sign_file(release_file, detach=True)
+        release_file.seek(0)
+        inrelease_content = GPGSigner().sign_file(release_file, detach=False)
         release_file.close()
 
-        gpg_file = tempfile.TemporaryFile(mode='w+b', dir=settings.FILE_UPLOAD_TEMP_DIR)
-        gpg_file.write(signature.encode('utf-8'))
-        gpg_file.flush()
-        gpg_file.seek(0)
+        signature_file = tempfile.TemporaryFile(mode='w+b', dir=settings.FILE_UPLOAD_TEMP_DIR)
+        signature_file.write(signature_content.encode('utf-8'))
+        signature_file.flush()
+        signature_file.seek(0)
         filename = 'dists/%(repo)s/Release.gpg' % {'repo': repo_slug, }
-        storage(settings.STORAGE_CACHE).store_descriptor(uid, filename, gpg_file)
-        gpg_file.close()
+        storage(settings.STORAGE_CACHE).store_descriptor(uid, filename, signature_file)
+        signature_file.close()
+
+        inrelease_file = tempfile.TemporaryFile(mode='w+b', dir=settings.FILE_UPLOAD_TEMP_DIR)
+        inrelease_file.write(inrelease_content.encode('utf-8'))
+        inrelease_file.flush()
+        inrelease_file.seek(0)
+        filename = 'dists/%(repo)s/InRelease' % {'repo': repo_slug, }
+        storage(settings.STORAGE_CACHE).store_descriptor(uid, filename, inrelease_file)
+        inrelease_file.close()

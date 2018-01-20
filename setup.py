@@ -30,7 +30,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=['setuptools>=1.0', 'djangofloor>=1.0.25', 'python-gnupg', 'rubymarshal', 'pyyaml'],
+    install_requires=['setuptools>=1.0', 'djangofloor>=1.0.25', 'gnupg>=2.3', 'rubymarshal', 'pyyaml'],
     setup_requires=[],
     classifiers=['Development Status :: 5 - Production/Stable',
                  'Framework :: Django :: 1.11',
