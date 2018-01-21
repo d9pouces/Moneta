@@ -82,7 +82,7 @@ Here is the complete list of settings:
   session_duration = 1209600 
   	# Duration of the connection sessions (in seconds, default to 1,209,600 s / 14 days)
   social_providers = github 
-  	# Comma-separated OAuth2 providers, among "shopify","feedly","mailru","fxa","persona","flickr","stackexchange","twitch","linkedin","bitbucket_oauth2","vk","weixin","instagram","eveonline","odnoklassniki","spotify","google","asana","facebook","dropbox","soundcloud","coinbase","draugiem","angellist","edmodo","github","daum","naver","twentythreeandme","dropbox_oauth2","evernote","slack","twitter","paypal","weibo","bitly","orcid","windowslive","linkedin_oauth2","basecamp","foursquare","kakao","reddit","tumblr","robinhood","digitalocean","gitlab","pinterest","discord","vimeo","mailchimp","baidu","amazon","bitbucket","fivehundredpx","line","untappd","hubic","openid","stripe","xing","auth0","douban". "django-allauth" package must be installed.
+  	# Comma-separated OAuth2 providers, among "vimeo","instagram","amazon","baidu","bitly","shopify","untappd","eveonline","pinterest","twitch","stripe","twentythreeandme","openid","mailchimp","evernote","angellist","bitbucket","fivehundredpx","asana","stackexchange","mailru","soundcloud","windowslive","line","flickr","coinbase","vk","github","facebook","kakao","tumblr","slack","dropbox_oauth2","basecamp","odnoklassniki","dropbox","linkedin","draugiem","douban","paypal","linkedin_oauth2","discord","gitlab","spotify","weibo","edmodo","weixin","digitalocean","fxa","bitbucket_oauth2","foursquare","xing","feedly","auth0","google","daum","twitter","hubic","persona","robinhood","reddit","naver","orcid". "django-allauth" package must be installed.
   
   [cache]
   db = 2 

@@ -6,7 +6,7 @@ As said before, Python is required but this is not the only requirement:
   * Python (3.5, 3.6, 3.7),
   * setuptools>=1.0 Python package (automatically installed with Moneta),
   * djangofloor>=1.0.25 Python package (automatically installed with Moneta),
-  * python-gnupg Python package (automatically installed with Moneta),
+  * gnupg>=2.3 Python package (automatically installed with Moneta),
   * rubymarshal Python package (automatically installed with Moneta),
   * pyyaml Python package (automatically installed with Moneta),
   * an optional Redis server for sessions and cache,
