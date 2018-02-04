@@ -82,7 +82,7 @@ Here is the complete list of settings:
   session_duration = 1209600 
   	# Duration of the connection sessions (in seconds, default to 1,209,600 s / 14 days)
   social_providers = github 
-  	# Comma-separated OAuth2 providers, among "vimeo","instagram","amazon","baidu","bitly","shopify","untappd","eveonline","pinterest","twitch","stripe","twentythreeandme","openid","mailchimp","evernote","angellist","bitbucket","fivehundredpx","asana","stackexchange","mailru","soundcloud","windowslive","line","flickr","coinbase","vk","github","facebook","kakao","tumblr","slack","dropbox_oauth2","basecamp","odnoklassniki","dropbox","linkedin","draugiem","douban","paypal","linkedin_oauth2","discord","gitlab","spotify","weibo","edmodo","weixin","digitalocean","fxa","bitbucket_oauth2","foursquare","xing","feedly","auth0","google","daum","twitter","hubic","persona","robinhood","reddit","naver","orcid". "django-allauth" package must be installed.
+  	# Comma-separated OAuth2 providers, among "paypal","coinbase","draugiem","orcid","bitbucket","fivehundredpx","linkedin_oauth2","fxa","douban","flickr","gitlab","mailchimp","vk","hubic","pinterest","untappd","kakao","edmodo","google","robinhood","asana","github","amazon","soundcloud","bitbucket_oauth2","shopify","reddit","facebook","foursquare","linkedin","basecamp","instagram","tumblr","daum","bitly","feedly","odnoklassniki","discord","evernote","eveonline","spotify","weibo","weixin","xing","dropbox","twitter","dropbox_oauth2","windowslive","naver","twentythreeandme","angellist","stackexchange","vimeo","slack","twitch","digitalocean","stripe","mailru","openid","line","persona","auth0","baidu". "django-allauth" package must be installed.
   
   [cache]
   db = 2 
@@ -134,7 +134,7 @@ Here is the complete list of settings:
   	# where all data will be stored (static/uploaded/temporary files, …). If you change it, you must run the collectstatic and migrate commands again.
   language_code = fr-fr 
   	# default to fr_FR
-  listen_address = 127.0.0.1:8131 
+  listen_address = localhost:8131 
   	# address used by your web server.
   log_directory = $DATA_ROOT/log/ 
   	# Write all local logs to this directory.

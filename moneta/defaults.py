@@ -1,3 +1,4 @@
+from djangofloor.conf.callables import DefaultListenAddress
 from djangofloor.conf.config_values import Directory, CallableSetting, AutocreateFileContent
 from moneta.conf import moneta_log_configuration, auto_generate_signing_key
 
@@ -8,8 +9,7 @@ DF_INDEX_VIEW = 'moneta.views.index'
 DF_INSTALLED_APPS = ['moneta', 'moneta.repositories', 'moneta.repository', ]
 DF_SITE_SEARCH_VIEW = None
 DF_URL_CONF = 'moneta.root_urls.urls'
-LISTEN_ADDRESS = '127.0.0.1:8131'
-SERVER_BASE_URL = 'http://localhost:8131/'
+LISTEN_ADDRESS = DefaultListenAddress(8131)
 USE_CELERY = False
 UPLOAD_ROOT = 'uploads'
 ARCHIVE_FILTERS = [

@@ -10,10 +10,8 @@ First, you need to prepare your Heroku deployment, with a Redis database for eff
 
     mkdir heroku-hosting
     cd heroku-hosting
-    APP_NAME=hobby-dev  # use the name of your Heroku app
     pip install pipenv
     heroku login
-    heroku addons:create heroku-redis -a $APP_NAME
 
 Now, a few files are required:
 
@@ -53,12 +51,40 @@ Now, a few files are required:
     EOF
 
 
+You can now deploy using git:
+
+.. code-block:: bash
+
+    git init
+    git add .
+    git commit -m 'initial commit'
+    heroku create
+    # if you prefer SSH, you should use the following line
+    heroku create --ssh-git
+    git push heroku master
+
+You can add a Redis app to use efficient session and cache storages..
+
+.. code-block:: bash
+
+    heroku addons:create heroku-redis -a heroku_app_name
+
+If you do not use Redis for sessions and cache, you must remove `django-redis-sessions` and `django-redis` from your Pipfile.
+
 Once deployed, you can prepare the database or open Python shell:
 
 .. code-block:: bash
 
     heroku run moneta-ctl migrate
     heroku run moneta-ctl shell
+
+Finally, you need to create at least one worker:
+
+.. code-block:: bash
+
+    heroku ps:scale web=1
+
+
 
 
 
