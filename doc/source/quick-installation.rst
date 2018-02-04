@@ -64,7 +64,7 @@ You can launch the server process:
     moneta-ctl server
 
 
-Then open http://127.0.0.1:8131 with your favorite browser.
+Then open http://localhost:8131 with your favorite browser.
 
 
 

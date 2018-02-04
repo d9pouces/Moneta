@@ -96,8 +96,8 @@ Only the chosen server name (like `moneta.example.org`) can be used for accessin
             Allow from all
             Satisfy any
         </Location>
-        ProxyPass / http://127.0.0.1:8131/
-        ProxyPassReverse / http://127.0.0.1:8131/
+        ProxyPass / http://localhost:8131/
+        ProxyPassReverse / http://localhost:8131/
         DocumentRoot $DATA_ROOT/static/
         # the right value is provided by "moneta-ctl config python | grep STATIC_ROOT"
         ServerSignature off
@@ -174,8 +174,8 @@ If you want to use SSL:
             Allow from all
             Satisfy any
         </Location>
-        ProxyPass / http://127.0.0.1:8131/
-        ProxyPassReverse / http://127.0.0.1:8131/
+        ProxyPass / http://localhost:8131/
+        ProxyPassReverse / http://localhost:8131/
         DocumentRoot $DATA_ROOT/static/
         # the right value is provided by "moneta-ctl config python | grep STATIC_ROOT"
         ServerSignature off

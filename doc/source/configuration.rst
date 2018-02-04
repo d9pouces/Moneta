@@ -82,7 +82,7 @@ Here is the complete list of settings:
   session_duration = 1209600 
   	# Duration of the connection sessions (in seconds, default to 1,209,600 s / 14 days)
   social_providers = github 
-  	# Comma-separated OAuth2 providers, among "paypal","coinbase","draugiem","orcid","bitbucket","fivehundredpx","linkedin_oauth2","fxa","douban","flickr","gitlab","mailchimp","vk","hubic","pinterest","untappd","kakao","edmodo","google","robinhood","asana","github","amazon","soundcloud","bitbucket_oauth2","shopify","reddit","facebook","foursquare","linkedin","basecamp","instagram","tumblr","daum","bitly","feedly","odnoklassniki","discord","evernote","eveonline","spotify","weibo","weixin","xing","dropbox","twitter","dropbox_oauth2","windowslive","naver","twentythreeandme","angellist","stackexchange","vimeo","slack","twitch","digitalocean","stripe","mailru","openid","line","persona","auth0","baidu". "django-allauth" package must be installed.
+  	# Comma-separated OAuth2 providers, among "baidu","angellist","openid","douban","persona","bitbucket","hubic","dropbox","daum","stackexchange","untappd","pinterest","windowslive","google","dropbox_oauth2","fivehundredpx","vk","amazon","line","robinhood","vimeo","eveonline","discord","slack","twentythreeandme","edmodo","asana","soundcloud","weixin","digitalocean","fxa","linkedin","twitter","linkedin_oauth2","auth0","odnoklassniki","bitbucket_oauth2","feedly","basecamp","shopify","mailru","weibo","draugiem","naver","mailchimp","paypal","facebook","gitlab","reddit","spotify","stripe","xing","twitch","orcid","github","kakao","bitly","flickr","coinbase","evernote","tumblr","foursquare","instagram". "django-allauth" package must be installed.
   
   [cache]
   db = 2 

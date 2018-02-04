@@ -4,7 +4,7 @@ Python hosting
 Heroku
 ------
 
-First, you need to prepare your Heroku deployment, with a Redis database for efficient caching:
+First, you need to prepare your Heroku deployment:
 
 .. code-block:: bash
 
@@ -61,6 +61,8 @@ You can now deploy using git:
     heroku create
     # if you prefer SSH, you should use the following line
     heroku create --ssh-git
+    # the metadata feature is required to provide the Heroku app name in the env
+    heroku labs:enable runtime-dyno-metadata
     git push heroku master
 
 You can add a Redis app to use efficient session and cache storages..
@@ -71,11 +73,12 @@ You can add a Redis app to use efficient session and cache storages..
 
 If you do not use Redis for sessions and cache, you must remove `django-redis-sessions` and `django-redis` from your Pipfile.
 
-Once deployed, you can prepare the database or open Python shell:
+Once deployed, you can prepare the database, create an administrator or open Python shell:
 
 .. code-block:: bash
 
     heroku run moneta-ctl migrate
+    heroku run moneta-ctl createsuperuser
     heroku run moneta-ctl shell
 
 Finally, you need to create at least one worker:
