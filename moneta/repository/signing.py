@@ -1,7 +1,12 @@
 import logging
+import platform
+import re
+import shlex
+import subprocess
 from functools import lru_cache
 
 import gnupg
+import os
 import pkg_resources
 # noinspection PyPackageRequirements
 from django.core.signing import Signer, BadSignature
@@ -13,14 +18,43 @@ logger = logging.getLogger('django.requests')
 GPG_CONF_FILENAME = pkg_resources.resource_filename('moneta', 'templates/gpg.conf')
 
 
+class BatchGPG(gnupg.GPG):
+    def __init__(self):
+        # noinspection PyPackageRequirements
+        from django.conf import settings
+        self.patch_gpg_2_1 = False
+        super().__init__(homedir=settings.GNUPG_HOME, binary=settings.GNUPG_PATH, secring='secring.gpg',
+                         keyring='pubring.gpg', use_agent=False, options=['--options', GPG_CONF_FILENAME])
+        matcher = re.match(r'(\d)\.(\d+)\.(\d+)', self.binary_version)
+        if matcher:
+            version = tuple(int(x) for x in matcher.groups())
+            self.patch_gpg_2_1 = version >= (2, 1, 0)
+
+    def _open_subprocess(self, args=None, passphrase=False):
+        if not self.patch_gpg_2_1:
+            return super()._open_subprocess(args=args, passphrase=passphrase)
+        cmd = shlex.split(' '.join(self._make_args(args, passphrase)))
+        if platform.system() == "Windows":
+            # TODO figure out what the hell is going on there.
+            expand_shell = True
+        else:
+            expand_shell = False
+
+        environment = {
+            'LANGUAGE': os.environ.get('LANGUAGE') or 'en',
+            'DISPLAY': os.environ.get('DISPLAY') or '',
+            'GPG_AGENT_INFO': os.environ.get('GPG_AGENT_INFO') or '',
+            'GPG_TTY': os.environ.get('GPG_TTY') or '',
+            'GPG_PINENTRY_PATH': os.environ.get('GPG_PINENTRY_PATH') or '',
+        }
+        return subprocess.Popen(cmd + ['--pinentry-mode', 'loopback'], shell=expand_shell, stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                env=environment)
+
+
 @lru_cache()
 def get_gpg():
-    # noinspection PyPackageRequirements
-    from django.conf import settings
-    gpg = gnupg.GPG(homedir=settings.GNUPG_HOME, binary=settings.GNUPG_PATH,
-                    secring='secring.gpg', keyring='pubring.gpg',
-                    options=['--options', GPG_CONF_FILENAME])
-    return gpg
+    return BatchGPG()
 
 
 class GPGSigner(Signer):
@@ -34,14 +68,16 @@ class GPGSigner(Signer):
         # noinspection PyPackageRequirements
         from django.conf import settings
         # noinspection PyUnresolvedReferences
-        return str(get_gpg().sign(value, default_key=self.key, detach=True, digest_algo=settings.GNUPG_DIGEST_ALGO))
+        return str(get_gpg().sign(value, default_key=self.key, detach=True, digest_algo=settings.GNUPG_DIGEST_ALGO,
+                                  passphrase=settings.GNUPG_PASSPHRASE))
 
     def sign_file(self, fd, detach=True):
         # noinspection PyPackageRequirements
         from django.conf import settings
         # noinspection PyUnresolvedReferences
         return str(get_gpg().sign(fd, default_key=self.key, detach=detach, clearsign=not detach,
-                                  digest_algo=settings.GNUPG_DIGEST_ALGO))
+                                  digest_algo=settings.GNUPG_DIGEST_ALGO,
+                                  passphrase=settings.GNUPG_PASSPHRASE))
 
     def export_key(self):
         # noinspection PyUnresolvedReferences

@@ -15,5 +15,6 @@ INI_MAPPING = BASE_MAPPING + AUTH_MAPPING + ALLAUTH_MAPPING + REDIS_MAPPING + SE
     CharConfigField('gnupg.home', 'GNUPG_HOME', help_str='Path of the GnuPG secret data'),
     CharConfigField('gnupg.keyid', 'GNUPG_KEYID', help_str='ID of the GnuPG key'),
     CharConfigField('gnupg.path', 'GNUPG_PATH', help_str='Path of the gpg binary'),
+    CharConfigField('gnupg.passphrase', 'GNUPG_PASSPHRASE', help_str='Passphrase of the GPG key'),
 
 ]
