@@ -5,5 +5,5 @@
 
 .. image:: _static/apt.png
 
-.. image:: _static/self.png
+.. image:: _static/package.png
 {% endblock %}

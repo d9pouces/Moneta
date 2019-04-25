@@ -1,5 +1,5 @@
-<self pkgid="{{ rpm.checksum }}" name="{{ header.name }}" arch="{{ header.architecture }}">
+<package pkgid="{{ rpm.checksum }}" name="{{ header.name }}" arch="{{ header.architecture }}">
     <version epoch="{{ header.epoch }}" ver="{{ header.version }}" rel="{{ header.release }}"/>
     {% for changelog in rpm.changelog %}<changelog author="{{ changelog.name }}" date="{{ changelog.time }}">{{ changelog.text }}</changelog>
     {% endfor %}
-</self>
+</package>

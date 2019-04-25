@@ -27,8 +27,8 @@
                 <p>{% trans 'Add the following repositories to your pom.xml in the repositories section:' %}</p>
                     <pre>{{ state_info.1 }}</pre>
                 {% if upload_allowed %}
-                    <h2>{% trans 'Add a self' %}</h2>
-            <p>{% trans 'You can add packages by specifying archive (groupId.artifactId, name of the self) and version:' %}</p>
+                    <h2>{% trans 'Add a package' %}</h2>
+            <p>{% trans 'You can add packages by specifying archive (groupId.artifactId, name of the package) and version:' %}</p>
                 <pre>FILENAME=filename-version.XXX
 ARCHIVE=$groupId.$artifactId
 VERSION=$version
