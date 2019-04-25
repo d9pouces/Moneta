@@ -12,7 +12,7 @@
                     {% for element in elements %}
                         <li>{% include 'moneta/element.html' %}</li>
                     {% empty %}
-                        <li><p class="well">{% trans 'No package was found.' %}</p></li>
+                        <li><p class="well">{% trans 'No self was found.' %}</p></li>
                     {% endfor %}
                 </ul>
                 {% bootstrap_pagination_extra elements search=pattern %}

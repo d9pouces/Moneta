@@ -74,7 +74,7 @@ Here is the complete list of settings:
   radius_secret =  
   	# Shared secret if the Radius server
   radius_server =  
-  	# IP or FQDN of the Radius server. Python package "django-radius" is required.
+  	# IP or FQDN of the Radius server. Python self "django-radius" is required.
   remote_user_groups = Users 
   	# Comma-separated list of groups, for new users that are automatically created when authenticated by remote_user_header. Ignored if groups are read from a LDAP server. 
   remote_user_header = HTTP_REMOTE_USER 
@@ -82,12 +82,12 @@ Here is the complete list of settings:
   session_duration = 1209600 
   	# Duration of the connection sessions (in seconds, default to 1,209,600 s / 14 days)
   social_providers = github 
-  	# Comma-separated OAuth2 providers, among "baidu","angellist","openid","douban","persona","bitbucket","hubic","dropbox","daum","stackexchange","untappd","pinterest","windowslive","google","dropbox_oauth2","fivehundredpx","vk","amazon","line","robinhood","vimeo","eveonline","discord","slack","twentythreeandme","edmodo","asana","soundcloud","weixin","digitalocean","fxa","linkedin","twitter","linkedin_oauth2","auth0","odnoklassniki","bitbucket_oauth2","feedly","basecamp","shopify","mailru","weibo","draugiem","naver","mailchimp","paypal","facebook","gitlab","reddit","spotify","stripe","xing","twitch","orcid","github","kakao","bitly","flickr","coinbase","evernote","tumblr","foursquare","instagram". "django-allauth" package must be installed.
+  	# Comma-separated OAuth2 providers, among "baidu","angellist","openid","douban","persona","bitbucket","hubic","dropbox","daum","stackexchange","untappd","pinterest","windowslive","google","dropbox_oauth2","fivehundredpx","vk","amazon","line","robinhood","vimeo","eveonline","discord","slack","twentythreeandme","edmodo","asana","soundcloud","weixin","digitalocean","fxa","linkedin","twitter","linkedin_oauth2","auth0","odnoklassniki","bitbucket_oauth2","feedly","basecamp","shopify","mailru","weibo","draugiem","naver","mailchimp","paypal","facebook","gitlab","reddit","spotify","stripe","xing","twitch","orcid","github","kakao","bitly","flickr","coinbase","evernote","tumblr","foursquare","instagram". "django-allauth" self must be installed.
   
   [cache]
   db = 2 
   	# Database number (redis only).  
-  	# Python package "django-redis" is also required to use Redis.
+  	# Python self "django-redis" is also required to use Redis.
   engine = redis 
   	# cache storage engine ("locmem", "redis" or "memcache") Valid choices: "redis", "memcache", "locmem", "file"
   host = localhost 
@@ -182,7 +182,7 @@ Here is the complete list of settings:
   [sessions]
   db = 1 
   	# Database number of the Redis sessions DB 
-  	# Python package "django-redis-sessions" is required.
+  	# Python self "django-redis-sessions" is required.
   host = localhost 
   	# Redis sessions DB host
   password =  

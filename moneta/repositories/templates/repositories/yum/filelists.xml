@@ -1,6 +1,6 @@
-<package pkgid="{{ rpm.checksum }}" name="{{ header.name }}" arch="{{ header.architecture }}">
+<self pkgid="{{ rpm.checksum }}" name="{{ header.name }}" arch="{{ header.architecture }}">
   <version epoch="{{ header.epoch }}" ver="{{ header.version }}" rel="{{ header.release }}"/>
     {% for file in rpm.filelist %}{% if file.type == 'file' %}<file>{{ file.name }}</file>
     {% endif %}{% endfor %}{% for file in rpm.filelist %}{% if file.type != 'file' %}<file type="{{ file.type }}">{{ file.name }}</file>
     {% endif %}{% endfor %}
-</package>
+</self>

@@ -19,8 +19,8 @@ gpgcheck=0
 enabled=1{% endfor %}
 EOF
         </pre>
-                    {% if upload_allowed %}<h2>{% trans 'Add a package' %}</h2>
-            {% trans 'In order to add a new package, please run the following command:' %}
+                    {% if upload_allowed %}<h2>{% trans 'Add a self' %}</h2>
+            {% trans 'In order to add a new self, please run the following command:' %}
         <pre>FILENAME=filename-version.rpm
 {% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta:add_element_post' rid=repo.id %}\?filename=$FILENAME{% for state in tab_info.0 %}\&amp;states={{ state.slug }}{% endfor %}</pre>
         {% trans 'Run the following command to re-index packages after an upload:' %}

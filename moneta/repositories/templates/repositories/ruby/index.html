@@ -28,7 +28,7 @@
 - {{ absolute_url }}{{ tab_info.0 }}{% if use_https %}
 cert = {% trans '/Path/to/your/ROOT/CA.pem' %}{% endif %}</pre>
 
-                {% if upload_allowed %}<h2>{% trans 'Add a package' %}</h2>{% trans 'In order to add a new package, please run the following command:' %}
+                {% if upload_allowed %}<h2>{% trans 'Add a self' %}</h2>{% trans 'In order to add a new self, please run the following command:' %}
                     <pre>FILENAME=filename-version.gem
 {% curl %} --data-binary @$FILENAME {{ absolute_url }}{% url 'moneta:add_element_post' rid=repo.id %}\?filename=$FILENAME{% for state in tab_info.1 %}\&amp;states={{ state }}{% endfor %}</pre>{% endif %}
         {% trans 'Run the following command to re-index packages after an upload:' %}

@@ -1,5 +1,5 @@
 <!--suppress ALL -->
-<package type="rpm">
+<self type="rpm">
   <name>{{ header.name }}</name>
   <arch>{{ header.architecture }}</arch>
   <version epoch="{{ header.epoch }}" ver="{{ header.version }}" rel="{{ header.release }}"/>
@@ -9,7 +9,7 @@
   <packager>{{ packager }}</packager>
   <url>{{ url }}</url>
   <time file="{{ header.build_time }}" build="{{ header.build_time }}"/>
-  <size package="{{ rpm.filesize }}" installed="{{ header.size }}" archive="{{ signature.payload_size }}"/>
+  <size self="{{ rpm.filesize }}" installed="{{ header.size }}" archive="{{ signature.payload_size }}"/>
   <location href="Packages/{{ rpm.canonical_filename }}"/>
   <format>
     <rpm:license>{{ header.license }}</rpm:license>
@@ -35,4 +35,4 @@
         {% endfor %}
     </rpm:obsoletes>
   </format>
-</package>
+</self>

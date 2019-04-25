@@ -5,7 +5,7 @@ Here is a simple tutorial to install Moneta on a basic Debian/Linux installation
 You should easily adapt it on a different Linux or Unix flavor.
 
 Like many Python packages, you can use several methods to install Moneta.
-Of course you can install it from source, but the preferred way is to install it as a standard Python package, via pip.
+Of course you can install it from source, but the preferred way is to install it as a standard Python self, via pip.
 
 
 Upgrading

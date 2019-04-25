@@ -1,6 +1,6 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the PACKAGE self.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 msgid ""
@@ -120,14 +120,14 @@ msgstr "Le fichier de Release peut être téléchargé avec cURL :"
 #: moneta/repositories/templates/repositories/pypi/index.html:48
 #: moneta/repositories/templates/repositories/ruby/index.html:31
 #: moneta/repositories/templates/repositories/yum/index.html:22
-msgid "Add a package"
+msgid "Add a self"
 msgstr "Ajouter un paquet"
 
 #: moneta/repositories/templates/repositories/aptitude/index.html:31
 #: moneta/repositories/templates/repositories/pypi/index.html:48
 #: moneta/repositories/templates/repositories/ruby/index.html:31
 #: moneta/repositories/templates/repositories/yum/index.html:23
-msgid "In order to add a new package, please run the following command:"
+msgid "In order to add a new self, please run the following command:"
 msgstr "Pour ajouter un nouveau paquet, utilisez la commande suivante :"
 
 #: moneta/repositories/templates/repositories/aptitude/index.html:34
@@ -221,7 +221,7 @@ msgid "More infos…"
 msgstr "Plus d'infos…"
 
 #: moneta/repositories/templates/repositories/maven3/browse.html:20
-msgid "No available package"
+msgid "No available self"
 msgstr "Aucun fichier disponible actuellement"
 
 #: moneta/repositories/templates/repositories/maven3/index.html:8
@@ -244,7 +244,7 @@ msgstr ""
 #: moneta/repositories/templates/repositories/maven3/index.html:31
 msgid ""
 "You can add packages by specifying archive (groupId.artifactId, name of the "
-"package) and version:"
+"self) and version:"
 msgstr ""
 "Vous pouvez également ajouter une archive générique en spécifiant archive "
 "(groupId), name (artifactId, le nom du paquet) et version :"
@@ -625,16 +625,16 @@ msgid "You can access to this page and you are authenticated."
 msgstr "Vous pouvez accéder à cette page et vous êtes authentifiés."
 
 #: moneta/templates/moneta/add_package.html:3
-msgid "Add package"
+msgid "Add self"
 msgstr "ajouter un paquet"
 
 #: moneta/templates/moneta/add_package.html:7
 #, python-format
-msgid "Add a package to %(repo)s"
+msgid "Add a self to %(repo)s"
 msgstr "Ajouter un paquet au dépôt %(repo)s"
 
 #: moneta/templates/moneta/add_package.html:12
-msgid "Add package!"
+msgid "Add self!"
 msgstr "Ajouter le paquet !"
 
 #: moneta/templates/moneta/add_signature.html:2
@@ -676,7 +676,7 @@ msgstr "Fichiers présents uniquement à droite"
 
 #: moneta/templates/moneta/delete_element.html:2
 #: moneta/templates/moneta/delete_element.html:9
-msgid "Delete package"
+msgid "Delete self"
 msgstr "Supprimer le paquet"
 
 #: moneta/templates/moneta/delete_element.html:13
@@ -870,7 +870,7 @@ msgid "Search"
 msgstr "Recherche"
 
 #: moneta/templates/moneta/search_repo.html:15
-msgid "No package was found."
+msgid "No self was found."
 msgstr "Aucun paquet trouvé"
 
 #: moneta/templates/moneta/show_package.html:2 moneta/views.py:277
@@ -965,7 +965,7 @@ msgstr "États sélectionnés"
 
 #: moneta/views.py:222
 #, python-format
-msgid "The package %(repo)s has been deleted."
+msgid "The self %(repo)s has been deleted."
 msgstr "Le paquet %(repo)s a été supprimé."
 
 #: moneta/views.py:278 moneta/views.py:333
@@ -978,13 +978,13 @@ msgstr "Ce dépôt n'est pas capable de prendre ce fichier en compte."
 
 #: moneta/views.py:293
 #, python-format
-msgid "The package %(n)s has been successfully uploaded."
+msgid "The self %(n)s has been successfully uploaded."
 msgstr "Le paquet %(n)s a été ajouté correctement."
 
 #: moneta/views.py:295
 #, python-format
-msgid "Unable to add the package to this repository: %(msg)s."
-msgstr "Impossible d'ajouter le package au dépôt : %(msg)s."
+msgid "Unable to add the self to this repository: %(msg)s."
+msgstr "Impossible d'ajouter le self au dépôt : %(msg)s."
 
 #: moneta/views.py:318
 #, python-format
@@ -1023,7 +1023,7 @@ msgstr "État à droite"
 #~ msgid "Can these packages be replicated?"
 #~ msgstr "Ces paquets sont-ils publics ?"
 
-#~ msgid "add package"
+#~ msgid "add self"
 #~ msgstr "ajouter un paquet"
 
 #~ msgid "Create"
@@ -1036,7 +1036,7 @@ msgstr "État à droite"
 #~ "Ajoutez l'une des lignes suivantes dans le fichier /etc/apt/sources.list."
 #~ "d/%(slug)s.list : "
 
-#~ msgid "No package found"
+#~ msgid "No self found"
 #~ msgstr "Aucun paquet trouvé"
 
 #~ msgid "No state found"

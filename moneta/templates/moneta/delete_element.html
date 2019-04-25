@@ -1,12 +1,12 @@
 {% extends "moneta.html" %}{% load bootstrap3 i18n %}
-{% block bootstrap3_title %}{% trans 'Delete package' %}{% endblock %}
+{% block bootstrap3_title %}{% trans 'Delete self' %}{% endblock %}
 {% block bootstrap3_content %}
     <div class="container">
         <!-- Example row of columns -->
         <div class="row">
             <div class="col-md-12">
                 <h1>{{ repo }}</h1>
-                <h2>{% trans 'Delete package' %}</h2>
+                <h2>{% trans 'Delete self' %}</h2>
                 <form method="post" action="">
                     {% csrf_token %}
                     {% bootstrap_form form %}

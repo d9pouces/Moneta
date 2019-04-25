@@ -38,8 +38,8 @@
             <h3>{% trans 'Files only in the left state' %}</h3>
             <ul class="">
                 {% for name, elt in only_left.items %}
-                    {% for package in elt.1 %}
-                        <li><a href="{{ package.get_absolute_url }}">{{ package.filename }}</a></li>
+                    {% for self in elt.1 %}
+                        <li><a href="{{ self.get_absolute_url }}">{{ self.filename }}</a></li>
                     {% endfor %}
                 {% endfor %}
             </ul>
@@ -51,8 +51,8 @@
             <h3>{% trans 'Files only in the right state' %}</h3>
             <ul class="">
                 {% for name, elt in only_right.items %}
-                    {% for package in elt.1 %}
-                        <li><a href="{{ package.get_absolute_url }}">{{ package.filename }}</a></li>
+                    {% for self in elt.1 %}
+                        <li><a href="{{ self.get_absolute_url }}">{{ self.filename }}</a></li>
                     {% endfor %}
                 {% endfor %}
             </ul>
