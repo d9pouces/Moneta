@@ -14,7 +14,7 @@ from django.core.signing import Signer, BadSignature
 from django.utils.crypto import constant_time_compare
 
 __author__ = 'flanker'
-logger = logging.getLogger('django.requests')
+logger = logging.getLogger('django.request')
 GPG_CONF_FILENAME = pkg_resources.resource_filename('moneta', 'templates/gpg.conf')
 
 
