@@ -17,7 +17,7 @@ from django.conf import settings
 from django.core import exceptions
 from django.http import QueryDict
 from djangofloor.utils import import_module
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 def import_path(middleware_path):

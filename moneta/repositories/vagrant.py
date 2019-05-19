@@ -10,7 +10,7 @@ from django.http import HttpRequest
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from moneta.repositories.base import RepositoryModel
 from moneta.repository.models import ArchiveState, Element, storage

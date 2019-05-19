@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.utils.text import slugify
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 import functools
 from moneta.repository.models import Repository, ElementSignature
 

@@ -41,7 +41,7 @@ URLs to emulate:
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from moneta.repositories.maven3 import Maven3
 from moneta.repository.models import Repository, ArchiveState, Element

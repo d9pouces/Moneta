@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.db.models.signals import pre_delete, post_migrate
 from django.dispatch import receiver
 from django.utils.text import slugify
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from moneta.exceptions import InvalidRepositoryException
 from moneta.repository.storages import BaseStorage
@@ -204,7 +204,7 @@ class Element(BaseModel):
                 filename = os.path.basename(uploaded_file.name)
                 self.set_file(uploaded_file.file, filename)
             except Exception:
-                logger.error(ugettext('Unable to add the archive file'), exc_info=True)
+                logger.error(gettext('Unable to add the archive file'), exc_info=True)
             exceptions = []
             cls = self.repository.get_model()
             if not cls.is_file_valid(uploaded_file):
@@ -237,7 +237,7 @@ class Element(BaseModel):
             if uncompressed_path is not None:  # there are extracted data to store
                 self.uncompressed_key = storage(settings.STORAGE_UNCOMPRESSED).store(self.uuid, uncompressed_path)
         except Exception as e:
-            logging.error(ugettext('Unable to add the archive file'), exc_info=True)
+            logging.error(gettext('Unable to add the archive file'), exc_info=True)
             raise e
         obj_file.seek(0)
         for f in temp_files:

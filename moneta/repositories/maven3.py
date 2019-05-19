@@ -50,7 +50,7 @@ from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from moneta.repositories.aptitude import Aptitude
 from moneta.repositories.base import RepositoryModel
