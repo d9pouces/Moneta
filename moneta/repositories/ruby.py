@@ -366,7 +366,7 @@ class RubyGem(Aptitude):
                 for y in names:
                     file_obj.write(('%s\n' % y).encode('utf-8'))
 
-            self.__write_file(repo, '%s/specs.4.8' % folder_name, lambda x: wr<ite(x, all_elements))
+            self.__write_file(repo, '%s/specs.4.8' % folder_name, lambda x: write(x, all_elements))
             self.__write_file(repo, '%s/latest_specs.4.8' % folder_name, lambda x: write(x, last_elements_by_state))
             self.__write_file(repo, '%s/prerelease_specs.4.8' % folder_name, lambda x: write(x, []))
             self.__write_file(repo, '%s/Marshal.4.8' % folder_name, lambda x: write(x, all_specs))
