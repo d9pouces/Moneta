@@ -254,7 +254,7 @@ msgid "Available pip indexes"
 msgstr "Index pip existants"
 
 #: moneta/repositories/templates/repositories/pypi/index.html:20
-msgid "Modifiy your $HOME/.pip/pip.conf file to use pip:"
+msgid "Modify your $HOME/.pip/pip.conf file to use pip:"
 msgstr "Modifier $HOME/.pip/pip.conf pour utiliser pip :"
 
 #: moneta/repositories/templates/repositories/pypi/index.html:24
@@ -264,7 +264,7 @@ msgid "/Path/to/your/ROOT/CA.pem"
 msgstr "/chemin/vers/votre/CA/racine.pem"
 
 #: moneta/repositories/templates/repositories/pypi/index.html:25
-msgid "Modifiy your $HOME/.pydistutils.cfg file to use easy_install:"
+msgid "Modify your $HOME/.pydistutils.cfg file to use easy_install:"
 msgstr "Modifier $HOME/.pydistutils.cfg pour utiliser easy_install :"
 
 #: moneta/repositories/templates/repositories/pypi/index.html:28
@@ -288,7 +288,7 @@ msgid "Available gem indexes"
 msgstr "Index GEM existants"
 
 #: moneta/repositories/templates/repositories/ruby/index.html:20
-msgid "Modifiy your $HOME/.gemrc:"
+msgid "Modify your $HOME/.gemrc:"
 msgstr "Modifier $HOME/.gemrc"
 
 #: moneta/repositories/templates/repositories/vagrant/index.html:4
