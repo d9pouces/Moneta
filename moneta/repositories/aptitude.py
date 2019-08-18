@@ -352,7 +352,6 @@ class Aptitude(RepositoryModel):
                 # build the following files:
         return hash_controls
 
-    def generate_indexes(self, repository, states=None, validity=365):
         default_architectures = {'amd64', }
         uid = self.storage_uid % repository.id
         repo_slug = repository.slug
